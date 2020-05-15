@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 import os
-import shutil
 from datetime import datetime
-from itertools import cycle
-from random import randint
 from sys import argv
-from time import sleep
 
 import discord
 from discord.ext import commands, tasks
@@ -13,49 +9,41 @@ from discord.ext import commands, tasks
 bot = commands.Bot(command_prefix='/')
 
 
-###### ================================== ######
-######               Events               ######
-###### ================================== ######
-
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Game('being developed'), status=None, afk=False)
     await log('Bot is online')
 
 
-###### ================================== ######
-######              Commands              ######
-###### ================================== ######
+@bot.event
+async def on_command_error(ctx, error):
+    author, message = ctx.author, ctx.message
 
-@bot.command()
-async def load(ctx, extension):
-    bot.load_extension(f'cogs.{extension}')
-    await ctx.send(f'{extension} loaded')
-    log(f'{extension} loaded')
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('Missing required arguement')
+        await ctx.send_help()
 
+    elif isinstance(error, commands.MissingRole):
+        await ctx.send('Missing role')
 
-@bot.command()
-async def unload(ctx, extension):
-    bot.unload_extension(f'cogs.{extension}')
-    await ctx.send(f'{extension} unloaded')
-    log(f'{extension} loaded')
+    elif isinstance(error, commands.CommandInvokeError):
+        cogExists = False
+        cogName = ctx.message.content[ctx.message.content.find(' ') + 1:]
+        for filename in os.listdir('cogs'):
+            if filename.endswith('.py'):
+                if filename[:-3] == cogName:
+                    cogExists = True
+        if cogExists:
+            await ctx.send(f'Cog {cogName} is not loaded')
+        else:
+            await ctx.send(f'Cog {cogName} does not exist')
 
+    elif isinstance(error, commands.CommandNotFound):
+        await ctx.send(error)
 
-@bot.command()
-async def reload(ctx, extension):
-    bot.unload_extension(f'cogs.{extension}')
-    bot.load_extension(f'cogs.{extension}')
-    await ctx.send(f'{extension} reloaded')
-    log(f'{extension} reloaded')
-
-
-###### ================================== ######
-######         Separate Functions         ######
-###### ================================== ######
-
-async def changeStatus(status):
-    print('Changing status')
-    await bot.change_presence(activity=discord.Game(status))
+    else:
+        await ctx.send(f'Unexpected error: {error}')
+        print(error)
 
 
 async def log(string, timestamp=True):
