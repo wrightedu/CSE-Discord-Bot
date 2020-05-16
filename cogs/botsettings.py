@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 
-class StatusControl(commands.Cog):
+class BotSettings(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -23,9 +23,13 @@ class StatusControl(commands.Cog):
             await self.bot.change_presence(activity=discord.Game(status))
             await log(f'Status changed to "{status}"')
 
+    @commands.command()
+    async def ping(self, ctx):
+        await ctx.send(f'{round(self.bot.latency * 1000)} ms')
+
 
 def setup(bot):
-    bot.add_cog(StatusControl(bot))
+    bot.add_cog(BotSettings(bot))
 
 
 async def log(string, timestamp=True):
