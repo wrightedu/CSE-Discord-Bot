@@ -67,7 +67,7 @@ class CogControl(commands.Cog):
         # Check for new cogs
         for file in os.listdir('cogs'):
             if file not in ['cogcontrol.py', 'template.py', '__pycache__']:
-                if file not in self.cogStatus.keys():
+                if file.replace('.py', '') not in self.cogStatus.keys():
                     self.cogStatus[file.replace('.py', '')] = 'unloaded'
 
         # Get list of cogs and status
