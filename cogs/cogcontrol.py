@@ -72,7 +72,7 @@ class CogControl(commands.Cog):
 
         # Get list of cogs and status
         for cog in self.cogStatus.keys():
-            cogs.append(f'{cog} [{self.cogStatus[cog]}]\n')
+            cogs.append(f'{cog} [{self.cogStatus[cog]}]')
 
         cogs.sort()
         await ctx.send(out + '\n'.join(cogs))
