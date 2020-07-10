@@ -35,7 +35,10 @@ class Fun(commands.Cog):
         image = self.images[randint(0, len(images) - 1)]
 
         # Send image
-        await ctx.send(content='Corgi!', file=discord.File(image, filename=image))
+        embed = discord.Embed(title="Title", description="Desc", color=0x00ff00)
+        file = discord.File(image, filename="image.png")
+        embed.set_image(url="attachment://image.png")
+        await ctx.send(file=file, embed=embed)
 
 
 def setup(bot):
