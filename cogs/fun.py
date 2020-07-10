@@ -20,6 +20,7 @@ class Fun(commands.Cog):
     async def corgme(self, ctx):
         # Check if corgis dir exists
         if not exists('corgis'):
+            await ctx.send('One moment, looking for corgis')
             downloader.download('corgi',
                                 limit=100,
                                 output_dir='corgis',
