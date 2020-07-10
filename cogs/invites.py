@@ -58,7 +58,7 @@ class Invites(commands.Cog):
                     await log(f'{purpose} {member} has joined in {channelName} and was given role {roleName}')
 
                     # If new member is a prospective student, automatically say hello
-                    channel = self.bot.client.get_channel(702895094881058896)
+                    channel = discord.Client().get_channel(702895094881058896)
                     await channel.send(f'Hello, {member.mention}')
 
     @commands.Cog.listener()
