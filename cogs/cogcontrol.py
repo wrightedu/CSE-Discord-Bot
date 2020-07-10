@@ -12,8 +12,8 @@ class CogControl(commands.Cog):
 
         # All cogs are loaded by default
         for file in os.listdir('cogs'):
-            if file not in ['cogcontrol', 'template', '__pycache__']:
-                self.cogStatus[file] = 'loaded'
+            if file not in ['cogcontrol.py', 'template.py', '__pycache__']:
+                self.cogStatus[file.replace('.py', '')] = 'loaded'
 
     ###### ================================== ######
     ######              Commands              ######
