@@ -18,7 +18,7 @@ class SupportTickets(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Template(bot))
+    bot.add_cog(SupportTickets(bot))
 
 
 async def log(string, timestamp=True):
