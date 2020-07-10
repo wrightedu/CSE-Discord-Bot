@@ -62,9 +62,20 @@ class CogControl(commands.Cog):
     @commands.has_role('cse-support')
     async def listcogs(self, ctx):
         out = 'Cogs:\n'
+        cogs = []
+
+        # Check for new cogs
+        for file in os.listdir('cogs'):
+            if file not in ['cogcontrol.py', 'template.py', '__pycache__']:
+                if file not in self.cogStatus.keys():
+                    self.cogStatus[file.replace('.py', '')] = 'unloaded'
+
+        # Get list of cogs and status
         for cog in self.cogStatus.keys():
-            out += f'{cog} [{self.cogStatus[cog]}]\n'
-        await ctx.send(out)
+            cogs.append(f'{cog} [{self.cogStatus[cog]}]\n')
+
+        cogs.sort()
+        await ctx.send(out + '\n'.join(cogs))
 
 
 def setup(bot):
