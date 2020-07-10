@@ -14,7 +14,6 @@ class Fun(commands.Cog):
 
         # Check if corgis dir exists
         if not exists('corgis'):
-            await ctx.send('One moment, looking for corgis')
             downloader.download('corgi',
                                 limit=100,
                                 output_dir='corgis',
