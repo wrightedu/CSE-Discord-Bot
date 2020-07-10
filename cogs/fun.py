@@ -18,25 +18,29 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def corgme(self, ctx):
+        # await log('corgme running')
         # Check if corgis dir exists
-        if not exists('corgis'):
-            await ctx.send('One moment, looking for corgis')
-            downloader.download('corgi',
-                                limit=100,
-                                output_dir='corgis',
-                                adult_filter_off=False,
-                                force_replace=False)
+        # if not exists('corgis'):
+        #     await ctx.send('One moment, looking for corgis')
+        #     downloader.download('corgi',
+        #                         limit=100,
+        #                         output_dir='corgis',
+        #                         adult_filter_off=False,
+        #                         force_replace=False)
 
-        # Get images from directory
-        images = []
-        for path in Path('corgis').rglob('*.*'):
-            images.append(path.name)
+        # # Get images from directory
+        # images = []
+        # for path in Path('corgis').rglob('*.*'):
+        #     images.append(path.name)
 
-        # Pick a random image
-        image = images[randint(0, len(images) - 1)]
+        # await log('Picking an image')
+
+        # # Pick a random image
+        # image = images[randint(0, len(images) - 1)]
 
         # Send image
-        await ctx.send(content='Corgi!', file=image)
+        # await ctx.send(content='Corgi!', file=image)
+        await ctx.send('corgi')
 
 
 def setup(bot):
