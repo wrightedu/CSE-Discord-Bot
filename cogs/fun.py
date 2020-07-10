@@ -23,7 +23,7 @@ class Fun(commands.Cog):
         # Get images from directory
         self.images = []
         for path in Path('corgis').rglob('*.*'):
-            images.append(path.name)
+            self.images.append(path.name)
 
     ###### ================================== ######
     ######              Commands              ######
