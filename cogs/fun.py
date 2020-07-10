@@ -36,10 +36,8 @@ class Fun(commands.Cog):
         imagename = image[image.rfind('/') + 1:]
 
         # Send image
-        embed = discord.Embed(title='Title', description='Desc', color=0x00ff00)
         file = discord.File(image, filename=imagename)
-        embed.set_image(url=f'attachment://{imagename}')
-        await ctx.send(file=file, embed=embed)
+        await ctx.send(imagename, file=file)
 
 
 def setup(bot):
