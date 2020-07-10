@@ -8,6 +8,7 @@ from discord.ext import commands
 class CogControl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.cogStatus = {}
 
     ###### ================================== ######
     ######              Commands              ######
@@ -19,6 +20,7 @@ class CogControl(commands.Cog):
         cog = cog.lower()
         if cog != 'cogcontrol':
             self.bot.load_extension(f'cogs.{cog}')
+            self.cogStatus[cog] = 'loaded'
             await ctx.send(f'Loaded cog: {cog}')
             await log(f'Loaded cog: {cog}')
         else:
@@ -30,6 +32,7 @@ class CogControl(commands.Cog):
         cog = cog.lower()
         if cog != 'cogcontrol':
             self.bot.unload_extension(f'cogs.{cog}')
+            self.cogStatus[cog] = 'unloaded'
             await ctx.send(f'Unloaded cog: {cog}')
             await log(f'Unloaded cog: {cog}')
         else:
@@ -53,9 +56,15 @@ class CogControl(commands.Cog):
     @commands.command()
     @commands.has_role('cse-support')
     async def listcogs(self, ctx):
-        for file in os.listdir('cogs'):
-            if file not in ['cogcontrol', 'template']:
-                await ctx.send(file.replace('.py', ''))
+        out = 'Cogs:\n'
+        for cog in self.cogStatus.keys():
+            out += f'{cog} [{self.cogStatus[cog]}]'
+        await ctx.send(out)
+
+        # for file in os.listdir('cogs'):
+        #     if file not in ['cogcontrol', 'template', '__pycache__']:
+        #         cog = self.bot.get_cog(file)
+                # await ctx.send(file.replace('.py', ''))
 
 
 def setup(bot):
