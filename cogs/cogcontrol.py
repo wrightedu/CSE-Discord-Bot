@@ -63,7 +63,7 @@ class CogControl(commands.Cog):
     async def listcogs(self, ctx):
         out = 'Cogs:\n'
         for cog in self.cogStatus.keys():
-            out += f'{cog} [{self.cogStatus[cog]}]'
+            out += f'{cog} [{self.cogStatus[cog]}]\n'
         await ctx.send(out)
 
 
