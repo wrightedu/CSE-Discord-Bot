@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 import discord
@@ -48,6 +49,13 @@ class CogControl(commands.Cog):
             await log(f'Reloaded cog: {cog}')
         else:
             await ctx.send(f'Cog {cog} cannot be reloaded')
+
+    @commands.command()
+    @commands.has_role('cse-support')
+    async def listcogs(self, ctx):
+        for file in os.listdir('cogs'):
+            if file not in ['cogcontrol', 'template']:
+                await ctx.send(file.replace('.py', ''))
 
 
 def setup(bot):
