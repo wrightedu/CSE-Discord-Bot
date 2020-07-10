@@ -10,6 +10,11 @@ class CogControl(commands.Cog):
         self.bot = bot
         self.cogStatus = {}
 
+        # All cogs are loaded by default
+        for file in os.listdir('cogs'):
+            if file not in ['cogcontrol', 'template', '__pycache__']:
+                self.cogStatus[file] = 'loaded'
+
     ###### ================================== ######
     ######              Commands              ######
     ###### ================================== ######
@@ -60,11 +65,6 @@ class CogControl(commands.Cog):
         for cog in self.cogStatus.keys():
             out += f'{cog} [{self.cogStatus[cog]}]'
         await ctx.send(out)
-
-        # for file in os.listdir('cogs'):
-        #     if file not in ['cogcontrol', 'template', '__pycache__']:
-        #         cog = self.bot.get_cog(file)
-                # await ctx.send(file.replace('.py', ''))
 
 
 def setup(bot):
