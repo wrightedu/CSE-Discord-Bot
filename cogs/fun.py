@@ -33,12 +33,10 @@ class Fun(commands.Cog):
     async def corgme(self, ctx):
         # Pick a random image
         image = self.images[randint(0, len(images) - 1)]
-        imagename = image[image.rfind('/') + 1:]
 
         # Send image
         with open(image, 'rb') as im:
-            file = discord.File(im, filename=imagename)
-            await ctx.send(imagename, file=file)
+            await ctx.send(file=discord.File(im))
 
 
 def setup(bot):
