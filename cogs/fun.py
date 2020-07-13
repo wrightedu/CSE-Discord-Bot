@@ -35,8 +35,7 @@ class Fun(commands.Cog):
         image = self.images[randint(0, len(images) - 1)]
 
         # Send image
-        with open(image, 'rb') as im:
-            await ctx.send(file=discord.File(im))
+        await ctx.send(file=discord.File(image))
 
 
 def setup(bot):
