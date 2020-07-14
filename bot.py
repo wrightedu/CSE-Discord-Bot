@@ -6,11 +6,13 @@ from os.path import exists
 from pathlib import Path
 from random import randint
 from sys import argv
-from time import sleep
+from time import sleep, time
 
 import discord
 from bing_image_downloader import downloader
 from discord.ext import commands
+
+from diceParser import parse
 
 ##### ======= #####
 ##### GLOBALS #####
@@ -19,6 +21,7 @@ client = discord.Client()
 client = commands.Bot(command_prefix='/')
 invites = {}
 invites_json = None
+start_time = time()
 
 
 ##### =========== #####
@@ -40,6 +43,9 @@ async def on_ready():
     # Show the bot as online
     await client.change_presence(activity=discord.Game('Refactoring...'), status=None, afk=False)
     await log('Bot is online')
+
+    # Print startup duration
+    await log(f'Started in {round(time() - start_time, 1)} seconds')
 
 
 @client.event
@@ -100,7 +106,7 @@ async def support(ctx):
 
 
 @client.command()
-async def corgme(ctx):
+async def corgme(ctx, number=-1):
     # Check if corgis dir exists
     if not exists('corgis'):
         downloadcorgis(100)
@@ -111,7 +117,10 @@ async def corgme(ctx):
         images.append('corgis/corgi/' + path.name)
 
     # Pick a random image
-    image = images[randint(0, len(images) - 1)]
+    if number != -1 and (0 < number < len(images)):
+        image = images[number]
+    else:
+        image = images[randint(0, len(images) - 1)]
 
     # Send image
     await ctx.send(file=discord.File(image))
@@ -137,6 +146,60 @@ async def poll(ctx, question, *options: str):
     react_message = await ctx.send(embed=embed)
     for reaction in reactions[:len(options)]:
         await react_message.add_reaction(reaction)
+
+
+@client.command()
+async def helloworld(ctx, language='random'):
+    outputs = {'python': '```python\nprint("Hello World!")```',
+               'c++': '```c++\n#include <iostream>\n\nint main() {\n    std::cout << "Hello world!" << std::endl;\n}```',
+               'java': '```java\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println("Hello world!");\n    }\n}```',
+               'c': '```c\n#include <stdio.h>\n\nint main() {\n    printf("Hello world!\\n");\n    return 0;\n}```',
+               'bash': '```bash\necho "Hello world!"```',
+               'javascript': '```javascript\nconsole.log("Hello world!");```',
+               'brainfuck': '```\n++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.```',
+               'rust': '```rust\nfn main() {\n    println!("Hello World!");\n}```',
+               'matlab': '```matlab\ndisp(\'hello world\')```',
+               'html': '```html\n<!DOCTYPE html>\n\n<html>\n  <head>\n    <title>Hello world!</title>\n    <meta charset="utf-8" />\n  </head>\n\n  <body>\n    <p>Wait a minute. This isn\'t a programming language!</p>\n  </body>\n</html>```',
+               'csharp': '```csharp\nnamespace CSEBot {\n    class HelloWorld {\n        static void Main(string[] args) {\n            System.Console.WriteLine("Hello World!");\n        }\n    }\n}```',
+               'vb': '```vb\nImports System\n\nModule Module1\n    Sub Main()\n        Console.WriteLine("Hello World!")\n        Console.WriteLine("Press Enter Key to Exit.")\n        Console.ReadLine()\n    End Sub\nEnd Module```',
+               'r': '```r\nprint("Hello World!", quote = FALSE)```',
+               'go': '```go\npackage main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello world!")\n}```',
+               'swift': '```swift\nimport Swift\nprint("Hello world!")```',
+               'haskell': '```haskell\nmodule Main where\nmain = putStrLn "Hello World"```',
+               'befunge': '```befunge\n64+"!dlrow olleH">:#,_@````',
+               'perl': '```perl\nprint "Hello world!"```',
+               'php': '```php\n<?php\necho \'Hello World\';\n?>```',
+               'lisp': '```lisp\n(DEFUN hello ()\n  (PRINT (LIST \'HELLO \'WORLD))\n)\n(hello)```',
+               'basic': '```basic\n10 PRINT "Hello World"\n20 END```',
+               'cobol': '```cobol\n       identification division.\n       program-id. cobol.\n       procedure division.\n       main.\n           display \'Hello world!\' end-display.\n           stop run.```'}
+
+    # If invalid input, make it random
+    language = language.lower()
+    if language != 'random' and language not in outputs.keys():
+        language = 'random'
+
+    # If random, pick random language
+    if language == 'random':
+        languages = [i for i in outputs.keys()]
+        language = languages[randint(0, len(languages) - 1)]
+
+    await ctx.send(f'{language}\n{outputs[language]}')
+
+
+@client.command()
+async def roll(ctx, *options):
+    # Credit goes to Alan Fleming for the module that powers this command
+    # https://github.com/AlanCFleming/DiceParser
+    if len(options) > 0:
+        try:
+            dice = ' '.join(options)
+            output = parse(dice)
+            if len(output[0]) > 100:
+                await ctx.send(output[1])
+            else:
+                await ctx.send(f'{output[0]}\n{output[1]}')
+        except Exception:
+            await ctx.send('Invalid input')
 
 
 ##### ============== #####
