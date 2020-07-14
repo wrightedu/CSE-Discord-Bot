@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import json
 import os
+import random
 from datetime import datetime
 from os.path import exists
 from pathlib import Path
@@ -41,7 +42,7 @@ async def on_ready():
     await log('JSON loaded')
 
     # Show the bot as online
-    await client.change_presence(activity=discord.Game('Refactoring...'), status=None, afk=False)
+    await client.change_presence(activity=discord.Game('Raider Up!'), status=None, afk=False)
     await log('Bot is online')
 
     # Print startup duration
@@ -130,6 +131,7 @@ async def corgme(ctx, number=-1):
 async def poll(ctx, question, *options: str):
     # Need between 2 and 10 options for a poll
     if not (1 < len(options) <= 10):
+        await ctx.send('Enter between 2 and 10 answers')
         return
 
     # Define reactions
@@ -156,7 +158,7 @@ async def helloworld(ctx, language='random'):
                'c': '```c\n#include <stdio.h>\n\nint main() {\n    printf("Hello world!\\n");\n    return 0;\n}```',
                'bash': '```bash\necho "Hello world!"```',
                'javascript': '```javascript\nconsole.log("Hello world!");```',
-               'brainfuck': '```\n++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.```',
+               'brainf': '```\n++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.```',
                'rust': '```rust\nfn main() {\n    println!("Hello World!");\n}```',
                'matlab': '```matlab\ndisp(\'hello world\')```',
                'html': '```html\n<!DOCTYPE html>\n\n<html>\n  <head>\n    <title>Hello world!</title>\n    <meta charset="utf-8" />\n  </head>\n\n  <body>\n    <p>Wait a minute. This isn\'t a programming language!</p>\n  </body>\n</html>```',
@@ -166,12 +168,20 @@ async def helloworld(ctx, language='random'):
                'go': '```go\npackage main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello world!")\n}```',
                'swift': '```swift\nimport Swift\nprint("Hello world!")```',
                'haskell': '```haskell\nmodule Main where\nmain = putStrLn "Hello World"```',
-               'befunge': '```befunge\n64+"!dlrow olleH">:#,_@````',
+               'befunge': '```befunge\n64+"!dlrow olleH">:#,_@```',
                'perl': '```perl\nprint "Hello world!"```',
                'php': '```php\n<?php\necho \'Hello World\';\n?>```',
                'lisp': '```lisp\n(DEFUN hello ()\n  (PRINT (LIST \'HELLO \'WORLD))\n)\n(hello)```',
                'basic': '```basic\n10 PRINT "Hello World"\n20 END```',
                'cobol': '```cobol\n       identification division.\n       program-id. cobol.\n       procedure division.\n       main.\n           display \'Hello world!\' end-display.\n           stop run.```'}
+
+    # List languages
+    if language == 'ls':
+        languages = [i for i in outputs.keys()]
+        languages.sort()
+        languages = '\n'.join(languages)
+        await ctx.send(f'I know:\n{languages}')
+        return
 
     # If invalid input, make it random
     language = language.lower()
@@ -181,7 +191,7 @@ async def helloworld(ctx, language='random'):
     # If random, pick random language
     if language == 'random':
         languages = [i for i in outputs.keys()]
-        language = languages[randint(0, len(languages) - 1)]
+        language = random.choice(languages)
 
     await ctx.send(f'{language}\n{outputs[language]}')
 
@@ -190,9 +200,9 @@ async def helloworld(ctx, language='random'):
 async def roll(ctx, *options):
     # Credit goes to Alan Fleming for the module that powers this command
     # https://github.com/AlanCFleming/DiceParser
-    if len(options) > 0:
+    dice = ' '.join(options)
+    if 0 < len(dice) < 20 and dice.find('d') < 5:
         try:
-            dice = ' '.join(options)
             output = parse(dice)
             if len(output[0]) > 100:
                 await ctx.send(output[1])
@@ -200,6 +210,8 @@ async def roll(ctx, *options):
                 await ctx.send(f'{output[0]}\n{output[1]}')
         except Exception:
             await ctx.send('Invalid input')
+    else:
+        await ctx.send('Too large of an input')
 
 
 ##### ============== #####
