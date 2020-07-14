@@ -12,7 +12,6 @@ import discord
 from bing_image_downloader import downloader
 from discord.ext import commands
 
-
 ##### ======= #####
 ##### GLOBALS #####
 ##### ======= #####
@@ -62,29 +61,9 @@ async def on_command_error(ctx, error):
         print(error)
 
 
-##### ================ #####
-##### GENERAL COMMANDS #####
-##### ================ #####
-@client.command()
-@commands.has_role('cse-support')
-async def status(ctx, *, status):
-    status = status.strip()
-    if status.lower() == 'none':
-        await client.change_presence(activity=None)
-        await log(f'Custom status disabled')
-    elif len(status) <= 128:
-        await client.change_presence(activity=discord.Game(status))
-        await log(f'Status changed to "{status}"')
-
-
-@client.command()
-async def ping(ctx):
-    await ctx.send(f'{round(client.latency * 1000)} ms')
-
-
-##### ======= #####
-##### INVITES #####
-##### ======= #####
+##### ================= #####
+##### INVITE MANAGEMENT #####
+##### ================= #####
 @client.event
 async def on_member_join(member):
     invites_before_join = invites[member.guild.id]
@@ -138,6 +117,28 @@ async def corgme(ctx):
     await ctx.send(file=discord.File(image))
 
 
+@client.command()
+async def poll(ctx, question, *options: str):
+    # Need between 2 and 10 options for a poll
+    if not (1 < len(options) <= 10):
+        return
+
+    # Define reactions
+    if len(options) == 2 and options[0] == 'yes' and options[1] == 'no':
+        reactions = ['✅', '❌']
+    else:
+        reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
+
+    description = []
+    for i, option in enumerate(options):
+        description += '\n {} {}'.format(reactions[i], option)
+    embed = discord.Embed(title=question, description=''.join(description))
+
+    react_message = await ctx.send(embed=embed)
+    for reaction in reactions[:len(options)]:
+        await react_message.add_reaction(reaction)
+
+
 ##### ============== #####
 ##### ADMIN COMMANDS #####
 ##### ============== #####
@@ -170,6 +171,23 @@ async def downloadcorgis(ctx, amount):
                         output_dir='corgis',
                         adult_filter_off=False,
                         force_replace=False)
+
+
+@client.command()
+@commands.has_role('cse-support')
+async def status(ctx, *, status):
+    status = status.strip()
+    if status.lower() == 'none':
+        await client.change_presence(activity=None)
+        await log(f'Custom status disabled')
+    elif len(status) <= 128:
+        await client.change_presence(activity=discord.Game(status))
+        await log(f'Status changed to "{status}"')
+
+
+@client.command()
+async def ping(ctx):
+    await ctx.send(f'{round(client.latency * 1000)} ms')
 
 
 ##### ================= #####
