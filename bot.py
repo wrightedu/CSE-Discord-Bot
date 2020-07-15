@@ -23,6 +23,7 @@ client = commands.Bot(command_prefix='/')
 invites = {}
 invites_json = None
 reaction_roles = None
+reaction_message_ids = []
 start_time = time()
 
 
@@ -106,32 +107,53 @@ async def on_member_join(member):
 
 @client.event
 async def on_raw_reaction_add(payload):
-    await log('reaction add detected')
-    if payload.message_id == 733007585866809354:
-        # Find a role corresponding to the emoji name.
+    if payload.message_id in reaction_message_ids:
+        # Get CSE guild
         guild_id = payload.guild_id
         guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
-        role = discord.utils.find(lambda r: r.name == payload.emoji.name, guild.roles)
+
+        # Find a role corresponding to the emoji name.
+        classes = []
+        for key in reaction_roles.keys():
+            for key1 in reaction_roles[key].keys():
+                classes.append(reaction_roles[key][key1])
+        role = None
+        for _class in classes:
+            emoji = f':{_class["emoji"]}:'
+            if emoji in str(payload.emoji):
+                role = discord.utils.find(lambda r: r.name == _class['role'], guild.roles)
 
         # If role found, assign it
         if role is not None:
             member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
             await member.add_roles(role)
+            await dm(member, f'Welcome to {role}!')
             await log(f'Assigned role {role} to {member}')
 
 
 @client.event
 async def on_raw_reaction_remove(payload):
-    if payload.message_id == 733007585866809354:
-        # Find a role corresponding to the emoji name
+    if payload.message_id in reaction_message_ids:
+        # Get CSE guild
         guild_id = payload.guild_id
         guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
-        role = discord.utils.find(lambda r: r.name == payload.emoji.name, guild.roles)
+
+        # Find a role corresponding to the emoji name.
+        classes = []
+        for key in reaction_roles.keys():
+            for key1 in reaction_roles[key].keys():
+                classes.append(reaction_roles[key][key1])
+        role = None
+        for _class in classes:
+            emoji = f':{_class["emoji"]}:'
+            if emoji in str(payload.emoji):
+                role = discord.utils.find(lambda r: r.name == _class['role'], guild.roles)
 
         # If role found, take it
         if role is not None:
             member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
             await member.remove_roles(role)
+            await dm(member, f'We\'ve taken you out of {role}')
             await log(f'Took role {role} from {member}')
 
 
@@ -304,12 +326,18 @@ async def ping(ctx):
 
 @client.command()
 @commands.has_role('cse-support')
-async def rolemenu(ctx):
+async def rolemenu(ctx, clear=''):
     def get_emoji(emoji_name):
         emoji = discord.utils.get(client.emojis, name=emoji_name)
         if emoji is not None:
             return emoji
         return f':{emoji_name}:'
+
+    # Clear 1 or all messages in channel, depending on parameters
+    if clear == 'clear':
+        await ctx.channel.purge(limit=99999999999)
+    else:
+        await ctx.channel.purge(limit=1)
 
     # Generate list of menus to iterate through when sending messages
     menus = []
@@ -321,16 +349,16 @@ async def rolemenu(ctx):
         message = f'**{menu[0]}**\n'
         for option_name in menu[1].keys():
             emoji = str(get_emoji(menu[1][option_name]['emoji']))
-            message += f'{emoji} : {option_name}\n'
+            message += f'{emoji} `{option_name}`\n'
         reaction_message = await ctx.send(message)
 
         # React to menu
         for option_name in menu[1].keys():
             emoji = get_emoji(menu[1][option_name]['emoji'])
-            await log(emoji)
-            await log(type(emoji))
-
             await reaction_message.add_reaction(emoji)
+
+        # Put reaction message ids in global list
+        reaction_message_ids.append(reaction_message.id)
 
 
 ##### ================= #####
@@ -346,6 +374,11 @@ def find_invite_by_code(invite_list, code):
     for invite in invite_list:
         if invite.code == code:
             return invite
+
+
+async def dm(member, content):
+    channel = await member.create_dm()
+    await channel.send(content)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,18 @@
+{
+    "Computer Science": {
+        "CS 1180 (Computer Science I)": {
+            "role": "CS 1180",
+            "emoji": "arch"
+        },
+        "CS 1181 (Computer Science II)": {
+            "role": "CS 1181",
+            "emoji": "ubuntuLogo"
+        }
+    },
+    "Computer Engineering": {
+        "CEG 3310 (Computer Organization)": {
+            "role": "CEG 3310",
+            "emoji": "debian"
+        }
+    }
+}
