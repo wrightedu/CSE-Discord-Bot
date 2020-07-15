@@ -46,9 +46,12 @@ async def on_ready():
     await log('Invites synced')
 
     # Load reaction roles JSON
-    with open('reaction_roles.json', 'r') as f:
-        reaction_roles = json.loads(f.read())
-    await log('Reaction roles JSON loaded')
+    if os.path.exists('reaction_roles.json'):
+        with open('reaction_roles.json', 'r') as f:
+            reaction_roles = json.loads(f.read())
+        await log('Reaction roles JSON loaded')
+    else:
+        await log('No reaction roles JSON found')
 
     # Show the bot as online
     await client.change_presence(activity=discord.Game('Raider Up!'), status=None, afk=False)
@@ -327,17 +330,48 @@ async def ping(ctx):
 @client.command()
 @commands.has_role('cse-support')
 async def rolemenu(ctx, clear=''):
-    def get_emoji(emoji_name):
-        emoji = discord.utils.get(client.emojis, name=emoji_name)
-        if emoji is not None:
-            return emoji
-        return f':{emoji_name}:'
+    global reaction_roles
+
+    # Read JSON file attached to message
+    if len(ctx.message.attachments) > 0:
+        try:
+            os.remove('reaction_roles.json')
+        except FileNotFoundError:
+            pass
+        await ctx.message.attachments[0].save('reaction_roles.json')
+    try:
+        with open('reaction_roles.json', 'r') as f:
+            reaction_roles = json.loads(f.read())
+        await log('Reaction roles JSON loaded')
+    except FileNotFoundError:
+        await ctx.send('Missing reaction roles JSON')
+        return
 
     # Clear 1 or all messages in channel, depending on parameters
     if clear == 'clear':
         await ctx.channel.purge(limit=99999999999)
     else:
         await ctx.channel.purge(limit=1)
+
+    # Create the role menu
+    await create_role_menu(ctx)
+
+
+##### ================= #####
+##### UTILITY FUNCTIONS #####
+##### ================= #####
+async def log(string, timestamp=True):
+    if timestamp:
+        print(f'[{str(datetime.now())[:-7]}]', end=' ')
+    print(string)
+
+
+async def create_role_menu(ctx):
+    def get_emoji(emoji_name):
+        emoji = discord.utils.get(client.emojis, name=emoji_name)
+        if emoji is not None:
+            return emoji
+        return f':{emoji_name}:'
 
     # Generate list of menus to iterate through when sending messages
     menus = []
@@ -359,15 +393,6 @@ async def rolemenu(ctx, clear=''):
 
         # Put reaction message ids in global list
         reaction_message_ids.append(reaction_message.id)
-
-
-##### ================= #####
-##### UTILITY FUNCTIONS #####
-##### ================= #####
-async def log(string, timestamp=True):
-    if timestamp:
-        print(f'[{str(datetime.now())[:-7]}]', end=' ')
-    print(string)
 
 
 def find_invite_by_code(invite_list, code):
