@@ -22,6 +22,7 @@ client = discord.Client()
 client = commands.Bot(command_prefix='/')
 invites = {}
 invites_json = None
+reaction_roles = None
 start_time = time()
 
 
@@ -31,15 +32,22 @@ start_time = time()
 @client.event
 async def on_ready():
     global invites_json
+    global reaction_roles
+
+    # Load invites JSON
+    with open('invites.json', 'r') as f:
+        invites_json = json.loads(f.read())
+    await log('Invites JSON loaded')
+
     # Get invite links
     for guild in client.guilds:
         invites[guild.id] = await guild.invites()
     await log('Invites synced')
 
-    # Load JSON
-    with open('invites.json', 'r') as f:
-        invites_json = json.loads(f.read())
-    await log('JSON loaded')
+    # Load reaction roles JSON
+    with open('reaction_roles.json', 'r') as f:
+        reaction_roles = json.loads(f.read())
+    await log('Reaction roles JSON loaded')
 
     # Show the bot as online
     await client.change_presence(activity=discord.Game('Raider Up!'), status=None, afk=False)
@@ -68,9 +76,9 @@ async def on_command_error(ctx, error):
         print(error)
 
 
-##### ================= #####
-##### INVITE MANAGEMENT #####
-##### ================= #####
+##### ================== #####
+##### MEMEBER MANAGEMENT #####
+##### ================== #####
 @client.event
 async def on_member_join(member):
     invites_before_join = invites[member.guild.id]
@@ -79,8 +87,6 @@ async def on_member_join(member):
     # Figure out which invite link was used
     for invite in invites_before_join:
         if invite.uses < find_invite_by_code(invites_after_join, invite.code).uses:
-            await log(f'Member {member.name} joined')
-            await log(f'Invite Code: {invite.code}')
             invites[member.guild.id] = invites_after_join
 
             # Assign role (and notify if prospective student)
@@ -96,6 +102,37 @@ async def on_member_join(member):
                     channel = client.get_channel(702895094881058896)
                     await channel.send(f'Hello, {member.mention}')
             break
+
+
+@client.event
+async def on_raw_reaction_add(payload):
+    await log('reaction add detected')
+    if payload.message_id == 733007585866809354:
+        # Find a role corresponding to the emoji name.
+        guild_id = payload.guild_id
+        guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
+        role = discord.utils.find(lambda r: r.name == payload.emoji.name, guild.roles)
+
+        # If role found, assign it
+        if role is not None:
+            member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+            await member.add_roles(role)
+            await log(f'Assigned role {role} to {member}')
+
+
+@client.event
+async def on_raw_reaction_remove(payload):
+    if payload.message_id == 733007585866809354:
+        # Find a role corresponding to the emoji name
+        guild_id = payload.guild_id
+        guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
+        role = discord.utils.find(lambda r: r.name == payload.emoji.name, guild.roles)
+
+        # If role found, take it
+        if role is not None:
+            member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+            await member.remove_roles(role)
+            await log(f'Took role {role} from {member}')
 
 
 ##### ================ #####
@@ -263,6 +300,37 @@ async def status(ctx, *, status):
 @client.command()
 async def ping(ctx):
     await ctx.send(f'{round(client.latency * 1000)} ms')
+
+
+@client.command()
+@commands.has_role('cse-support')
+async def rolemenu(ctx):
+    def get_emoji(emoji_name):
+        emoji = discord.utils.get(client.emojis, name=emoji_name)
+        if emoji is not None:
+            return emoji
+        return f':{emoji_name}:'
+
+    # Generate list of menus to iterate through when sending messages
+    menus = []
+    for key in reaction_roles.keys():
+        menus.append((key, reaction_roles[key]))
+
+    # Send menus
+    for menu in menus:
+        message = f'**{menu[0]}**\n'
+        for option_name in menu[1].keys():
+            emoji = str(get_emoji(menu[1][option_name]['emoji']))
+            message += f'{emoji} : {option_name}\n'
+        reaction_message = await ctx.send(message)
+
+        # React to menu
+        for option_name in menu[1].keys():
+            emoji = get_emoji(menu[1][option_name]['emoji'])
+            await log(emoji)
+            await log(type(emoji))
+
+            await reaction_message.add_reaction(emoji)
 
 
 ##### ================= #####
