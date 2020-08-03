@@ -98,7 +98,7 @@ async def on_member_join(member):
                 if invite.code in link:
                     role = discord.utils.get(member.guild.roles, id=invites_json[link]['roleID'])
                     await member.add_roles(role)
-                    await log(f'{invites_json[link]["purpose"]} {member.name} has joined')
+                    await log(f'{invites_json[link]["purpose"]} {member.name} has joined ({link})')
 
                     # If prospective student, message in Prospective Student General
                     prospective_student_general_channel_id = 702895094881058896
@@ -355,6 +355,25 @@ async def rolemenu(ctx, clear=''):
 
     # Create the role menu
     await create_role_menu(ctx)
+
+
+@client.command()
+@commands.has_role('cse-support')
+async def clearrole(ctx, *, role_id):
+    guild = ctx.guild
+    role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
+
+    cleared_members = []
+
+    for member in role.members:
+        await member.remove_roles(role)
+        await log(f'Removed @{role} from {member}')
+        cleared_members.append(member.nick)
+
+    if len(cleared_members) > 10:
+        await ctx.send(f'Cleared @{role} from {len(cleared_members)} members')
+    else:
+        await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
 
 
 ##### ================= #####
