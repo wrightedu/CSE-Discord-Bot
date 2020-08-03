@@ -372,6 +372,8 @@ async def clearrole(ctx, *, role_id):
 
     if len(cleared_members) > 10:
         await ctx.send(f'Cleared @{role} from {len(cleared_members)} members')
+    elif len(cleared_members) == 0:
+        await ctx.send(f'No members have the role @{role}')
     else:
         await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
 
