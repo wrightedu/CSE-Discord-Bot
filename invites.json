@@ -12,5 +12,12 @@
         "roleName": "prospective",
         "channelID": 694176996204216360,
         "channelName": "welcome-readme"
+    },
+    "https://discord.gg/ks3pV7G": {
+        "purpose": "Student",
+        "roleID": 687725488424222809,
+        "roleName": "student",
+        "channelID": 694176996204216360,
+        "channelName": "welcome-readme"
     }
 }

@@ -101,10 +101,11 @@ async def on_member_join(member):
                     await log(f'{invites_json[link]["purpose"]} {member.name} has joined')
 
                     # If prospective student, message in Prospective Student General
-                    prospective_student_general_channel_id = 702895094881058896
-                    prospective_student_general_channel = client.get_channel(prospective_student_general_channel_id)
-                    channel = client.get_channel(702895094881058896)
-                    await channel.send(f'Hello, {member.mention}')
+                    if invites_json[link]['purpose'] == 'Prospective student':
+                        prospective_student_general_channel_id = 702895094881058896
+                        prospective_student_general_channel = client.get_channel(prospective_student_general_channel_id)
+                        channel = client.get_channel(702895094881058896)
+                        await channel.send(f'Hello, {member.mention}')
             break
 
 
