@@ -1,18 +1,227 @@
 {
-    "Computer Science": {
-        "CS 1181 (Computer Science II)": {
-            "role": "cs-1181",
-            "emoji": "arch"
+    "Computer Engineering Undergraduate Courses": {
+        "CEG 2170 (Intro to C Programming)": {
+            "role": "CEG 2170",
+            "emoji": "cLogo"
         },
-        "CS 3100 (Data Structures and Algorithms": {
-            "role": "cs-3100",
-            "emoji": "coffee"
+        "CEG 2350 (OS Concepts and Usage)": {
+            "role": "CEG 2350",
+            "emoji": "tux"
+        },
+        "CEG 2400 (Intro to Networking)": {
+            "role": "CEG 2400",
+            "emoji": "it"
+        },
+        "CEG 2410 (System Administration)": {
+            "role": "CEG 2410",
+            "emoji": "starTrek"
+        },
+        "CEG 3110 (Intro to Software Testing)": {
+            "role": "CEG 3110",
+            "emoji": "tester"
+        },
+        "CEG 3120 (Intro to the Design of IT Systems)": {
+            "role": "CEG 3120",
+            "emoji": "ethernet"
+        },
+        "CEG 3310 (Computer Org)": {
+            "role": "CEG 3310",
+            "emoji": "microprocessor"
+        },
+        "CEG 3320 (Digital System Design)": {
+            "role": "CEG 3320",
+            "emoji": "and"
+        },
+        "CEG 3400 (Intro to Cyber Security)": {
+            "role": "CEG 3400",
+            "emoji": "cybersecurity"
+        },
+        "CEG 3410 (Into to Digital Forensics)": {
+            "role": "CEG 3410",
+            "emoji": "digital_forensics"
+        },
+        "CEG 4110 (Intro to Software Engineering)": {
+            "role": "CEG 4110",
+            "emoji": "softwareEngineering"
+        },
+        "CEG 4230 (Intro to Robotics)": {
+            "role": "CEG 4230",
+            "emoji": "lilRobot"
+        },
+        "CEG 4322 (VLSIC Design)": {
+            "role": "CEG 4322",
+            "emoji": "wafer"
+        },
+        "CEG 4324 (Digital Integrated Circuit Design)": {
+            "role": "CEG 4324",
+            "emoji": "rom"
+        },
+        "CEG 4330 (Microprocessor Based Embedded Systems)": {
+            "role": "CEG 4330",
+            "emoji": "circuit"
+        },
+        "CEG 4350 (OS Internals and Design)": {
+            "role": "CEG 4350",
+            "emoji": "debian"
+        },
+        "CEG 4420 (Host Computer Security)": {
+            "role": "CEG 4420",
+            "emoji": "host_computer_security"
+        },
+        "CEG 4422 (Secure Computing Practices)": {
+            "role": "CEG 4422",
+            "emoji": "vpn"
+        },
+        "CEG 4430 (Cyber Network Security)": {
+            "role": "CEG 4430",
+            "emoji": "networkSecurity"
+        },
+        "CEG 4500 (Computer Graphics)": {
+            "role": "CEG 4500",
+            "emoji": "steve"
         }
     },
-    "Computer Engineering": {
-        "CEG 3310 (Computer Organization)": {
-            "role": "ceg-3310",
-            "emoji": "debian"
+    "Computer Engineering Graduate Courses": {
+        "CEG 6900 (Computer Research Experience)": {
+            "role": "Research Experience",
+            "emoji": "computing_research_experience"
+        },"CEG 7030 (VLSI Design Synthesis and Optimization)": {
+            "role": "CEG 7030",
+            "emoji": "tsmc"
+        },"CEG 7370 (Distributed Computing)": {
+            "role": "CEG 7370",
+            "emoji": "distributed_computing"
+        },"CEG 7380 (Cloud Computing)": {
+            "role": "CEG 7380",
+            "emoji": "aws"
+        },"CEG 7450 (Advanced Computer Networks)": {
+            "role": "CEG 7450",
+            "emoji": "network"
+        }
+    },
+    "Computer Science Undergraduate Courses (1000-2800)": {
+        "CS 1000 (Tech and Society)": {
+            "role": "CS 1000",
+            "emoji": "tech_and_society"
+        },
+        "CS 1030 (Survey of CS and CEG)": {
+            "role": "CS 1030",
+            "emoji": "cs_ceg_survey"
+        },
+        "CS 1150 (Intro to Computer Science)": {
+            "role": "CS 1150",
+            "emoji": "intro_to_computer_science"
+        },
+        "CS 1160 (Intro to Computer Programming)": {
+            "role": "CS 1160",
+            "emoji": "python"
+        },
+        "CS 1180 (Computer Science I)": {
+            "role": "CS 1180",
+            "emoji": "java"
+        },
+        "CS 1181 (Computer Science II)": {
+            "role": "CS 1181",
+            "emoji": "java_2"
+        },
+        "CS 1200 (Intro to Discrete Structures)": {
+            "role": "CS 1200",
+            "emoji": "discrete_structures"
+        },
+        "CS 2200 (Discrete Structures and Their Algorithms)": {
+            "role": "CS 2200",
+            "emoji": "facepalm"
+        },
+        "CS 2800 (Web Dev I)": {
+            "role": "CS 2800",
+            "emoji": "html"
+        }
+    },
+    "Computer Science Undergraduate Courses (3100-4850)": {
+        "CS 3100 (Data Structures and Algorithms)": {
+            "role": "CS 3100",
+            "emoji": "tree"
+        },
+        "CS 3170 (Mobile App Development)": {
+            "role": "CS 3170",
+            "emoji": "android"
+        },
+        "CS 3180 (Comparative Languages)": {
+            "role": "CS 3180",
+            "emoji": "comparative_languages"
+        },
+        "CS 3200 (Theoretical Foundations of Computing)": {
+            "role": "CS 3200",
+            "emoji": "mac"
+        },
+        "CS 3260 (Numerical Methods for Computer Science)": {
+            "role": "CS 3260",
+            "emoji": "slide_rule"
+        },
+        "CS 3700 (Intro to Oracle/SQL Databases)": {
+            "role": "CS 3700",
+            "emoji": "sql"
+        },
+        "CS 3800 (Web Dev II)": {
+            "role": "CS 3800",
+            "emoji": "web_dev_2"
+        },
+        "CS 4270 (Optimization Techniques)": {
+            "role": "CS 4270",
+            "emoji": "optimization"
+        },
+        "CS 4280 (Combinatorics and Graph Theory)": {
+            "role": "CS 4280",
+            "emoji": "graph_theory"
+        },
+        "CS 4370 (Parallel Programming for Many-Core GPUs)": {
+            "role": "CS 4370",
+            "emoji": "nvidia"
+        },
+        "CS 4700 (Intro to Database Management Systems)": {
+            "role": "CS 4700",
+            "emoji": "database"
+        },
+        "CS 4850 (Foundations of Artificial Intelligence)": {
+            "role": "CS 4850",
+            "emoji": "skynet"
+        }
+
+    },
+    "Computer Science Graduate Courses": {
+        "CS 5160 (Computer Science Fundementals)": {
+            "role": "CS 5160",
+            "emoji": "computer_science_fundamentals"
+        },
+        "CS 6900 (Computing Research Experience)": {
+            "role": "Research Experience",
+            "emoji": "computing_research_experience"
+        },
+        "CS 7060 (Numerical Analysis I)": {
+            "role": "CS 7060",
+            "emoji": "numerical_analysis"
+        },
+        "CS 7100 (Advanced Programming Languages)": {
+            "role": "CS 7100",
+            "emoji": "lisp"
+        },
+        "CS 7200 (Algorithm Design and Analysis)": {
+            "role": "CS 7200",
+            "emoji": "algorithm_design"
+        },
+        "CS 7600 (Trust Networks)": {
+            "role": "CS 7600",
+            "emoji": "trust_networks"
+        },
+        "CS 7830 (Machine Learning)": {
+            "role": "CS 7830",
+            "emoji": "tensorFlow"
+        }
+    },
+    "Senior Design": {
+        "Senior Design": {
+            "role": "Senior Design",
+            "emoji": "oldDude"
         }
     }
 }
