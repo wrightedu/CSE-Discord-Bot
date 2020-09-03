@@ -145,4 +145,4 @@ Resources:
             #!/bin/bash -xe
             apt update && \
             apt install -y python3 && \
-            git clone https://github.com/wrightedu/CSE-Discord-Bot.git /home/ubuntu
+            git clone https://github.com/wrightedu/CSE-Discord-Bot.git /home/ubuntu/cse-discord-bot
