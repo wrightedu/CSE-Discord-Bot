@@ -130,7 +130,7 @@ Resources:
         - Key: Application
           Value: !Ref 'AWS::StackId'
         - Key: Name
-          Value: Ubuntu
+          Value: WSU-CSE-Discord
       NetworkInterfaces:
         - GroupSet:
             - !Ref DiscordSecurityGroup
