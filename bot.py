@@ -51,7 +51,6 @@ async def on_ready():
     await log('Invites JSON loaded')
 
     # Get invite links
-    print(client.guilds)
     for guild in client.guilds:
         invites[guild.id] = await guild.invites()
     await log('Invites synced')
