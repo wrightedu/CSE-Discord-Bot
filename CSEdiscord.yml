@@ -144,5 +144,5 @@ Resources:
           !Sub | 
             #!/bin/bash -xe
             apt update && \
-            apt install -y python3 && \
+            apt install -y python3 awscli && \
             git clone https://github.com/wrightedu/CSE-Discord-Bot.git /home/ubuntu/cse-discord-bot
