@@ -6,15 +6,17 @@ from datetime import datetime
 from os.path import exists
 from pathlib import Path
 from random import randint
-from sys import argv
 from time import sleep, time
 
 import aiofiles
 import discord
 from bing_image_downloader import downloader
 from discord.ext import commands
+from dotenv import load_dotenv
 
 from diceParser import parse
+
+
 
 ##### ======= #####
 ##### GLOBALS #####
@@ -26,6 +28,10 @@ invites_json = None
 reaction_roles = None
 reaction_message_ids = []
 start_time = time()
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
+GUILD_NAME = os.getenv('DISCORD_GUILD')
+GUILD_ID = os.getenv('DISCORD_GUILD_ID')
 
 
 ##### =========== #####
@@ -46,6 +52,7 @@ async def on_ready():
     await log('Invites JSON loaded')
 
     # Get invite links
+    print(client.guilds)
     for guild in client.guilds:
         invites[guild.id] = await guild.invites()
     await log('Invites synced')
@@ -475,4 +482,4 @@ async def dm(member, content):
 
 if __name__ == '__main__':
     # Run bot from key given by command line argument
-    client.run(argv[1])
+    client.run(TOKEN)
