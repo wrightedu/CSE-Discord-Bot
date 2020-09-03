@@ -17,7 +17,6 @@ from dotenv import load_dotenv
 from diceParser import parse
 
 
-
 ##### ======= #####
 ##### GLOBALS #####
 ##### ======= #####
