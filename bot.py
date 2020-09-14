@@ -55,11 +55,12 @@ async def on_ready():
         invites[guild.id] = await guild.invites()
     await log('Invites synced')
 
-    # Load reaction roles JSON
+    # Load reaction roles JSON, generate role menu
     if os.path.exists('reaction_roles.json'):
         with open('reaction_roles.json', 'r') as f:
             reaction_roles = json.loads(f.read())
         await log('Reaction roles JSON loaded')
+        create_role_menu(startup_run=True)
     else:
         await log('No reaction roles JSON found')
 
@@ -444,7 +445,7 @@ async def log(string, timestamp=True):
         await f.write(timestamp_string + ' ' + string + '\n')
 
 
-async def create_role_menu(ctx):
+async def create_role_menu(startup_run=False):
     def get_emoji(emoji_name):
         emoji = discord.utils.get(client.emojis, name=emoji_name)
         if emoji is not None:
@@ -472,6 +473,11 @@ async def create_role_menu(ctx):
             if channel.name.strip().lower() == channel_name.strip().lower():
                 await log(f'Found channel: {channel.name}', False)
                 reaction_role_channel = channel
+
+    # Clear channel if necessary
+    if startup_run:
+        if clear_on_bot_startup:
+            await reaction_role_channel.purge(limit=99999999999999)
 
     # Send menus
     for menu in menus:
