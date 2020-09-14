@@ -397,7 +397,7 @@ async def rolemenu(ctx, clear=''):
         await ctx.channel.purge(limit=1)
 
     # Create the role menu
-    await create_role_menu(ctx)
+    await create_role_menu()
     await log(f'{ctx.author} built a rolemenu in #{ctx.channel}. Configuration saved to reaction_roles.json')
 
 
@@ -463,15 +463,11 @@ async def create_role_menu(startup_run=False):
         else:
             menus.append((key, reaction_roles[key]))
 
-    await log(f'channel name: {channel_name}', False)
-    await log(f'clear: {clear_on_bot_startup}', False)
-
     # Get channel object
     reaction_role_channel = None
     for guild in client.guilds:
         for channel in guild.channels:
             if channel.name.strip().lower() == channel_name.strip().lower():
-                await log(f'Found channel: {channel.name}', False)
                 reaction_role_channel = channel
 
     # Clear channel if necessary
