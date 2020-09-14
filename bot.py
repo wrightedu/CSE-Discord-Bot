@@ -128,30 +128,33 @@ async def on_member_join(member):
 
 @client.event
 async def on_raw_reaction_add(payload):
-    if payload.message_id in reaction_message_ids:
-        # Get CSE guild
-        guild_id = payload.guild_id
-        guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
+    try:
+        if payload.message_id in reaction_message_ids:
+            # Get CSE guild
+            guild_id = payload.guild_id
+            guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
 
-        # Find a role corresponding to the emoji name.
-        classes = []
-        for key in reaction_roles.keys():
-            if key != 'channel_id' and key != 'clear_on_bot_startup':
-                for key1 in reaction_roles[key].keys():
-                    classes.append(reaction_roles[key][key1])
-        role = None
-        for _class in classes:
-            emoji = f':{_class["emoji"]}:'
-            if emoji in str(payload.emoji):
-                role = discord.utils.find(lambda r: r.name == _class['role'], guild.roles)
+            # Find a role corresponding to the emoji name.
+            classes = []
+            for key in reaction_roles.keys():
+                if key != 'channel_id' and key != 'clear_on_bot_startup':
+                    for key1 in reaction_roles[key].keys():
+                        classes.append(reaction_roles[key][key1])
+            role = None
+            for _class in classes:
+                emoji = f':{_class["emoji"]}:'
+                if emoji in str(payload.emoji):
+                    role = discord.utils.find(lambda r: r.name == _class['role'], guild.roles)
 
-        # If role found, assign it
-        if role is not None:
-            member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
-            if not member.bot:  # Error suppression
-                await member.add_roles(role)
-                await dm(member, f'Welcome to {role}!')
-                await log(f'Assigned role {role} to {member}')
+            # If role found, assign it
+            if role is not None:
+                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                if not member.bot:  # Error suppression
+                    await member.add_roles(role)
+                    await dm(member, f'Welcome to {role}!')
+                    await log(f'Assigned role {role} to {member}')
+    except Exception:
+        await log('Error suppressed, likely due to bot reacting to a role menu')
 
 
 @client.event
