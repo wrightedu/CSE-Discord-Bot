@@ -376,6 +376,16 @@ async def rolemenu(ctx, clear=''):
         except FileNotFoundError:
             pass
         await ctx.message.attachments[0].save('reaction_roles.json')
+
+        # Prepend channel id to file
+        async with aiofiles.open('reaction_roles.json', mode='r') as f:
+            reaction_roles = json.loads(f.read())
+        reaction_roles['channel_id'] = str(ctx.channel.id)
+        async with aiofiles.open('reaction_roles.json', mode='w') as f:
+            json_string = json.dumps(reaction_roles)
+            for line in json_string.split('\n'):
+                await f.write(line.strip() + '\n')
+
     try:
         with open('reaction_roles.json', 'r') as f:
             reaction_roles = json.loads(f.read())
