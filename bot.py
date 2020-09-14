@@ -137,7 +137,7 @@ async def on_raw_reaction_add(payload):
             # Find a role corresponding to the emoji name.
             classes = []
             for key in reaction_roles.keys():
-                if key != 'channel_id' and key != 'clear_on_bot_startup':
+                if key != 'channel_name' and key != 'clear_on_bot_startup':
                     for key1 in reaction_roles[key].keys():
                         classes.append(reaction_roles[key][key1])
             role = None
