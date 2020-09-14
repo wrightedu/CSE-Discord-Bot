@@ -376,16 +376,6 @@ async def rolemenu(ctx, clear=''):
         except FileNotFoundError:
             pass
         await ctx.message.attachments[0].save('reaction_roles.json')
-
-        # Prepend channel id to file
-        async with aiofiles.open('reaction_roles.json', mode='r') as f:
-            reaction_roles = json.loads(f.read())
-        reaction_roles['channel_id'] = str(ctx.channel.id)
-        async with aiofiles.open('reaction_roles.json', mode='w') as f:
-            json_string = json.dumps(reaction_roles)
-            for line in json_string.split('\n'):
-                await f.write(line.strip() + '\n')
-
     try:
         with open('reaction_roles.json', 'r') as f:
             reaction_roles = json.loads(f.read())
@@ -458,7 +448,15 @@ async def create_role_menu(ctx):
     # Generate list of menus to iterate through when sending messages
     menus = []
     for key in reaction_roles.keys():
-        menus.append((key, reaction_roles[key]))
+        if key == 'channel_id':
+            channel_id = reaction_roles[key]
+        elif key == 'clear_on_bot_startup':
+            clear_on_bot_startup = reaction_roles[key]
+        else:
+            menus.append((key, reaction_roles[key]))
+
+    await log(f'channel id: {channel_id}', False)
+    await log(f'clear: {clear_on_bot_startup}', False)
 
     # Send menus
     for menu in menus:
