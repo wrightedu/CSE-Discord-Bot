@@ -148,9 +148,10 @@ async def on_raw_reaction_add(payload):
         # If role found, assign it
         if role is not None:
             member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
-            await member.add_roles(role)
-            await dm(member, f'Welcome to {role}!')
-            await log(f'Assigned role {role} to {member}')
+            if type(member) is not discord.ClientUser:
+                await member.add_roles(role)
+                await dm(member, f'Welcome to {role}!')
+                await log(f'Assigned role {role} to {member}')
 
 
 @client.event
