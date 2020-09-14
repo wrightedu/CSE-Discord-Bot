@@ -451,23 +451,23 @@ async def create_role_menu(ctx):
     # Generate list of menus to iterate through when sending messages
     menus = []
     for key in reaction_roles.keys():
-        if key == 'channel_id':
-            channel_id = reaction_roles[key]
+        if key == 'channel_name':
+            channel_name = reaction_roles[key]
         elif key == 'clear_on_bot_startup':
             clear_on_bot_startup = reaction_roles[key]
         else:
             menus.append((key, reaction_roles[key]))
 
-    await log(f'channel id: {channel_id}', False)
+    await log(f'channel name: {channel_name}', False)
     await log(f'clear: {clear_on_bot_startup}', False)
 
     # Get channel object
     reaction_role_channel = None
     for guild in client.guilds:
-        if guild.id == GUILD_ID:
-            for channel in guild.channels:
-                if channel.id == channel_id:
-                    reaction_role_channel = channel
+        for channel in guild.channels:
+            await log(f'Found channel: {channel_name}', False)
+            if channel.name.strip().lower() == channel_name.strip().lower():
+                reaction_role_channel = channel
 
     # Send menus
     for menu in menus:
