@@ -373,7 +373,7 @@ async def ping(ctx):
 
 @client.command()
 @commands.has_role('cse-support')
-async def rolemenu(ctx, clear=''):
+async def rolemenu(ctx):
     global reaction_roles
 
     # Read JSON file attached to message
@@ -389,12 +389,6 @@ async def rolemenu(ctx, clear=''):
     except FileNotFoundError:
         await ctx.send('Missing reaction roles JSON')
         return
-
-    # Clear 1 or all messages in channel, depending on parameters
-    if clear == 'clear':
-        await ctx.channel.purge(limit=99999999999)
-    else:
-        await ctx.channel.purge(limit=1)
 
     # Create the role menu
     await create_role_menu()
