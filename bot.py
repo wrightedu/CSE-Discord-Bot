@@ -461,13 +461,21 @@ async def create_role_menu(ctx):
     await log(f'channel id: {channel_id}', False)
     await log(f'clear: {clear_on_bot_startup}', False)
 
+    # Get channel object
+    reaction_role_channel = None
+    for guild in client.guilds:
+        if guild.id == GUILD_ID:
+            for channel in guild.channels:
+                if channel.id == channel_id:
+                    reaction_role_channel = channel
+
     # Send menus
     for menu in menus:
         message = f'**{menu[0]}**\n'
         for option_name in menu[1].keys():
             emoji = str(get_emoji(menu[1][option_name]['emoji']))
             message += f'{emoji} `{option_name}`\n'
-        reaction_message = await ctx.send(message)
+        reaction_message = await reaction_role_channel.send(message)
 
         # React to menu
         for option_name in menu[1].keys():
