@@ -450,11 +450,12 @@ async def create_role_menu(ctx):
 
     # Generate list of menus to iterate through when sending messages
     menus = []
+    channel_name, clear_on_bot_startup = '', False
     for key in reaction_roles.keys():
         if key == 'channel_name':
             channel_name = reaction_roles[key]
         elif key == 'clear_on_bot_startup':
-            clear_on_bot_startup = reaction_roles[key]
+            clear_on_bot_startup = bool(reaction_roles[key])
         else:
             menus.append((key, reaction_roles[key]))
 
