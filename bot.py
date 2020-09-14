@@ -466,8 +466,8 @@ async def create_role_menu(ctx):
     reaction_role_channel = None
     for guild in client.guilds:
         for channel in guild.channels:
-            await log(f'Found channel: {channel_name}', False)
             if channel.name.strip().lower() == channel_name.strip().lower():
+                await log(f'Found channel: {channel.name}', False)
                 reaction_role_channel = channel
 
     # Send menus
