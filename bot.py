@@ -60,7 +60,7 @@ async def on_ready():
         with open('reaction_roles.json', 'r') as f:
             reaction_roles = json.loads(f.read())
         await log('Reaction roles JSON loaded')
-        create_role_menu(startup_run=True)
+        await create_role_menu(startup_run=True)
     else:
         await log('No reaction roles JSON found')
 
