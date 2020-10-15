@@ -21,7 +21,7 @@ from diceParser import parse
 ##### GLOBALS #####
 ##### ======= #####
 client = discord.Client()
-client = commands.Bot(command_prefix='/')
+client = commands.Bot(command_prefix='-')
 invites = {}
 invites_json = None
 reaction_roles = None
