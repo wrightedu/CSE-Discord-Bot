@@ -469,7 +469,7 @@ async def create_role_menu():
 
         # Send menus
         message = f'__**{menu[0].strip()}**__\n'
-        if bool(menu[1]['clear_channel']):
+        if not bool(menu[1]['clear_channel']):
             message = f'_ _\n__**{menu[0].strip()}**__\n'
         for option_name in menu[1].keys():
             if option_name not in ['channel_name', 'clear_channel']:
