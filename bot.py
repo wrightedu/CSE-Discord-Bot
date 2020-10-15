@@ -450,14 +450,7 @@ async def create_role_menu(startup_run=False):
     menus = []
     clear_on_bot_startup = False
     for key in reaction_roles.keys():
-        if key == 'clear_on_bot_startup':
-            clear_on_bot_startup = bool(reaction_roles[key])
-        else:
-            menus.append((key, reaction_roles[key]))
-
-    # for menu in menus:
-        # print(menu)
-        # print('\n\n')
+        menus.append((key, reaction_roles[key]))
 
     # Generate each menu independently
     for menu in menus:
@@ -473,7 +466,7 @@ async def create_role_menu(startup_run=False):
 
         # Clear channel if necessary
         if startup_run:
-            if clear_on_bot_startup:
+            if bool(menu[1]['clear_on_bot_startup']):
                 await reaction_role_channel.purge(limit=99999999999999)
 
         # Send menus
@@ -492,6 +485,8 @@ async def create_role_menu(startup_run=False):
 
             # Put reaction message ids in global list
             reaction_message_ids.append(reaction_message.id)
+        print('completed')
+        print('\n')
 
 
 def find_invite_by_code(invite_list, code):
