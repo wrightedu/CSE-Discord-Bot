@@ -479,8 +479,9 @@ async def create_role_menu(startup_run=False):
         for menu in menus:
             message = f'**{menu[0]}**\n'
             for option_name in menu[1].keys():
-                emoji = str(get_emoji(menu[1][option_name]['emoji']))
-                message += f'{emoji} `{option_name}`\n'
+                if option_name not in ['channeL_name', 'clear_on_bot_startup']:
+                    emoji = str(get_emoji(menu[1][option_name]['emoji']))
+                    message += f'{emoji} `{option_name}`\n'
             reaction_message = await reaction_role_channel.send(message)
 
             # React to menu
