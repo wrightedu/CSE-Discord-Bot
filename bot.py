@@ -462,6 +462,7 @@ async def create_role_menu(startup_run=False):
     # Generate each menu independently
     for menu in menus:
         print(f'Generating menu {menu[0]} in {menu[1]["channel_name"]}')
+        print(menu)
         # Get channel object
         channel_name = menu[1]['channel_name']
         reaction_role_channel = None
@@ -479,7 +480,7 @@ async def create_role_menu(startup_run=False):
         for menu in menus:
             message = f'**{menu[0]}**\n'
             for option_name in menu[1].keys():
-                if option_name not in ['channeL_name', 'clear_on_bot_startup']:
+                if option_name not in ['channel_name', 'clear_on_bot_startup']:
                     emoji = str(get_emoji(menu[1][option_name]['emoji']))
                     message += f'{emoji} `{option_name}`\n'
             reaction_message = await reaction_role_channel.send(message)
