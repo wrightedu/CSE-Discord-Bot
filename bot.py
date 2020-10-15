@@ -448,46 +448,48 @@ async def create_role_menu(startup_run=False):
 
     # Generate list of menus to iterate through when sending messages
     menus = []
-    channel_name, clear_on_bot_startup = '', False
+    clear_on_bot_startup = False
     for key in reaction_roles.keys():
-        if key == 'channel_name':
-            channel_name = reaction_roles[key]
-        elif key == 'clear_on_bot_startup':
+        if key == 'clear_on_bot_startup':
             clear_on_bot_startup = bool(reaction_roles[key])
         else:
             menus.append((key, reaction_roles[key]))
 
+    # for menu in menus:
+        # print(menu)
+        # print('\n\n')
+
+    # Generate each menu independently
     for menu in menus:
-        print(menu)
-        print('\n\n')
+        print(f'Generating menu {menu[0]} in {menu[1]["channel_name"]}')
+        # Get channel object
+        channel_name = menu[1]['channel_name']
+        reaction_role_channel = None
+        for guild in client.guilds:
+            for channel in guild.channels:
+                if channel.name.strip().lower() == channel_name.strip().lower():
+                    reaction_role_channel = channel
 
-    # Get channel object
-    reaction_role_channel = None
-    for guild in client.guilds:
-        for channel in guild.channels:
-            if channel.name.strip().lower() == channel_name.strip().lower():
-                reaction_role_channel = channel
+        # Clear channel if necessary
+        if startup_run:
+            if clear_on_bot_startup:
+                await reaction_role_channel.purge(limit=99999999999999)
 
-    # Clear channel if necessary
-    if startup_run:
-        if clear_on_bot_startup:
-            await reaction_role_channel.purge(limit=99999999999999)
+        # Send menus
+        for menu in menus:
+            message = f'**{menu[0]}**\n'
+            for option_name in menu[1].keys():
+                emoji = str(get_emoji(menu[1][option_name]['emoji']))
+                message += f'{emoji} `{option_name}`\n'
+            reaction_message = await reaction_role_channel.send(message)
 
-    # Send menus
-    for menu in menus:
-        message = f'**{menu[0]}**\n'
-        for option_name in menu[1].keys():
-            emoji = str(get_emoji(menu[1][option_name]['emoji']))
-            message += f'{emoji} `{option_name}`\n'
-        reaction_message = await reaction_role_channel.send(message)
+            # React to menu
+            for option_name in menu[1].keys():
+                emoji = get_emoji(menu[1][option_name]['emoji'])
+                await reaction_message.add_reaction(emoji)
 
-        # React to menu
-        for option_name in menu[1].keys():
-            emoji = get_emoji(menu[1][option_name]['emoji'])
-            await reaction_message.add_reaction(emoji)
-
-        # Put reaction message ids in global list
-        reaction_message_ids.append(reaction_message.id)
+            # Put reaction message ids in global list
+            reaction_message_ids.append(reaction_message.id)
 
 
 def find_invite_by_code(invite_list, code):
