@@ -137,10 +137,10 @@ async def on_raw_reaction_add(payload):
 
             # Find a role corresponding to the emoji name.
             classes = []
-            for key in reaction_roles.keys():
-                if key != 'channel_name' and key != 'clear_on_bot_startup':
-                    for key1 in reaction_roles[key].keys():
-                        classes.append(reaction_roles[key][key1])
+            for menu in reaction_roles.keys():
+                for class_name in menu.keys():
+                    if class_name not in ['channel_name', 'clear_on_bot_startup']:
+                        classes.append(reaction_roles[menu][class_name])
             role = None
             for _class in classes:
                 emoji = f':{_class["emoji"]}:'
