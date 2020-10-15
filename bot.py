@@ -60,7 +60,7 @@ async def on_ready():
         with open('reaction_roles.json', 'r') as f:
             reaction_roles = json.loads(f.read())
         await log('Reaction roles JSON loaded')
-        await create_role_menu(startup_run=True)
+        await create_role_menu()
     else:
         await log('No reaction roles JSON found')
 
@@ -139,7 +139,7 @@ async def on_raw_reaction_add(payload):
             classes = []
             for menu in reaction_roles.keys():
                 for class_name in reaction_roles[menu].keys():
-                    if class_name not in ['channel_name', 'clear_on_bot_startup']:
+                    if class_name not in ['channel_name', 'clear_channel']:
                         classes.append(reaction_roles[menu][class_name])
             role = None
             for _class in classes:
@@ -169,7 +169,7 @@ async def on_raw_reaction_remove(payload):
         classes = []
         for menu in reaction_roles.keys():
             for class_name in reaction_roles[menu].keys():
-                if class_name not in ['channel_name', 'clear_on_bot_startup']:
+                if class_name not in ['channel_name', 'clear_channel']:
                     classes.append(reaction_roles[menu][class_name])
         role = None
         for _class in classes:
@@ -439,7 +439,7 @@ async def log(string, timestamp=True):
         await f.write(timestamp_string + ' ' + string + '\n')
 
 
-async def create_role_menu(startup_run=False):
+async def create_role_menu():
     def get_emoji(emoji_name):
         emoji = discord.utils.get(client.emojis, name=emoji_name)
         if emoji is not None:
@@ -448,7 +448,7 @@ async def create_role_menu(startup_run=False):
 
     # Generate list of menus to iterate through when sending messages
     menus = []
-    clear_on_bot_startup = False
+    clear_channel = False
     for key in reaction_roles.keys():
         menus.append((key, reaction_roles[key]))
 
@@ -464,21 +464,20 @@ async def create_role_menu(startup_run=False):
                     reaction_role_channel = channel
 
         # Clear channel if necessary
-        if startup_run:
-            if bool(menu[1]['clear_on_bot_startup']):
-                await reaction_role_channel.purge(limit=99999999999999)
+        if bool(menu[1]['clear_channel']):
+            await reaction_role_channel.purge(limit=99999999999999)
 
         # Send menus
-        message = f'\n\n\n__**{menu[0]}**__\n'
+        message = f'__**{menu[0]}**__\n'
         for option_name in menu[1].keys():
-            if option_name not in ['channel_name', 'clear_on_bot_startup']:
+            if option_name not in ['channel_name', 'clear_channel']:
                 emoji = str(get_emoji(menu[1][option_name]['emoji']))
                 message += f'{emoji} `{option_name}`\n'
         reaction_message = await reaction_role_channel.send(message)
 
         # React to menu
         for option_name in menu[1].keys():
-            if option_name not in ['channel_name', 'clear_on_bot_startup']:
+            if option_name not in ['channel_name', 'clear_channel']:
                 emoji = get_emoji(menu[1][option_name]['emoji'])
                 await reaction_message.add_reaction(emoji)
 
