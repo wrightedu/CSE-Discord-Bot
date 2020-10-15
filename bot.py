@@ -457,6 +457,10 @@ async def create_role_menu(startup_run=False):
         else:
             menus.append((key, reaction_roles[key]))
 
+    for menu in menus:
+        print(menu)
+        print('\n\n')
+
     # Get channel object
     reaction_role_channel = None
     for guild in client.guilds:
