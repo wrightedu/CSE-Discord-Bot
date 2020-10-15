@@ -470,19 +470,18 @@ async def create_role_menu(startup_run=False):
                 await reaction_role_channel.purge(limit=99999999999999)
 
         # Send menus
-        for menu in menus:
-            message = f'**{menu[0]}**\n'
-            for option_name in menu[1].keys():
-                if option_name not in ['channel_name', 'clear_on_bot_startup']:
-                    emoji = str(get_emoji(menu[1][option_name]['emoji']))
-                    message += f'{emoji} `{option_name}`\n'
-            reaction_message = await reaction_role_channel.send(message)
+        message = f'**{menu[0]}**\n'
+        for option_name in menu[1].keys():
+            if option_name not in ['channel_name', 'clear_on_bot_startup']:
+                emoji = str(get_emoji(menu[1][option_name]['emoji']))
+                message += f'{emoji} `{option_name}`\n'
+        reaction_message = await reaction_role_channel.send(message)
 
-            # React to menu
-            for option_name in menu[1].keys():
-                if option_name not in ['channel_name', 'clear_on_bot_startup']:
-                    emoji = get_emoji(menu[1][option_name]['emoji'])
-                    await reaction_message.add_reaction(emoji)
+        # React to menu
+        for option_name in menu[1].keys():
+            if option_name not in ['channel_name', 'clear_on_bot_startup']:
+                emoji = get_emoji(menu[1][option_name]['emoji'])
+                await reaction_message.add_reaction(emoji)
 
             # Put reaction message ids in global list
             reaction_message_ids.append(reaction_message.id)
