@@ -138,7 +138,7 @@ async def on_raw_reaction_add(payload):
             # Find a role corresponding to the emoji name.
             classes = []
             for menu in reaction_roles.keys():
-                for class_name in menu.keys():
+                for class_name in reaction_roles[menu].keys():
                     if class_name not in ['channel_name', 'clear_on_bot_startup']:
                         classes.append(reaction_roles[menu][class_name])
             role = None
@@ -167,10 +167,10 @@ async def on_raw_reaction_remove(payload):
 
         # Find a role corresponding to the emoji name.
         classes = []
-        for key in reaction_roles.keys():
-            if key != 'channel_name' and key != 'clear_on_bot_startup':
-                for key1 in reaction_roles[key].keys():
-                    classes.append(reaction_roles[key][key1])
+        for menu in reaction_roles.keys():
+            for class_name in reaction_roles[menu].keys():
+                if class_name not in ['channel_name', 'clear_on_bot_startup']:
+                    classes.append(reaction_roles[menu][class_name])
         role = None
         for _class in classes:
             emoji = f':{_class["emoji"]}:'
@@ -455,7 +455,6 @@ async def create_role_menu(startup_run=False):
     # Generate each menu independently
     for menu in menus:
         print(f'Generating menu {menu[0]} in {menu[1]["channel_name"]}')
-        print(menu)
         # Get channel object
         channel_name = menu[1]['channel_name']
         reaction_role_channel = None
@@ -485,8 +484,6 @@ async def create_role_menu(startup_run=False):
 
             # Put reaction message ids in global list
             reaction_message_ids.append(reaction_message.id)
-        print('completed')
-        print('\n')
 
 
 def find_invite_by_code(invite_list, code):
