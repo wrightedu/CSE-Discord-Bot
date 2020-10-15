@@ -468,7 +468,7 @@ async def create_role_menu():
             await reaction_role_channel.purge(limit=99999999999999)
 
         # Send menus
-        message = f'__**{menu[0]}**__\n'
+        message = f'__**{menu[0].strip()}**__\n'
         for option_name in menu[1].keys():
             if option_name not in ['channel_name', 'clear_channel']:
                 emoji = str(get_emoji(menu[1][option_name]['emoji']))
