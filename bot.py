@@ -89,7 +89,6 @@ async def on_command_error(ctx, error):
         await log(f'{author} attempted to run `{message}` but failed because they were missing a required role')
 
     elif isinstance(error, commands.CommandNotFound):
-        await ctx.send(error)
         await log(f'{author} attempted to run `{message}` but failed because the command was not found')
 
     else:
