@@ -1,5 +1,7 @@
 {
     "Computer Engineering Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "ceg-class-selection",
         "CEG 2170 (Intro to C Programming)": {
             "role": "CEG 2170",
             "emoji": "cLogo"
@@ -82,6 +84,8 @@
         }
     },
     "Computer Engineering Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "ceg-class-selection",
         "CEG 6900 (Computer Research Experience)": {
             "role": "Research Experience",
             "emoji": "computing_research_experience"
@@ -100,6 +104,8 @@
         }
     },
     "Computer Science Undergraduate Courses (1000-2800)": {
+        "clear_channel": true,
+        "channel_name": "cs-class-selection",
         "CS 1000 (Tech and Society)": {
             "role": "CS 1000",
             "emoji": "tech_and_society"
@@ -138,6 +144,8 @@
         }
     },
     "Computer Science Undergraduate Courses (3100-4850)": {
+        "clear_channel": false,
+        "channel_name": "cs-class-selection",
         "CS 3100 (Data Structures and Algorithms)": {
             "role": "CS 3100",
             "emoji": "tree"
@@ -189,6 +197,8 @@
 
     },
     "Computer Science Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "cs-class-selection",
         "CS 5160 (Computer Science Fundementals)": {
             "role": "CS 5160",
             "emoji": "computer_science_fundamentals"
@@ -205,6 +215,10 @@
             "role": "CS 7100",
             "emoji": "lisp"
         },
+        "CS 7140 (Advanced Software Engineering)": {
+            "role": "CS 7140",
+            "emoji": "software_engineering"
+        },
         "CS 7200 (Algorithm Design and Analysis)": {
             "role": "CS 7200",
             "emoji": "algorithm_design"
@@ -219,6 +233,16 @@
         }
     },
     "Senior Design": {
+        "clear_channel": false,
+        "channel_name": "ceg-class-selection",
+        "Senior Design": {
+            "role": "Senior Design",
+            "emoji": "oldDude"
+        }
+    },
+    "Senior Design ": {
+        "clear_channel": false,
+        "channel_name": "cs-class-selection",
         "Senior Design": {
             "role": "Senior Design",
             "emoji": "oldDude"

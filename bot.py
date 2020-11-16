@@ -148,7 +148,7 @@ async def on_raw_reaction_add(payload):
 
             # If role found, assign it
             if role is not None:
-                member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+                member = await guild.fetch_member(payload.user_id)
                 if not member.bot:  # Error suppression
                     await member.add_roles(role)
                     await dm(member, f'Welcome to {role}!')
@@ -178,7 +178,7 @@ async def on_raw_reaction_remove(payload):
 
         # If role found, take it
         if role is not None:
-            member = discord.utils.find(lambda m: m.id == payload.user_id, guild.members)
+            member = await guild.fetch_member(payload.user_id)
             await member.remove_roles(role)
             await dm(member, f'We\'ve taken you out of {role}')
             await log(f'Took role {role} from {member}')
