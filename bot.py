@@ -420,10 +420,17 @@ async def clearrole(ctx, *, role_id):
 ##### UTILITY FUNCTIONS #####
 ##### ================= #####
 async def log(string, timestamp=True):
+    # Log to stdout
     timestamp_string = ''
     if timestamp:
         timestamp_string = f'[{str(datetime.now())[:-7]}]'
     print(timestamp_string + ' ' + string)
+
+    # Log to channel
+    for guild in client.guilds:
+        for channel in guild.text_channels:
+            if channel.name == 'bot-logs':
+                await channel.send(string)
 
     # Log to file
     try:
