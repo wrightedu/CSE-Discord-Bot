@@ -217,6 +217,9 @@ async def corgme(ctx, number=-1):
 
 @client.command()
 async def poll(ctx, question, *options: str):
+    # Delete sender's message
+    await ctx.channel.purge(limit=1)
+
     # Need between 2 and 10 options for a poll
     if not (1 < len(options) <= 10):
         await ctx.send('Enter between 2 and 10 answers')
