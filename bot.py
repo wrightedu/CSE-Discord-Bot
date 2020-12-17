@@ -2,6 +2,7 @@
 import json
 import os
 import random
+import re
 from datetime import datetime
 from os.path import exists
 from pathlib import Path
@@ -15,7 +16,6 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 from diceParser import parse
-
 
 ##### ======= #####
 ##### GLOBALS #####
@@ -45,24 +45,31 @@ async def on_ready():
     await log('# BOT STARTING FROM FULL SHUTDOWN #')
     await log('###################################')
 
-    # Load invites JSON
-    with open('invites.json', 'r') as f:
-        invites_json = json.loads(f.read())
-    await log('Invites JSON loaded')
+    # # Load invites JSON
+    # with open('invites.json', 'r') as f:
+    #     invites_json = json.loads(f.read())
+    # await log('Invites JSON loaded')
 
-    # Get invite links
+    # # Get invite links
+    # for guild in client.guilds:
+    #     invites[guild.id] = await guild.invites()
+    # await log('Invites synced')
+
+    # Initialize each guild
     for guild in client.guilds:
-        invites[guild.id] = await guild.invites()
-    await log('Invites synced')
+        await log(f'Initializing server: {guild}')
+        # Load reaction roles JSONs
+        reaction_roles_filename = f'reaction_roles_{guild.id}.json'
+        # Load reaction roles from file
+        if exists(reaction_roles_filename):
+            with open(reaction_roles_filename, 'r') as f:
+                reaction_roles[guild.id] = (guild, json.loads(f.read()))
 
-    # Load reaction roles JSON, generate role menu
-    if os.path.exists('reaction_roles.json'):
-        with open('reaction_roles.json', 'r') as f:
-            reaction_roles = json.loads(f.read())
-        await log('Reaction roles JSON loaded')
-        await create_role_menu()
-    else:
-        await log('No reaction roles JSON found')
+        # Generate role menu
+        try:
+            await create_role_menu(guild)
+        except Exception:
+            await log(f'    failed, no reaction roles JSON')
 
     # Show the bot as online
     await client.change_presence(activity=discord.Game('Raider Up!'), status=None, afk=False)
@@ -128,23 +135,28 @@ async def on_member_join(member):
 
 @client.event
 async def on_raw_reaction_add(payload):
+    global reaction_roles
+
     try:
         if payload.message_id in reaction_message_ids:
-            # Get CSE guild
+            # Get guild
             guild_id = payload.guild_id
             guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
 
+            # Get guild reaction roles
+            guild_reaction_roles = reaction_roles[guild_id][1]
+
             # Find a role corresponding to the emoji name.
             classes = []
-            for menu in reaction_roles.keys():
-                for class_name in reaction_roles[menu].keys():
+            for menu in guild_reaction_roles.keys():
+                for class_name in guild_reaction_roles[menu].keys():
                     if class_name not in ['channel_name', 'clear_channel']:
-                        classes.append(reaction_roles[menu][class_name])
+                        classes.append(guild_reaction_roles[menu][class_name])
             role = None
             for _class in classes:
                 emoji = f':{_class["emoji"]}:'
                 if emoji in str(payload.emoji):
-                    role = discord.utils.find(lambda r: r.name == _class['role'], guild.roles)
+                    role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
 
             # If role found, assign it
             if role is not None:
@@ -160,21 +172,24 @@ async def on_raw_reaction_add(payload):
 @client.event
 async def on_raw_reaction_remove(payload):
     if payload.message_id in reaction_message_ids:
-        # Get CSE guild
+        # Get guild
         guild_id = payload.guild_id
         guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
 
+        # Get guild reaction roles
+        guild_reaction_roles = reaction_roles[guild_id][1]
+
         # Find a role corresponding to the emoji name.
         classes = []
-        for menu in reaction_roles.keys():
-            for class_name in reaction_roles[menu].keys():
+        for menu in guild_reaction_roles.keys():
+            for class_name in guild_reaction_roles[menu].keys():
                 if class_name not in ['channel_name', 'clear_channel']:
-                    classes.append(reaction_roles[menu][class_name])
+                    classes.append(guild_reaction_roles[menu][class_name])
         role = None
         for _class in classes:
             emoji = f':{_class["emoji"]}:'
             if emoji in str(payload.emoji):
-                role = discord.utils.find(lambda r: r.name == _class['role'], guild.roles)
+                role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
 
         # If role found, take it
         if role is not None:
@@ -321,6 +336,54 @@ async def roll(ctx, *options):
 ##### ============== #####
 @client.command()
 @commands.has_role('cse-support')
+async def buildserver(ctx):
+    global reaction_roles
+
+    guild = ctx.guild
+    reaction_roles_filename = f'reaction_roles_{guild.id}.json'
+
+    # If reaction roles specified in attachment
+    if len(ctx.message.attachments) > 0:
+        try:
+            os.remove(reaction_roles_filename)
+        except FileNotFoundError:
+            pass
+        await ctx.message.attachments[0].save(reaction_roles_filename)
+        with open(reaction_roles_filename, 'r') as f:
+            reaction_roles[guild.id] = (guild, json.loads(f.read()))
+        guild_reaction_roles = reaction_roles[ctx.guild.id]
+
+    # If reaction roles not loaded for this guild, try to load from file
+    if ctx.guild.id not in reaction_roles.keys():
+        # Next try to load from file
+        if exists(reaction_roles_filename):
+            with open(reaction_roles_filename, 'r') as f:
+                reaction_roles[guild.id] = (guild, json.loads(f.read()))
+            guild_reaction_roles = reaction_roles[ctx.guild.id]
+
+        # Finally give up on loading and terminate command
+        else:
+            await ctx.send('Reaction roles JSON not found, rerun command with JSON attached')
+            await log('Reaction roles JSON not found, rerun command with JSON attached')
+            return
+
+    # If reaction roles JSON found (or attached)
+    await log(f'BUILDING SERVER {ctx.guild} ({ctx.author})')
+    await destroy_server(ctx, ctx.guild)
+    await build_server(ctx, ctx.guild)
+    await log('Recreating reaction role menus')
+    await create_role_menu(ctx.guild)
+
+
+@client.command()
+@commands.has_role('cse-support')
+async def destroyserver(ctx):
+    await log(f'DESTROYING SERVER ({ctx.author})')
+    await destroy_server(ctx, ctx.guild)
+
+
+@client.command()
+@commands.has_role('cse-support')
 async def clear(ctx, amount=''):
     if amount == 'all':
         await ctx.send(f'Clearing all messages from this channel')
@@ -371,30 +434,6 @@ async def ping(ctx):
     latency = round(client.latency * 1000)
     await ctx.send(f'{latency} ms')
     await log(f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
-
-
-@client.command()
-@commands.has_role('cse-support')
-async def rolemenu(ctx):
-    global reaction_roles
-
-    # Read JSON file attached to message
-    if len(ctx.message.attachments) > 0:
-        try:
-            os.remove('reaction_roles.json')
-        except FileNotFoundError:
-            pass
-        await ctx.message.attachments[0].save('reaction_roles.json')
-    try:
-        with open('reaction_roles.json', 'r') as f:
-            reaction_roles = json.loads(f.read())
-    except FileNotFoundError:
-        await ctx.send('Missing reaction roles JSON')
-        return
-
-    # Create the role menu
-    await create_role_menu()
-    await log(f'{ctx.author} built a rolemenu in #{ctx.channel}. Configuration saved to reaction_roles.json')
 
 
 @client.command()
@@ -500,6 +539,97 @@ def find_invite_by_code(invite_list, code):
     for invite in invite_list:
         if invite.code == code:
             return invite
+
+
+async def destroy_server(ctx, guild):
+    # Deletes all class channels/categories
+    class_names = re.compile('\\w{2,3} \\d{4}')
+    role_names = re.compile('\\w{2,3}\\d{4}')
+
+    # List all categories that will be deleted and get confirmation before actually deleting
+    deletion_list_message = 'The following categories will be deleted:\n'
+    for category in guild.categories:
+        if class_names.match(category.name):
+            deletion_list_message += category.name + '\n'
+    await ctx.send(deletion_list_message)
+
+    # Wait for confirmation
+    if await confirmation(ctx, 'confirm'):
+        # Find all matching categories in the guild
+        for category in guild.categories:
+            if class_names.match(category.name):
+
+                # Delete all channels in the category
+                for channel in category.channels:
+                    await channel.delete()
+
+                # Delete the category itself
+                await category.delete()
+
+        # Delete class roles
+        for role in guild.roles:
+            if role_names.match(role.name):
+                await role.delete()
+
+
+async def build_server(ctx, guild):
+    global reaction_roles
+
+    # Builds new class channels/categories from reaction roles
+    class_names = re.compile('\\w{2,3} \\d{4}')
+    guild_reaction_roles = reaction_roles[guild.id][1]
+
+    # # List all categories that will be created and get confirmation before actually creating
+    creation_list_message = 'The following categories will be created:\n'
+    for menu in guild_reaction_roles:
+        for _class in guild_reaction_roles[menu]:
+            if class_names.match(_class):
+                class_number = guild_reaction_roles[menu][_class]['role']
+                creation_list_message += class_number + '\n'
+    await ctx.send(creation_list_message)
+
+    # Wait for confirmation
+    if await confirmation(ctx, 'confirm'):
+        # Iterate through all menus in reaction roles
+        for menu in guild_reaction_roles:
+            # Iterate through all classes in each menu
+            for _class in guild_reaction_roles[menu]:
+                # Ignore menu properties
+                if class_names.match(_class):
+
+                    class_number = guild_reaction_roles[menu][_class]['role']
+
+                    # Create class role
+                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    await guild.create_role(name=class_number.replace(' ', ''), permissions=permissions)
+
+                    # Create category
+                    category = await guild.create_category(class_number)
+                    await category.set_permissions(guild.default_role, read_messages=False)
+                    for role in guild.roles:
+                        if role.name == class_number.replace(' ', ''):
+                            await category.set_permissions(role, read_messages=True)
+                            break
+
+                    # Create channels
+                    text_channel = await category.create_text_channel(class_number.replace(' ', ''))
+                    await text_channel.edit(topic=_class)
+                    await category.create_voice_channel('Student Voice')
+                    await category.create_voice_channel('TA Voice', user_limit=2)
+
+
+async def confirmation(ctx, confirm_string):
+    # Ask for confirmation
+    await ctx.send(f'Enter `{confirm_string}` to confirm action')
+
+    # Wait for confirmation
+    msg = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+    if msg.content == confirm_string:
+        await ctx.send(f'Action confirmed, executing')
+        return True
+    else:
+        await ctx.send(f'Confirmation failed, terminating execution')
+        return False
 
 
 async def dm(member, content):
