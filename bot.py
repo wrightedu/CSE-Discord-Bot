@@ -24,7 +24,7 @@ client = discord.Client()
 client = commands.Bot(command_prefix='-')
 invites = {}
 invites_json = None
-reaction_roles = None
+reaction_roles = {}
 reaction_message_ids = []
 start_time = time()
 load_dotenv()
@@ -487,29 +487,32 @@ async def log(string, timestamp=True):
         await f.write(timestamp_string + ' ' + string + '\n')
 
 
-async def create_role_menu():
+async def create_role_menu(guild):
+    global reaction_roles
+
     def get_emoji(emoji_name):
         emoji = discord.utils.get(client.emojis, name=emoji_name)
         if emoji is not None:
             return emoji
         return f':{emoji_name}:'
 
+    # Get this guild's reaction roles
+    guild_reaction_roles = reaction_roles[guild.id]
+
     # Generate list of menus to iterate through when sending messages
     menus = []
     clear_channel = False
-    for key in reaction_roles.keys():
-        menus.append((key, reaction_roles[key]))
+    for key in guild_reaction_roles[1].keys():
+        menus.append((key, guild_reaction_roles[1][key]))
 
     # Generate each menu independently
     for menu in menus:
-        print(f'Generating menu {menu[0]} in {menu[1]["channel_name"]}')
         # Get channel object
         channel_name = menu[1]['channel_name']
         reaction_role_channel = None
-        for guild in client.guilds:
-            for channel in guild.channels:
-                if channel.name.strip().lower() == channel_name.strip().lower():
-                    reaction_role_channel = channel
+        for channel in guild.channels:
+            if channel.name.strip().lower() == channel_name.strip().lower():
+                reaction_role_channel = channel
 
         # Clear channel if necessary
         if bool(menu[1]['clear_channel']):
