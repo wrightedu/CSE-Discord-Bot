@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 
 from diceParser import parse
 
+
 ##### ======= #####
 ##### GLOBALS #####
 ##### ======= #####
@@ -335,7 +336,7 @@ async def roll(ctx, *options):
 ##### ADMIN COMMANDS #####
 ##### ============== #####
 @client.command()
-@commands.has_role('cse-support')
+@commands.has_permissions(administrator=True)
 async def buildserver(ctx):
     global reaction_roles
 
@@ -376,14 +377,20 @@ async def buildserver(ctx):
 
 
 @client.command()
-@commands.has_role('cse-support')
+@commands.has_permissions(administrator=True)
 async def destroyserver(ctx):
     await log(f'DESTROYING SERVER ({ctx.author})')
     await destroy_server(ctx, ctx.guild)
 
 
 @client.command()
-@commands.has_role('cse-support')
+@commands.has_permissions(administrator=True)
+async def rolemenu(ctx):
+    await create_role_menu(ctx.guild)
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
 async def clear(ctx, amount=''):
     if amount == 'all':
         await ctx.send(f'Clearing all messages from this channel')
@@ -401,7 +408,7 @@ async def clear(ctx, amount=''):
 
 
 @client.command()
-@commands.has_role('cse-support')
+@commands.has_permissions(administrator=True)
 async def downloadcorgis(ctx, amount):
     try:
         amount = int(amount)
@@ -418,7 +425,7 @@ async def downloadcorgis(ctx, amount):
 
 
 @client.command()
-@commands.has_role('cse-support')
+@commands.has_permissions(administrator=True)
 async def status(ctx, *, status):
     status = status.strip()
     if status.lower() == 'none':
@@ -437,7 +444,7 @@ async def ping(ctx):
 
 
 @client.command()
-@commands.has_role('cse-support')
+@commands.has_permissions(administrator=True)
 async def clearrole(ctx, *, role_id):
     guild = ctx.guild
     role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
