@@ -163,6 +163,7 @@ async def on_raw_reaction_add(payload):
             if role is not None:
                 member = await guild.fetch_member(payload.user_id)
                 if not member.bot:  # Error suppression
+                    # Get class name from role
                     await member.add_roles(role)
                     await dm(member, f'Welcome to {role}!')
                     await log(f'Assigned role {role} to {member}')
@@ -386,6 +387,21 @@ async def destroyserver(ctx):
 @client.command()
 @commands.has_permissions(administrator=True)
 async def rolemenu(ctx):
+    global reaction_roles
+
+    guild = ctx.guild
+    reaction_roles_filename = f'reaction_roles_{guild.id}.json'
+
+    # If reaction roles specified in attachment
+    if len(ctx.message.attachments) > 0:
+        try:
+            os.remove(reaction_roles_filename)
+        except FileNotFoundError:
+            pass
+        await ctx.message.attachments[0].save(reaction_roles_filename)
+        with open(reaction_roles_filename, 'r') as f:
+            reaction_roles[guild.id] = (guild, json.loads(f.read()))
+
     await create_role_menu(ctx.guild)
 
 
@@ -611,6 +627,7 @@ async def build_server(ctx, guild):
 
                     # Create class role
                     permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    print(f'Creating role: {class_number.replace(" ", "")}')
                     await guild.create_role(name=class_number.replace(' ', ''), permissions=permissions)
 
                     # Create category
