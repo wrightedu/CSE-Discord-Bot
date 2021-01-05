@@ -625,24 +625,30 @@ async def build_server(ctx, guild):
 
                     class_number = guild_reaction_roles[menu][_class]['role']
 
-                    # Create class role
-                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-                    print(f'Creating role: {class_number.replace(" ", "")}')
-                    await guild.create_role(name=class_number.replace(' ', ''), permissions=permissions)
+                    # Check if category for class already exists (cross-listed). If so, don't make role or category
+                    category_exists = False
+                    for category in guild.categories:
+                        if category.name == class_number:
+                            category_exists = True
 
-                    # Create category
-                    category = await guild.create_category(class_number)
-                    await category.set_permissions(guild.default_role, read_messages=False)
-                    for role in guild.roles:
-                        if role.name == class_number.replace(' ', ''):
-                            await category.set_permissions(role, read_messages=True)
-                            break
+                    if not category_exists:
+                        # Create class role
+                        permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                        await guild.create_role(name=class_number.replace(' ', ''), permissions=permissions)
 
-                    # Create channels
-                    text_channel = await category.create_text_channel(class_number.replace(' ', ''))
-                    await text_channel.edit(topic=_class)
-                    await category.create_voice_channel('Student Voice')
-                    await category.create_voice_channel('TA Voice', user_limit=2)
+                        # Create category
+                        category = await guild.create_category(class_number)
+                        await category.set_permissions(guild.default_role, read_messages=False)
+                        for role in guild.roles:
+                            if role.name == class_number.replace(' ', ''):
+                                await category.set_permissions(role, read_messages=True)
+                                break
+
+                        # Create channels
+                        text_channel = await category.create_text_channel(class_number.replace(' ', ''))
+                        await text_channel.edit(topic=_class)
+                        await category.create_voice_channel('Student Voice')
+                        await category.create_voice_channel('TA Voice', user_limit=2)
 
 
 async def confirmation(ctx, confirm_string):
