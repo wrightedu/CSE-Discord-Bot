@@ -409,6 +409,8 @@ async def rolemenu(ctx):
 @commands.has_permissions(administrator=True)
 async def clear(ctx, amount=''):
     if amount == 'all':
+        if not await confirmation(ctx):
+            return
         await ctx.send(f'Clearing all messages from this channel')
         await log(f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
         amount = 999999999999999999999999999999999999999999
@@ -417,6 +419,9 @@ async def clear(ctx, amount=''):
         await log(f'{ctx.author} attempted to clear messages from #{ctx.channel}, but it failed because parameter "amount" was not passed')
         return
     else:
+        if amount >= 10:
+            if not await confirmation(ctx):
+                return
         await ctx.send(f'Clearing {amount} messages from this channel')
         await log(f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
     sleep(1)
@@ -651,7 +656,7 @@ async def build_server(ctx, guild):
                         await category.create_voice_channel('TA Voice', user_limit=2)
 
 
-async def confirmation(ctx, confirm_string):
+async def confirmation(ctx, confirm_string='confirm'):
     # Ask for confirmation
     await ctx.send(f'Enter `{confirm_string}` to confirm action')
 
