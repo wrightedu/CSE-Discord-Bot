@@ -23,8 +23,6 @@ from diceParser import parse
 ##### ======= #####
 client = discord.Client()
 client = commands.Bot(command_prefix='-')
-invites = {}
-invites_json = None
 reaction_roles = {}
 reaction_message_ids = []
 start_time = time()
@@ -39,22 +37,11 @@ GUILD_ID = os.getenv('DISCORD_GUILD_ID')
 ##### =========== #####
 @client.event
 async def on_ready():
-    global invites_json
     global reaction_roles
 
     await log('###################################')
     await log('# BOT STARTING FROM FULL SHUTDOWN #')
     await log('###################################')
-
-    # # Load invites JSON
-    # with open('invites.json', 'r') as f:
-    #     invites_json = json.loads(f.read())
-    # await log('Invites JSON loaded')
-
-    # # Get invite links
-    # for guild in client.guilds:
-    #     invites[guild.id] = await guild.invites()
-    # await log('Invites synced')
 
     # Initialize each guild
     for guild in client.guilds:
@@ -107,32 +94,6 @@ async def on_command_error(ctx, error):
 ##### ================== #####
 ##### MEMEBER MANAGEMENT #####
 ##### ================== #####
-@client.event
-async def on_member_join(member):
-    invites_before_join = invites[member.guild.id]
-    invites_after_join = await member.guild.invites()
-
-    # Figure out which invite link was used
-    for invite in invites_before_join:
-        if invite.uses < find_invite_by_code(invites_after_join, invite.code).uses:
-            invites[member.guild.id] = invites_after_join
-
-            # Assign role (and notify if prospective student)
-            for link in invites_json.keys():
-                if invite.code in link:
-                    await log(f'{invites_json[link]["purpose"]} {member.name} has joined ({link})')
-                    role = discord.utils.get(member.guild.roles, id=invites_json[link]['roleID'])
-                    await member.add_roles(role)
-                    await log(f'Assigned role {role} to {member.name}')
-
-                    # If prospective student, message in Prospective Student General
-                    if invites_json[link]['purpose'] == 'Prospective student':
-                        prospective_student_general_channel_id = 702895094881058896
-                        prospective_student_general_channel = client.get_channel(prospective_student_general_channel_id)
-                        channel = client.get_channel(702895094881058896)
-                        await channel.send(f'Hello, {member.mention}')
-            break
-
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -564,12 +525,6 @@ async def create_role_menu(guild):
 
             # Put reaction message ids in global list
             reaction_message_ids.append(reaction_message.id)
-
-
-def find_invite_by_code(invite_list, code):
-    for invite in invite_list:
-        if invite.code == code:
-            return invite
 
 
 async def destroy_server(ctx, guild):
