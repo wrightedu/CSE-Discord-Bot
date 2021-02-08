@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+import asyncio
 import json
 import os
 import random
 import re
+import sys
 from datetime import datetime
 from os.path import exists
 from pathlib import Path
@@ -16,7 +18,6 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 from diceParser import parse
-
 
 ##### ======= #####
 ##### GLOBALS #####
@@ -39,15 +40,26 @@ GUILD_ID = os.getenv('DISCORD_GUILD_ID')
 async def on_ready():
     global reaction_roles
 
+    # Startup status
+    await client.change_presence(activity=discord.Game('Booting'), status=discord.Status.dnd)
+
+    # Start logging
+    await log('\n\n\n\n\n', False)
     await log('###################################')
     await log('# BOT STARTING FROM FULL SHUTDOWN #')
     await log('###################################')
 
+    # Startup status
+    await client.change_presence(activity=discord.Game('Building servers'), status=discord.Status.idle)
+
     # Initialize each guild
     for guild in client.guilds:
         await log(f'Initializing server: {guild}')
+        await client.change_presence(activity=discord.Game(f'Building {guild.name}'), status=discord.Status.idle)
+
         # Load reaction roles JSONs
         reaction_roles_filename = f'reaction_roles_{guild.id}.json'
+
         # Load reaction roles from file
         if exists(reaction_roles_filename):
             with open(reaction_roles_filename, 'r') as f:
@@ -60,7 +72,7 @@ async def on_ready():
             await log(f'    failed, no reaction roles JSON')
 
     # Show the bot as online
-    await client.change_presence(activity=discord.Game('Raider Up!'), status=None, afk=False)
+    await client.change_presence(activity=discord.Game('Raider Up!'), status=discord.Status.online, afk=False)
     await log('Bot is online')
 
     # Print startup duration
@@ -167,7 +179,7 @@ async def on_raw_reaction_remove(payload):
 ##### ================ #####
 @client.command()
 async def support(ctx):
-    await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @ them or email them at cse-support.wright.edu')
+    await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
 
 
 @client.command()
@@ -445,6 +457,22 @@ async def clearrole(ctx, *, role_id):
         await ctx.send(f'No members have the role @{role}')
     else:
         await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def restart(ctx):
+    if await confirmation(ctx):
+        await ctx.send('Restarting...')
+        os.execv(sys.argv[0], sys.argv)
+
+
+@client.command(aliases=['shutdown', 'poweroff', 'exit'])
+@commands.has_permissions(administrator=True)
+async def stop(ctx):
+    if await confirmation(ctx):
+        await ctx.send('Stopping...')
+        exit(0)
 
 
 ##### ================= #####
