@@ -1,32 +1,5 @@
-# Folders            #
-######################
-__pycache__/
-corgis
-
-# Logs and databases #
-######################
-*.log
-*.sql
-*.sqlite
-*.swp
-
-# OS generated files #
-######################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-~*
-
-# Secrets            #
-######################
-*.env
-token
-
-# Containers         #
-# ####################
-*.simg
-*.sif
+*__pycache__/
+dogs/
+.env
+log
+reaction_roles*
