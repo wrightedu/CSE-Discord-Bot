@@ -11,8 +11,6 @@ Create a file `.env` in the same directory as `bot.py` with the following conten
 ```
 # .env
 DISCORD_TOKEN=INSERT_BOT_TOKEN_HERE
-DISCORD_GUILD='WSU CSE-EE Department'
-DISCORD_GUILD_ID=INSERT_SERVER
 ```
 
 The token can be found at the [developer page](https://discord.com/developers/applications/) Under the `WSU CSE` project > Bot. Do NOT regenerate the token. This will revoke permissions for all instances of the bot.
