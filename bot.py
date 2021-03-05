@@ -19,9 +19,9 @@ from dotenv import load_dotenv
 
 from diceParser import parse
 
-##### ======= #####
-##### GLOBALS #####
-##### ======= #####
+# ===========
+# = GLOBALS =
+# ===========
 client = discord.Client()
 client = commands.Bot(command_prefix='-')
 reaction_roles = {}
@@ -33,9 +33,9 @@ GUILD_NAME = os.getenv('DISCORD_GUILD')
 GUILD_ID = os.getenv('DISCORD_GUILD_ID')
 
 
-##### =========== #####
-##### CORE EVENTS #####
-##### =========== #####
+# ===============
+# = CORE EVENTS =
+# ===============
 @client.event
 async def on_ready():
     global reaction_roles
@@ -103,10 +103,9 @@ async def on_command_error(ctx, error):
         await log(f'{author} attempted to run `{message}` but failed because of an unexpected error: {error}')
 
 
-##### ================== #####
-##### MEMEBER MANAGEMENT #####
-##### ================== #####
-
+# ======================
+# = MEMEBER MANAGEMENT =
+# ======================
 @client.event
 async def on_raw_reaction_add(payload):
     global reaction_roles
@@ -146,37 +145,39 @@ async def on_raw_reaction_add(payload):
 
 @client.event
 async def on_raw_reaction_remove(payload):
-    if payload.message_id in reaction_message_ids:
-        # Get guild
-        guild_id = payload.guild_id
-        guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
+    if payload.message_id not in reaction_message_ids:
+        return
 
-        # Get guild reaction roles
-        guild_reaction_roles = reaction_roles[guild_id][1]
+    # Get guild
+    guild_id = payload.guild_id
+    guild = discord.utils.find(lambda g: g.id == guild_id, client.guilds)
 
-        # Find a role corresponding to the emoji name.
-        classes = []
-        for menu in guild_reaction_roles.keys():
-            for class_name in guild_reaction_roles[menu].keys():
-                if class_name not in ['channel_name', 'clear_channel']:
-                    classes.append(guild_reaction_roles[menu][class_name])
-        role = None
-        for _class in classes:
-            emoji = f':{_class["emoji"]}:'
-            if emoji in str(payload.emoji):
-                role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
+    # Get guild reaction roles
+    guild_reaction_roles = reaction_roles[guild_id][1]
 
-        # If role found, take it
-        if role is not None:
-            member = await guild.fetch_member(payload.user_id)
-            await member.remove_roles(role)
-            await dm(member, f'We\'ve taken you out of {role}')
-            await log(f'Took role {role} from {member}')
+    # Find a role corresponding to the emoji name.
+    classes = []
+    for menu in guild_reaction_roles.keys():
+        for class_name in guild_reaction_roles[menu].keys():
+            if class_name not in ['channel_name', 'clear_channel']:
+                classes.append(guild_reaction_roles[menu][class_name])
+    role = None
+    for _class in classes:
+        emoji = f':{_class["emoji"]}:'
+        if emoji in str(payload.emoji):
+            role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
+
+    # If role found, take it
+    if role is not None:
+        member = await guild.fetch_member(payload.user_id)
+        await member.remove_roles(role)
+        await dm(member, f'We\'ve taken you out of {role}')
+        await log(f'Took role {role} from {member}')
 
 
-##### ================ #####
-##### STUDENT COMAMNDS #####
-##### ================ #####
+# ====================
+# = STUDENT COMAMNDS =
+# ====================
 @client.command()
 async def support(ctx):
     await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
@@ -190,9 +191,7 @@ async def corgme(ctx, number=-1):
         downloadcorgis(100)
 
     # Get images from directory
-    images = []
-    for path in Path('corgis').rglob('*.*'):
-        images.append('corgis/corgi/' + path.name)
+    images = ['corgis/corgi/' + path.name for path in Path('corgis').rglob('*.*')]
 
     # Pick a random image
     if number != -1 and (0 < number < len(images)):
@@ -264,7 +263,7 @@ async def helloworld(ctx, language='random'):
 
     # List languages
     if language == 'ls':
-        languages = [i for i in outputs.keys()]
+        languages = [i for i in outputs]
         languages.sort()
         languages = '\n'.join(languages)
         await ctx.send(f'I know:\n{languages}')
@@ -277,7 +276,7 @@ async def helloworld(ctx, language='random'):
 
     # If random, pick random language
     if language == 'random':
-        languages = [i for i in outputs.keys()]
+        languages = [i for i in outputs]
         language = random.choice(languages)
 
     await ctx.send(f'{language}\n{outputs[language]}')
@@ -294,10 +293,9 @@ async def roll(ctx, *options):
             output = parse(dice)
             if len(output[0]) > 100:
                 await ctx.send(output[1])
-                await log(f'{ctx.author} successfully ran /roll in #{ctx.channel}')
             else:
                 await ctx.send(f'{output[0]}\n{output[1]}')
-                await log(f'{ctx.author} successfully ran /roll in #{ctx.channel}')
+            await log(f'{ctx.author} successfully ran /roll in #{ctx.channel}')
         except Exception:
             await ctx.send('Invalid input')
             await log(f'{ctx.author} unsuccessfully ran /roll in #{ctx.channel}, errored because input was invalid')
@@ -306,9 +304,9 @@ async def roll(ctx, *options):
         await log(f'{ctx.author} unsuccessfully ran /roll in #{ctx.channel}, errored because input was too large')
 
 
-##### ============== #####
-##### ADMIN COMMANDS #####
-##### ============== #####
+# ==================
+# = ADMIN COMMANDS =
+# ==================
 @client.command()
 @commands.has_permissions(administrator=True)
 async def buildserver(ctx):
@@ -344,17 +342,21 @@ async def buildserver(ctx):
 
     # If reaction roles JSON found (or attached)
     await log(f'BUILDING SERVER {ctx.guild} ({ctx.author})')
-    await destroy_server(ctx, ctx.guild)
-    await build_server(ctx, ctx.guild)
-    await log('Recreating reaction role menus')
-    await create_role_menu(ctx.guild)
+    # Wait for confirmation
+    if await confirmation(ctx, 'confirm'):
+        await destroy_server(ctx, ctx.guild)
+        await build_server(ctx, ctx.guild)
+        await log('Recreating reaction role menus')
+        await create_role_menu(ctx.guild)
 
 
 @client.command()
 @commands.has_permissions(administrator=True)
 async def destroyserver(ctx):
-    await log(f'DESTROYING SERVER ({ctx.author})')
-    await destroy_server(ctx, ctx.guild)
+    # Wait for confirmation
+    if await confirmation(ctx, 'confirm'):
+        await log(f'DESTROYING SERVER ({ctx.author})')
+        await destroy_server(ctx, ctx.guild)
 
 
 @client.command()
@@ -392,9 +394,8 @@ async def clear(ctx, amount=''):
         await log(f'{ctx.author} attempted to clear messages from #{ctx.channel}, but it failed because parameter "amount" was not passed')
         return
     else:
-        if amount >= 10:
-            if not await confirmation(ctx):
-                return
+        if amount >= 10 and not await confirmation(ctx):
+            return
         await ctx.send(f'Clearing {amount} messages from this channel')
         await log(f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
     sleep(1)
@@ -475,9 +476,9 @@ async def stop(ctx):
         exit(0)
 
 
-##### ================= #####
-##### UTILITY FUNCTIONS #####
-##### ================= #####
+# =====================
+# = UTILITY FUNCTIONS =
+# =====================
 async def log(string, timestamp=True):
     # Log to stdout
     timestamp_string = ''
@@ -567,23 +568,21 @@ async def destroy_server(ctx, guild):
             deletion_list_message += category.name + '\n'
     await ctx.send(deletion_list_message)
 
-    # Wait for confirmation
-    if await confirmation(ctx, 'confirm'):
-        # Find all matching categories in the guild
-        for category in guild.categories:
-            if class_names.match(category.name):
+    # Find all matching categories in the guild
+    for category in guild.categories:
+        if class_names.match(category.name):
 
-                # Delete all channels in the category
-                for channel in category.channels:
-                    await channel.delete()
+            # Delete all channels in the category
+            for channel in category.channels:
+                await channel.delete()
 
-                # Delete the category itself
-                await category.delete()
+            # Delete the category itself
+            await category.delete()
 
-        # Delete class roles
-        for role in guild.roles:
-            if role_names.match(role.name):
-                await role.delete()
+    # Delete class roles
+    for role in guild.roles:
+        if role_names.match(role.name):
+            await role.delete()
 
 
 async def build_server(ctx, guild):
@@ -593,7 +592,7 @@ async def build_server(ctx, guild):
     class_names = re.compile('\\w{2,3} \\d{4}')
     guild_reaction_roles = reaction_roles[guild.id][1]
 
-    # # List all categories that will be created and get confirmation before actually creating
+    # List all categories that will be created and get confirmation before actually creating
     creation_list_message = 'The following categories will be created:\n'
     for menu in guild_reaction_roles:
         for _class in guild_reaction_roles[menu]:
@@ -602,41 +601,39 @@ async def build_server(ctx, guild):
                 creation_list_message += class_number + '\n'
     await ctx.send(creation_list_message)
 
-    # Wait for confirmation
-    if await confirmation(ctx, 'confirm'):
-        # Iterate through all menus in reaction roles
-        for menu in guild_reaction_roles:
-            # Iterate through all classes in each menu
-            for _class in guild_reaction_roles[menu]:
-                # Ignore menu properties
-                if class_names.match(_class):
+    # Iterate through all menus in reaction roles
+    for menu in guild_reaction_roles:
+        # Iterate through all classes in each menu
+        for _class in guild_reaction_roles[menu]:
+            # Ignore menu properties
+            if class_names.match(_class):
 
-                    class_number = guild_reaction_roles[menu][_class]['role']
+                class_number = guild_reaction_roles[menu][_class]['role']
 
-                    # Check if category for class already exists (cross-listed). If so, don't make role or category
-                    category_exists = False
-                    for category in guild.categories:
-                        if category.name == class_number:
-                            category_exists = True
+                # Check if category for class already exists (cross-listed). If so, don't make role or category
+                category_exists = False
+                for category in guild.categories:
+                    if category.name == class_number:
+                        category_exists = True
 
-                    if not category_exists:
-                        # Create class role
-                        permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-                        await guild.create_role(name=class_number.replace(' ', ''), permissions=permissions)
+                if not category_exists:
+                    # Create class role
+                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    await guild.create_role(name=class_number.replace(' ', ''), permissions=permissions)
 
-                        # Create category
-                        category = await guild.create_category(class_number)
-                        await category.set_permissions(guild.default_role, read_messages=False)
-                        for role in guild.roles:
-                            if role.name == class_number.replace(' ', ''):
-                                await category.set_permissions(role, read_messages=True)
-                                break
+                    # Create category
+                    category = await guild.create_category(class_number)
+                    await category.set_permissions(guild.default_role, read_messages=False)
+                    for role in guild.roles:
+                        if role.name == class_number.replace(' ', ''):
+                            await category.set_permissions(role, read_messages=True)
+                            break
 
-                        # Create channels
-                        text_channel = await category.create_text_channel(class_number.replace(' ', ''))
-                        await text_channel.edit(topic=_class)
-                        await category.create_voice_channel('Student Voice')
-                        await category.create_voice_channel('TA Voice', user_limit=2)
+                    # Create channels
+                    text_channel = await category.create_text_channel(class_number.replace(' ', ''))
+                    await text_channel.edit(topic=_class)
+                    await category.create_voice_channel('Student Voice')
+                    await category.create_voice_channel('TA Voice', user_limit=2)
 
 
 async def confirmation(ctx, confirm_string='confirm'):
