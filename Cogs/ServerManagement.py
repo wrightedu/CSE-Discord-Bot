@@ -77,4 +77,69 @@ class ServerManagement(commands.Cog):
             with open(reaction_roles_filename, 'r') as f:
                 self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
 
-        await create_role_menu(ctx.guild)
+        self.reaction_message_ids = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        try:
+            if payload.message_id in self.reaction_message_ids:
+                # Get guild
+                guild_id = payload.guild_id
+                guild = discord.utils.find(lambda g: g.id == guild_id, self.bot.guilds)
+
+                # Get guild reaction roles
+                guild_reaction_roles = self.reaction_roles[guild_id][1]
+
+                # Find a role corresponding to the emoji name.
+                classes = []
+                for menu in guild_reaction_roles.keys():
+                    for class_name in guild_reaction_roles[menu].keys():
+                        if class_name not in ['channel_name', 'clear_channel']:
+                            classes.append(guild_reaction_roles[menu][class_name])
+                role = None
+                for _class in classes:
+                    emoji = f':{_class["emoji"]}:'
+                    if emoji in str(payload.emoji):
+                        role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
+
+                # If role found, assign it
+                if role is not None:
+                    member = await guild.fetch_member(payload.user_id)
+                    if not member.bot:  # Error suppression
+                        # Get class name from role
+                        await member.add_roles(role)
+                        await dm(member, f'Welcome to {role}!')
+                        await log(self.bot, f'Assigned role {role} to {member}')
+        except Exception:
+            await log(self.bot, 'Error suppressed, likely due to bot reacting to a role menu')
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        if payload.message_id not in self.reaction_message_ids:
+            return
+
+        # Get guild
+        guild_id = payload.guild_id
+        guild = discord.utils.find(lambda g: g.id == guild_id, self.bot.guilds)
+
+        # Get guild reaction roles
+        guild_reaction_roles = self.reaction_roles[guild_id][1]
+
+        # Find a role corresponding to the emoji name.
+        classes = []
+        for menu in guild_reaction_roles.keys():
+            for class_name in guild_reaction_roles[menu].keys():
+                if class_name not in ['channel_name', 'clear_channel']:
+                    classes.append(guild_reaction_roles[menu][class_name])
+        role = None
+        for _class in classes:
+            emoji = f':{_class["emoji"]}:'
+            if emoji in str(payload.emoji):
+                role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
+
+        # If role found, take it
+        if role is not None:
+            member = await guild.fetch_member(payload.user_id)
+            await member.remove_roles(role)
+            await dm(member, f'We\'ve taken you out of {role}')
+            await log(self.bot, f'Took role {role} from {member}')
