@@ -15,6 +15,7 @@ class AdminCommands(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def downloadcorgis(self, ctx, amount):
         try:
             amount = int(amount)
