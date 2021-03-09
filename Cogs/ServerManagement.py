@@ -13,8 +13,6 @@ def setup(bot):
 class ServerManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        if not hasattr(self, 'reaction_roles'):
-            self.reaction_roles = {}
 
     @commands.command()
     @commands.has_permissions(administrator=True)
