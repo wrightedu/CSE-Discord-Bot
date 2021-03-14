@@ -48,7 +48,7 @@ async def on_ready():
     # Initialize each guild
     await client.change_presence(activity=discord.Game(f'Building servers'), status=discord.Status.idle)
     reaction_roles = {}
-    reaction_message_ids = []
+    reaction_message_ids = {}
     for guild in client.guilds:
         await log(client, f'Initializing server: {guild}')
 
@@ -63,7 +63,7 @@ async def on_ready():
     # Load reaction roles into ServerManagement cog
     cog = client.get_cog('ServerManagement')
     cog.reaction_roles = reaction_roles
-    cog.reaction_message_ids = reaction_message_ids
+    cog.reaction_message_ids[guild.id] = reaction_message_ids
 
     # Generate role menu
     try:
