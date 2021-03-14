@@ -109,7 +109,8 @@ class ServerManagement(commands.Cog):
                         await dm(member, f'Welcome to {role}!')
                         await log(self.bot, f'Assigned role {role} to {member}')
         except Exception:
-            await log(self.bot, 'Error suppressed, likely due to bot reacting to a role menu')
+            pass
+            # await log(self.bot, 'Error suppressed, likely due to bot reacting to a role menu')
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
