@@ -75,14 +75,14 @@ class ServerManagement(commands.Cog):
             with open(reaction_roles_filename, 'r') as f:
                 self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
 
-        self.reaction_message_ids = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
+        self.reaction_message_ids[guild.id] = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         try:
-            if payload.message_id in self.reaction_message_ids:
+            guild_id = payload.guild_id
+            if payload.message_id in self.reaction_message_ids[guild_id]:
                 # Get guild
-                guild_id = payload.guild_id
                 guild = discord.utils.find(lambda g: g.id == guild_id, self.bot.guilds)
 
                 # Get guild reaction roles
@@ -113,7 +113,7 @@ class ServerManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
-        if payload.message_id not in self.reaction_message_ids:
+        if payload.message_id not in self.reaction_message_ids[payload.guild_id]:
             return
 
         # Get guild
