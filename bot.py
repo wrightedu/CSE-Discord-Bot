@@ -63,11 +63,12 @@ async def on_ready():
     # Load reaction roles into ServerManagement cog
     cog = client.get_cog('ServerManagement')
     cog.reaction_roles = reaction_roles
-    cog.reaction_message_ids[guild.id] = reaction_message_ids
+    cog.reaction_message_ids = reaction_message_ids
 
     # Generate role menu
     try:
-        cog.reaction_message_ids = await create_role_menu(client, guild, reaction_roles)
+        for guild in client.guilds:
+            cog.reaction_message_ids[guild.id] = await create_role_menu(client, guild, reaction_roles)
     except Exception:
         await log(client, f'    failed, no reaction roles JSON')
 
