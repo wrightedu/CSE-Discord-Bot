@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-import asyncio
 import json
 import os
-import random
-import sys
 from os.path import exists
-from random import randint
-from time import sleep, time
+from time import time
 
 import discord
 from discord.ext import commands
@@ -48,7 +44,6 @@ async def on_ready():
     # Initialize each guild
     await client.change_presence(activity=discord.Game(f'Building servers'), status=discord.Status.idle)
     reaction_roles = {}
-    reaction_message_ids = {}
     for guild in client.guilds:
         await log(client, f'Initializing server: {guild}')
 
@@ -63,7 +58,7 @@ async def on_ready():
     # Load reaction roles into ServerManagement cog
     cog = client.get_cog('ServerManagement')
     cog.reaction_roles = reaction_roles
-    cog.reaction_message_ids = reaction_message_ids
+    cog.reaction_message_ids = {}
 
     # Generate role menu
     try:
