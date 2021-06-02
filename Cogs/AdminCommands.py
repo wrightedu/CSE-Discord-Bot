@@ -25,7 +25,7 @@ class AdminCommands(commands.Cog):
         await download_corgis(self.bot, ctx, amount)
         await log(self.bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
 
-    @commands.command(help='`/clear AMOUNT` to clear AMOUNT messages\n`/clear all` to clear all messages from this channel')
+    @commands.command(help='`-clear AMOUNT` to clear AMOUNT messages\n`-clear all` to clear all messages from this channel')
     @commands.has_permissions(administrator=True)
     async def clear(self, ctx, amount=''):
         if amount == 'all':
@@ -35,7 +35,7 @@ class AdminCommands(commands.Cog):
             await log(self.bot, f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
             amount = 999999999999999999999999999999999999999999
         elif amount == '':
-            await ctx.send(f'No args passed. Use `/clear AMOUNT` to clear AMOUNT messages. Use `/clear all` to clear all messages from this channel')
+            await ctx.send(f'No args passed. Use `-clear AMOUNT` to clear AMOUNT messages. Use `-clear all` to clear all messages from this channel')
             await log(self.bot, f'{ctx.author} attempted to clear messages from #{ctx.channel}, but it failed because parameter "amount" was not passed')
             return
         else:
