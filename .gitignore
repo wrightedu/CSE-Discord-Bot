@@ -1,14 +1,23 @@
+# Discord Bot unique #
+######################
+reaction_roles*
+
+
 # Folders            #
 ######################
-__pycache__/
-corgis
+*__pycache__/
+corgis/
+dogs/
+
 
 # Logs and databases #
 ######################
+log
 *.log
 *.sql
 *.sqlite
 *.swp
+
 
 # OS generated files #
 ######################
@@ -21,12 +30,14 @@ ehthumbs.db
 Thumbs.db
 ~*
 
+
 # Secrets            #
 ######################
 *.env
 token
 
+
 # Containers         #
 # ####################
 *.simg
-*.sif
+*.sif 
