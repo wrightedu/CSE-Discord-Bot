@@ -55,6 +55,12 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def destroyserver(self, ctx):
+        """Take down server
+        Args:
+
+        Returns:
+                """
+
         await log(self.bot, f'DESTROYING SERVER ({ctx.author})')
         await destroy_server_helper(self.bot, ctx)
         await ctx.send('Done')
@@ -62,6 +68,12 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def rolemenu(self, ctx):
+        """Generate rolemenu for class selection
+        Args:
+
+        Returns:
+            calls create_roll_menu method"""
+
         guild = ctx.guild
         reaction_roles_filename = f'reaction_roles_{guild.id}.json'
 
@@ -79,6 +91,13 @@ class ServerManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        """Add students to roll by clicking on a reaction
+        Args:
+            payload: the reaction clicked? I think?
+
+        Returns:
+            """
+
         try:
             guild_id = payload.guild_id
             if payload.message_id in self.reaction_message_ids[guild_id]:
