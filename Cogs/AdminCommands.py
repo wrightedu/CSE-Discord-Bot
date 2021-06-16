@@ -17,6 +17,12 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def downloadcorgis(self, ctx, amount):
+        """Downloads a given number of corgi pictures
+        Args: 
+            amount: Number of pictures/pieces of media being downloaded
+        
+        Returns:
+            """
         try:
             amount = int(amount)
         except Exception:
@@ -28,6 +34,13 @@ class AdminCommands(commands.Cog):
     @commands.command(help='`-clear AMOUNT` to clear AMOUNT messages\n`-clear all` to clear all messages from this channel')
     @commands.has_permissions(administrator=True)
     async def clear(self, ctx, amount=''):
+        """Clears a specific number of messages from a guild
+        Args: 
+            amount: number of messages being removed
+        
+        Returns:
+            """
+
         if amount == 'all':
             if not await confirmation(self.bot, ctx):
                 return
@@ -50,6 +63,14 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def status(self, ctx, *, status):
+        """set status of discord bot
+        Args:
+            *:
+            status: Text to be displayed
+        
+        Returns:
+            status: Text getting displayed"""
+
         status = status.strip()
         if status.lower() == 'none':
             await self.bot.change_presence(activity=None)
@@ -61,6 +82,14 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def clearrole(self, ctx, *, role_id):
+        """Remove a role from the guild
+        Args: 
+            *:
+            role_id: Name of the role being removed
+
+        Returns: 
+            """
+
         guild = ctx.guild
         role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
 
@@ -85,6 +114,12 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def restart(self, ctx):
+        """Restart the discord bot
+        Args:
+
+        Returns:
+            """
+
         if await confirmation(self.bot, ctx):
             await ctx.send('Restarting...')
             os.execv(sys.argv[0], sys.argv)
@@ -92,6 +127,12 @@ class AdminCommands(commands.Cog):
     @commands.command(aliases=['shutdown', 'poweroff', 'exit'])
     @commands.has_permissions(administrator=True)
     async def stop(self, ctx):
+        """Shutdown the discord bot
+        Args:
+
+        Returns:
+            """
+
         if await confirmation(self.bot, ctx):
             await ctx.send('Stopping...')
             exit(0)

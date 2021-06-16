@@ -16,10 +16,18 @@ def setup(bot):
 
 class StudentCommands(commands.Cog):
     def __init__(self, bot):
+        """Initialize the bot"""
         self.bot = bot
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
+        """Output a picture of gif(pronounced 'gif') of a corgi
+        Args: 
+            number: ID number of the picture. Can be used to find specific corgi pictures
+
+        Returns:
+            images: Picture of a corgi"""
+
         # Check if corgis dir exists
         if not exists('dogs/corgis'):
             await log(self.bot, 'Corgis directory not found, downloading 100 images')
@@ -39,6 +47,15 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def helloworld(self, ctx, language='random'):
+    """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
+
+        Args: 
+            language: Allows the user to determine what coding language will be displayed
+
+        Returns:
+            outputs: Sample code for a 'Hello World' program in a chosen or random language
+            """
+
         outputs = {'python': '```python\nprint("Hello World!")```',
                    'c++': '```c++\n#include <iostream>\n\nint main() {\n    std::cout << "Hello world!" << std::endl;\n}```',
                    'java': '```java\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println("Hello world!");\n    }\n}```',
@@ -86,6 +103,16 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def poll(self, ctx, question, *options: str):
+    """Create a poll that users can vote on
+
+        Args:
+            Question: A question that the poll taker is asking. Should be encapsulated by a set of quotation marks. 
+            Options: A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
+        
+        Returns:
+            embeded: A formatted version of the question and options
+            reactions: A set of reactions for users to click on in order to vote in poll. """
+
         # Delete sender's message
         await ctx.channel.purge(limit=1)
 
@@ -117,6 +144,13 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def roll(self, ctx, *options):
+        
+        """Rolls dice of any size
+        Args: 
+            *options: size of dice being rolled. Should be input as 'd{number}'.
+        Returns:
+            output: random number between 1 and the size of die being rolled. """
+
         # Credit goes to Alan Fleming for the module that powers this command
         # https://github.com/AlanCFleming/DiceParser
         dice = ' '.join(options)
@@ -137,10 +171,22 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def support(self, ctx):
+        """A planned support command
+        Args: 
+
+        Returns:
+            error message"""
+
         await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
 
     @commands.command()
     async def ping(self, ctx):
+        """Determine the ping a user is experiencing
+        Args: 
+
+        Returns:
+            latency: The amount of time taken for a computer to send a response back to the server"""
+
         latency = round(self.bot.latency * 1000)
         await ctx.send(f'{latency} ms')
         await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
