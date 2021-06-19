@@ -1,8 +1,5 @@
-import json
-import os
-from os.path import exists
-
 from discord.ext import commands
+from discord_components import Button, ButtonStyle, InteractionType
 from utils import *
 
 
@@ -14,131 +11,62 @@ class ServerManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        # Role menu messages
+        # Lists of message ids keyed by guild ids
+        self.role_menus = {}
+
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildserver(self, ctx):
-        guild = ctx.guild
-        reaction_roles_filename = f'reaction_roles_{guild.id}.json'
-
-        # If reaction roles specified in attachment
-        if len(ctx.message.attachments) > 0:
-            try:
-                os.remove(reaction_roles_filename)
-            except FileNotFoundError:
-                pass
-            await ctx.message.attachments[0].save(reaction_roles_filename)
-            with open(reaction_roles_filename, 'r') as f:
-                self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
-
-        # If reaction roles not loaded for this guild, try to load from file
-        if ctx.guild.id not in self.reaction_roles.keys():
-            print('here')
-            # Next try to load from file
-            if exists(reaction_roles_filename):
-                with open(reaction_roles_filename, 'r') as f:
-                    self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
-
-            # Finally give up on loading and terminate command
-            else:
-                await ctx.send('Reaction roles JSON not found, rerun command with JSON attached')
-                await log(self.bot, 'Reaction roles JSON not found, rerun command with JSON attached')
-                return
-
-        # If reaction roles JSON found (or attached)
-        await log(self.bot, f'BUILDING SERVER {ctx.guild} ({ctx.author})')
-        await destroy_server_helper(self.bot, ctx)
-        await build_server_helper(self.bot, ctx, self.reaction_roles)
-        await log(self.bot, 'Recreating reaction role menus')
-        self. reaction_message_ids = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
-        await ctx.send('Done')
+        pass
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def destroyserver(self, ctx):
-        await log(self.bot, f'DESTROYING SERVER ({ctx.author})')
-        await destroy_server_helper(self.bot, ctx)
-        await ctx.send('Done')
+        # Destroy specific class(es) based on regex?
+        pass
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def rolemenu(self, ctx):
-        guild = ctx.guild
-        reaction_roles_filename = f'reaction_roles_{guild.id}.json'
-
-        # If reaction roles specified in attachment
-        if len(ctx.message.attachments) > 0:
-            try:
-                os.remove(reaction_roles_filename)
-            except FileNotFoundError:
-                pass
-            await ctx.message.attachments[0].save(reaction_roles_filename)
-            with open(reaction_roles_filename, 'r') as f:
-                self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
-
-        self.reaction_message_ids[guild.id] = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
-
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
-        try:
-            guild_id = payload.guild_id
-            if payload.message_id in self.reaction_message_ids[guild_id]:
-                # Get guild
-                guild = discord.utils.find(lambda g: g.id == guild_id, self.bot.guilds)
-
-                # Get guild reaction roles
-                guild_reaction_roles = self.reaction_roles[guild_id][1]
-
-                # Find a role corresponding to the emoji name.
-                classes = []
-                for menu in guild_reaction_roles.keys():
-                    for class_name in guild_reaction_roles[menu].keys():
-                        if class_name not in ['channel_name', 'clear_channel']:
-                            classes.append(guild_reaction_roles[menu][class_name])
-                role = None
-                for _class in classes:
-                    emoji = f':{_class["emoji"]}:'
-                    if emoji in str(payload.emoji):
-                        role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
-
-                # If role found, assign it
-                if role is not None:
-                    member = await guild.fetch_member(payload.user_id)
-                    if not member.bot:  # Error suppression
-                        # Get class name from role
-                        await member.add_roles(role)
-                        await dm(member, f'Welcome to {role}!')
-                        await log(self.bot, f'Assigned role {role} to {member}')
-        except Exception:
-            pass
-            # await log(self.bot, 'Error suppressed, likely due to bot reacting to a role menu')
-
-    @commands.Cog.listener()
-    async def on_raw_reaction_remove(self, payload):
-        if payload.message_id not in self.reaction_message_ids[payload.guild_id]:
+    async def rolemenu(self, ctx, title, *args):
+        if len(args) > 25:
             return
 
-        # Get guild
-        guild_id = payload.guild_id
-        guild = discord.utils.find(lambda g: g.id == guild_id, self.bot.guilds)
+        buttons = [[Button(style=ButtonStyle.gray, label=j) for j in args[i:i + 5]] for i in range(0, len(args), 5)]
+        message = await ctx.channel.send(f'**{title}**', components=buttons)
+        if ctx.guild.id not in self.role_menus.keys():
+            self.role_menus[ctx.guild.id] = []
+        self.role_menus[ctx.guild.id].append(message.id)
 
-        # Get guild reaction roles
-        guild_reaction_roles = self.reaction_roles[guild_id][1]
+    @commands.Cog.listener()
+    async def on_button_click(self, res):
+        msg_id = res.message.id
+        guild_id = res.guild.id
 
-        # Find a role corresponding to the emoji name.
-        classes = []
-        for menu in guild_reaction_roles.keys():
-            for class_name in guild_reaction_roles[menu].keys():
-                if class_name not in ['channel_name', 'clear_channel']:
-                    classes.append(guild_reaction_roles[menu][class_name])
-        role = None
-        for _class in classes:
-            emoji = f':{_class["emoji"]}:'
-            if emoji in str(payload.emoji):
-                role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
+        # If clicked on role menu
+        if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
+            # Get object for class role
+            class_role = None
+            class_role_name = res.component.label
+            for role in res.guild.roles:
+                if role.name == class_role_name:
+                    class_role = role
+                    break
 
-        # If role found, take it
-        if role is not None:
-            member = await guild.fetch_member(payload.user_id)
-            await member.remove_roles(role)
-            await dm(member, f'We\'ve taken you out of {role}')
-            await log(self.bot, f'Took role {role} from {member}')
+            # If role doesn't exist, error
+            if class_role is None:
+                await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'The {class_role_name} role does not exist, please contact an admin')
+
+            else:
+                # Get member object to give role to or take role from
+                member = await get_member(res.guild, res.user.id)
+
+                # Assign or remove role
+                print(class_role)
+                print(member.roles)
+                if class_role in member.roles:
+                    await member.remove_roles(class_role)
+                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Took the {class_role.name} role!')
+                else:
+                    await member.add_roles(class_role)
+                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Gave you the {class_role.name} role!')
