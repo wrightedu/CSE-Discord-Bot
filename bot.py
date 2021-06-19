@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-import json
 import os
 from os.path import exists
 from time import time
 
 import discord
 from discord.ext import commands
+from discord_components import DiscordComponents
 from dotenv import load_dotenv
 
 from utils import *
 
-client = discord.Client()
-client = commands.Bot(command_prefix='-')
+intents = discord.Intents(messages=True, guilds=True, members=True)
+client = commands.Bot(command_prefix='-', intents=intents)
 start_time = time()
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -19,6 +19,9 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 @client.event
 async def on_ready():
+    # Set up Discord Components
+    DiscordComponents(client)
+
     # Startup status
     await client.change_presence(activity=discord.Game('Booting'), status=discord.Status.dnd)
 
@@ -40,32 +43,6 @@ async def on_ready():
                 await log(client, f'Loaded cog: {file[:-3]}')
             except commands.errors.NoEntryPointError:
                 pass
-
-    # Initialize each guild
-    await client.change_presence(activity=discord.Game(f'Building servers'), status=discord.Status.idle)
-    reaction_roles = {}
-    for guild in client.guilds:
-        await log(client, f'Initializing server: {guild}')
-
-        # Load reaction roles JSONs
-        reaction_roles_filename = f'reaction_roles_{guild.id}.json'
-
-        # Load reaction roles from file
-        if exists(reaction_roles_filename):
-            with open(reaction_roles_filename, 'r') as f:
-                reaction_roles[guild.id] = (guild, json.loads(f.read()))
-
-    # Load reaction roles into ServerManagement cog
-    cog = client.get_cog('ServerManagement')
-    cog.reaction_roles = reaction_roles
-    cog.reaction_message_ids = {}
-
-    # Generate role menu
-    try:
-        for guild in client.guilds:
-            cog.reaction_message_ids[guild.id] = await create_role_menu(client, guild, reaction_roles)
-    except Exception:
-        await log(client, f'    failed, no reaction roles JSON')
 
     # Show the bot as online
     await client.change_presence(activity=discord.Game('Raider Up!'), status=discord.Status.online, afk=False)
