@@ -25,6 +25,7 @@ class ServerManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def buildserver(self, ctx):
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
+        # TODO: destroy server before overwriting csv
 
         # If csv file attached, overwrite existing csv
         if len(ctx.message.attachments) > 0:
@@ -37,23 +38,23 @@ class ServerManagement(commands.Cog):
         # Load roles csv
         self.roles_csvs[str(ctx.guild.id)] = pd.read_csv(csv_filepath)
 
-        # TODO: destroy server first
         # Print list of channels to build
         message = '__**CREATE FOLLOWING CATEGORIES**__\n'
-        for i, row in self.roles_csvs[str(ctx.guild.id)].iterrows():
+        for _, row in self.roles_csvs[str(ctx.guild.id)].iterrows():
             if type(row['create_channels']) != float:
                 message += f'{row["text"]}\n'
         await ctx.send(message)
 
-        # Build all channels
+        # Get confirmation before building channels
         if not await confirmation(self.bot, ctx, 'build'):
             return
 
-        for i, row in self.roles_csvs[str(ctx.guild.id)].iterrows():
+        # Build all channels
+        for _, row in self.roles_csvs[str(ctx.guild.id)].iterrows():
             # If role isn't a link, create role
             if not validators.url(row['role/link']):
                 permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-                await ctx.guild.create_role(name=row['text'], permissions=permissions)
+                await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
 
             # If channels to make
             if type(row['create_channels']) != float:
@@ -80,8 +81,57 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def destroyserver(self, ctx):
-        # Destroy specific class(es) based on regex?
-        pass
+        # Load roles csv
+        csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
+        self.roles_csvs[str(ctx.guild.id)] = pd.read_csv(csv_filepath)
+
+        # = Destroy Categories =
+
+        # List of names of categories to be destroyed, as determined by saved csv
+        destroy_category_names = self.roles_csvs[str(ctx.guild.id)].iloc[:, 0].tolist()
+
+        # Get list of all categories (category objects) to be destroyed and print
+        destroy_categories = []
+        message = '__**DESTROY FOLLOWING CATEGORIES**__\n'
+        for category in ctx.guild.categories:
+            if category.name in destroy_category_names:
+                message += f'{category.name}\n'
+                destroy_categories.append(category)
+        await ctx.send(message)
+
+        # Get confirmation before destroying channels
+        if len(destroy_categories):
+            if not await confirmation(self.bot, ctx, 'destroy'):
+                return
+
+        # Destroy categories and all subchannels
+        for category in destroy_categories:
+            for channel in category.channels:
+                await channel.delete()
+            await category.delete()
+
+        # = Destroy Roles =
+
+        # List of names of role to be destroyed, as determined by saved csv
+        destroy_role_names = self.roles_csvs[str(ctx.guild.id)].iloc[:, 2].tolist()
+
+        # Get list of all roles (role objects) to be destroyed and print
+        destroy_roles = []
+        message = '__**DESTROY FOLLOWING ROLES**__\n'
+        for role in ctx.guild.roles:
+            if role.name in destroy_role_names:
+                message += f'{role.mention}\n'
+                destroy_roles.append(role)
+        await ctx.send(message)
+
+        # Get confirmation before destroying channels
+        if not await confirmation(self.bot, ctx, 'destroy'):
+            return
+
+        # Destroy categories and all subchannels
+        if len(destroy_roles):
+            for role in destroy_roles:
+                await role.delete()
 
     @commands.command()
     @commands.has_permissions(administrator=True)
