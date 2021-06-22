@@ -19,8 +19,6 @@ class ServerManagement(commands.Cog):
         # Lists of message ids keyed by guild ids
         self.role_menus = {}
 
-        self.roles_csvs = {}
-
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildserver(self, ctx):
@@ -36,11 +34,11 @@ class ServerManagement(commands.Cog):
             await ctx.message.attachments[0].save(csv_filepath)
 
         # Load roles csv
-        self.roles_csvs[str(ctx.guild.id)] = pd.read_csv(csv_filepath)
+        roles_csvs = pd.read_csv(csv_filepath)
 
         # Print list of channels to build
         message = '__**CREATE FOLLOWING CATEGORIES**__\n'
-        for _, row in self.roles_csvs[str(ctx.guild.id)].iterrows():
+        for _, row in roles_csvs.iterrows():
             if type(row['create_channels']) != float:
                 message += f'{row["text"]}\n'
         await ctx.send(message)
@@ -50,7 +48,7 @@ class ServerManagement(commands.Cog):
             return
 
         # Build all channels
-        for _, row in self.roles_csvs[str(ctx.guild.id)].iterrows():
+        for _, row in roles_csvs.iterrows():
             # If role isn't a link, create role
             if not validators.url(row['role/link']):
                 permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
@@ -83,12 +81,12 @@ class ServerManagement(commands.Cog):
     async def destroyserver(self, ctx):
         # Load roles csv
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
-        self.roles_csvs[str(ctx.guild.id)] = pd.read_csv(csv_filepath)
+        roles_csvs = pd.read_csv(csv_filepath)
 
         # = Destroy Categories =
 
         # List of names of categories to be destroyed, as determined by saved csv
-        destroy_category_names = self.roles_csvs[str(ctx.guild.id)].iloc[:, 0].tolist()
+        destroy_category_names = roles_csvs.iloc[:, 0].tolist()
 
         # Get list of all categories (category objects) to be destroyed and print
         destroy_categories = []
@@ -100,9 +98,8 @@ class ServerManagement(commands.Cog):
         await ctx.send(message)
 
         # Get confirmation before destroying channels
-        if len(destroy_categories):
-            if not await confirmation(self.bot, ctx, 'destroy'):
-                return
+        if len(destroy_categories) and not await confirmation(self.bot, ctx, 'destroy'):
+            return
 
         # Destroy categories and all subchannels
         for category in destroy_categories:
@@ -113,7 +110,7 @@ class ServerManagement(commands.Cog):
         # = Destroy Roles =
 
         # List of names of role to be destroyed, as determined by saved csv
-        destroy_role_names = self.roles_csvs[str(ctx.guild.id)].iloc[:, 2].tolist()
+        destroy_role_names = roles_csvs.iloc[:, 2].tolist()
 
         # Get list of all roles (role objects) to be destroyed and print
         destroy_roles = []
@@ -125,13 +122,12 @@ class ServerManagement(commands.Cog):
         await ctx.send(message)
 
         # Get confirmation before destroying channels
-        if not await confirmation(self.bot, ctx, 'destroy'):
+        if len(destroy_roles) and not await confirmation(self.bot, ctx, 'destroy'):
             return
 
         # Destroy categories and all subchannels
-        if len(destroy_roles):
-            for role in destroy_roles:
-                await role.delete()
+        for role in destroy_roles:
+            await role.delete()
 
     @commands.command()
     @commands.has_permissions(administrator=True)
