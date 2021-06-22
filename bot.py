@@ -31,9 +31,6 @@ async def on_ready():
     await log(client, '# BOT STARTING FROM FULL SHUTDOWN #')
     await log(client, '###################################')
 
-    # Startup status
-    await client.change_presence(activity=discord.Game('Building servers'), status=discord.Status.idle)
-
     # Load all cogs
     await client.change_presence(activity=discord.Game(f'Loading Cogs'), status=discord.Status.idle)
     for file in os.listdir('Cogs'):

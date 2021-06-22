@@ -8,6 +8,7 @@ reaction_roles*
 *__pycache__/
 corgis/
 dogs/
+role_lists/*
 
 
 # Logs and databases #
@@ -40,4 +41,4 @@ token
 # Containers         #
 # ####################
 *.simg
-*.sif 
+*.sif
