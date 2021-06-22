@@ -1,4 +1,5 @@
 import os
+from os.path import exists
 
 import pandas as pd
 import validators
@@ -19,6 +20,9 @@ class ServerManagement(commands.Cog):
         # Lists of message ids keyed by guild ids
         self.role_menus = {}
 
+        if not exists('role_lists/'):
+            os.mkdir('role_lists')
+
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildserver(self, ctx):
@@ -29,10 +33,8 @@ class ServerManagement(commands.Cog):
 
         # If csv file attached, overwrite existing csv
         if len(ctx.message.attachments) > 0:
-            try:
+            if exists(csv_filepath):
                 os.remove(csv_filepath)
-            except FileNotFoundError:
-                pass
             await ctx.message.attachments[0].save(csv_filepath)
 
         # Load roles csv
@@ -56,37 +58,44 @@ class ServerManagement(commands.Cog):
                 permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
                 await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
 
-            # If channels to make
-            if type(row['create_channels']) != float:
-                channels = row['create_channels'].split(',')
-                # Create category and channels
-                if len(channels) > 0:
-                    # Create category
-                    category = await ctx.guild.create_category(row['text'])
-                    await category.set_permissions(ctx.guild.default_role, read_messages=False)
-                    for role in ctx.guild.roles:
-                        if role.name == row['role/link']:
-                            await category.set_permissions(role, read_messages=True)
+            # If no channels to make, go to next row in CSV
+            if type(row['create_channels']) == float:
+                continue
 
-                    # Create channels
-                    for channel in channels:
-                        # Create text channel
-                        if channel.startswith('#'):
-                            text_channel = await category.create_text_channel(channel)
-                            await text_channel.edit(topic=row['long_name'])
-                        # Create voice channel
-                        else:
-                            member_count, channel_name = channel.split('#')
-                            if member_count == 0:
-                                await category.create_voice_channel(channel_name)
-                            else:
-                                await category.create_voice_channel(channel_name, user_limit=int(member_count))
+            # Create category and channels
+            channels = row['create_channels'].split(',')
+            # if len(channels) > 0:
+            # Create category
+            category = await ctx.guild.create_category(row['text'])
+            await category.set_permissions(ctx.guild.default_role, read_messages=False)
+            for role in ctx.guild.roles:
+                if role.name == row['role/link']:
+                    await category.set_permissions(role, read_messages=True)
+
+            # Create channels
+            for channel in channels:
+                # Create text channel
+                if channel.startswith('#'):
+                    text_channel = await category.create_text_channel(channel)
+                    await text_channel.edit(topic=row['long_name'])
+                # Create voice channel
+                else:
+                    member_count, channel_name = channel.split('#')
+                    if member_count == 0:
+                        await category.create_voice_channel(channel_name)
+                    else:
+                        await category.create_voice_channel(channel_name, user_limit=int(member_count))
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def destroyserver(self, ctx):
-        # Load roles csv
+        # If no saved csv, can't delete files
+        # ? Regex fallback?
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
+        if not exists(csv_filepath):
+            return
+
+        # Load roles csv
         roles_csvs = pd.read_csv(csv_filepath)
 
         # = Destroy Categories =
