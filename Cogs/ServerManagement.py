@@ -23,7 +23,9 @@ class ServerManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def buildserver(self, ctx):
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
-        # TODO: destroy server before overwriting csv
+
+        # Destroy server before building
+        await self.destroyserver(ctx)
 
         # If csv file attached, overwrite existing csv
         if len(ctx.message.attachments) > 0:
@@ -62,19 +64,23 @@ class ServerManagement(commands.Cog):
                     # Create category
                     category = await ctx.guild.create_category(row['text'])
                     await category.set_permissions(ctx.guild.default_role, read_messages=False)
+                    for role in ctx.guild.roles:
+                        if role.name == row['role/link']:
+                            await category.set_permissions(role, read_messages=True)
 
                     # Create channels
                     for channel in channels:
                         # Create text channel
                         if channel.startswith('#'):
-                            text_channel = await category.create_text_channel(row['text'])
+                            text_channel = await category.create_text_channel(channel)
                             await text_channel.edit(topic=row['long_name'])
-                        # Create TA voice channel
-                        elif channel.startswith('TA'):
-                            await category.create_voice_channel(channel, user_limit=2)
-                        # Create normal voice channel
+                        # Create voice channel
                         else:
-                            await category.create_voice_channel(channel)
+                            member_count, channel_name = channel.split('#')
+                            if member_count == 0:
+                                await category.create_voice_channel(channel_name)
+                            else:
+                                await category.create_voice_channel(channel_name, user_limit=int(member_count))
 
     @commands.command()
     @commands.has_permissions(administrator=True)
