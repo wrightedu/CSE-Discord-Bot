@@ -62,9 +62,6 @@ class ServerManagement(commands.Cog):
             if type(row['create_channels']) == float:
                 continue
 
-            # Create category and channels
-            channels = row['create_channels'].split(',')
-            # if len(channels) > 0:
             # Create category
             category = await ctx.guild.create_category(row['text'])
             await category.set_permissions(ctx.guild.default_role, read_messages=False)
@@ -73,6 +70,7 @@ class ServerManagement(commands.Cog):
                     await category.set_permissions(role, read_messages=True)
 
             # Create channels
+            channels = row['create_channels'].split(',')
             for channel in channels:
                 # Create text channel
                 if channel.startswith('#'):
@@ -81,10 +79,10 @@ class ServerManagement(commands.Cog):
                 # Create voice channel
                 else:
                     member_count, channel_name = channel.split('#')
-                    if member_count == 0:
-                        await category.create_voice_channel(channel_name)
-                    else:
+                    if int(member_count) > 0:
                         await category.create_voice_channel(channel_name, user_limit=int(member_count))
+                    else:
+                        await category.create_voice_channel(channel_name)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
