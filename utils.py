@@ -25,6 +25,12 @@ async def get_member(guild, member_id):
     return None
 
 
+async def get_channel_named(guild, channel_name):
+    for channel in guild.channels:
+        if channel.name == channel_name:
+            return channel
+
+
 async def log(client, string, timestamp=True):
     # Log to stdout
     timestamp_string = ''

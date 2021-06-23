@@ -1,4 +1,6 @@
+import json
 import os
+import re
 
 import pandas as pd
 import validators
@@ -17,7 +19,13 @@ class ServerManagement(commands.Cog):
 
         # Role menu messages
         # Lists of message ids keyed by guild ids
-        self.role_menus = {}
+        try:
+            with open('role_menus.json', 'r') as f:
+                self.role_menus = json.load(f)
+                print('loaded role menu message ids from file')
+        except FileNotFoundError:
+            self.role_menus = {}
+            print('empty role menu dict')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -68,19 +76,22 @@ class ServerManagement(commands.Cog):
                         if role.name == row['role/link']:
                             await category.set_permissions(role, read_messages=True)
 
-                    # Create channels
-                    for channel in channels:
-                        # Create text channel
-                        if channel.startswith('#'):
-                            text_channel = await category.create_text_channel(channel)
-                            await text_channel.edit(topic=row['long_name'])
-                        # Create voice channel
+                # Create channels
+                for channel in channels:
+                    # Create text channel
+                    if channel.startswith('#'):
+                        text_channel = await category.create_text_channel(channel)
+                        await text_channel.edit(topic=row['long_name'])
+                    # Create voice channel
+                    else:
+                        member_count, channel_name = channel.split('#')
+                        if member_count == 0:
+                            await category.create_voice_channel(channel_name)
                         else:
-                            member_count, channel_name = channel.split('#')
-                            if member_count == 0:
-                                await category.create_voice_channel(channel_name)
-                            else:
-                                await category.create_voice_channel(channel_name, user_limit=int(member_count))
+                            await category.create_voice_channel(channel_name, user_limit=int(member_count))
+
+        # Build role menus
+        await self.rolemenu(ctx)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -137,43 +148,123 @@ class ServerManagement(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def rolemenu(self, ctx, title, *args):
-        if len(args) > 25:
+    async def rolemenu(self, ctx):
+        csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
+
+        # If csv file attached, overwrite existing csv
+        if len(ctx.message.attachments) > 0:
+            try:
+                os.remove(csv_filepath)
+            except FileNotFoundError:
+                pass
+            await ctx.message.attachments[0].save(csv_filepath)
+
+        # Load roles csv
+        roles_csv = pd.read_csv(csv_filepath)
+
+        # Determine which channel to send each role menu in
+        class_number_regex = '^[a-zA-Z]{2,3}\\d{4}$'
+        menu_roles = {}
+        for i, row in roles_csv.iterrows():
+            # Get channel name for role button
+            channel_name = None
+            # If row is for class
+            if re.match(class_number_regex, row['role/link']):
+                # Letters at beginning denote category
+                channel_name = f'{row["role/link"][:-4].lower()}-class-selection'
+
+            # If can't find channel, ask for it
+            while channel_name is None:
+                await ctx.send(f'Channel for `{row["text"]}` not found, enter channel to send to')
+                msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+                if len(msg.channel_mentions):
+                    channel_name = msg.channel_mentions[0].name
+
+                # Add role to dictionary entry for channel
+            if channel_name not in menu_roles.keys():
+                menu_roles[channel_name] = []
+            menu_roles[channel_name].append(list(roles_csv.loc[i]))
+
+        # Get confirmation before purging
+        channel_names_string = ''
+        for channel_name in menu_roles.keys():
+            channel_names_string += (await get_channel_named(ctx.guild, channel_name)).mention + '\n'
+        await ctx.send(f'The following channels will be **PURGED**!!! Continue?\n{channel_names_string}')
+        if not await confirmation(self.bot, ctx, 'purge'):
+            await ctx.send('Terminating execution')
             return
 
-        buttons = [[Button(style=ButtonStyle.gray, label=j) for j in args[i:i + 5]] for i in range(0, len(args), 5)]
-        message = await ctx.channel.send(f'**{title}**', components=buttons)
-        if ctx.guild.id not in self.role_menus.keys():
-            self.role_menus[ctx.guild.id] = []
-        self.role_menus[ctx.guild.id].append(message.id)
+        # For each channel, create role menus
+        for channel_name, roles in menu_roles.items():
+            channel = await get_channel_named(ctx.guild, channel_name)
+
+            # Iterate through this channel's roles, creating 1D list of all buttons required
+            buttons = []
+            for role_data in roles:
+                # Data for the current role
+                text, emoji, role_link, long_name, create_channels = role_data
+
+                # If role, make button style gray. If URL, make style URL
+                if not validators.url(role_link):
+                    buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=emoji))
+                else:
+                    buttons.append(Button(style=ButtonStyle.URL, label=text, emoji=emoji, url=role_link))
+
+            # Reshape buttons to sets of max 5x5
+            menus = []  # list of 2D grids of buttons
+            for i in range(0, len(buttons), 25):
+                chunk = buttons[i:i + 25]
+                menus.append([chunk[i:i + 5] for i in range(0, len(chunk), 5)])
+
+            # Clear channel
+            await channel.purge()
+
+            # Send each role menu
+            for menu in menus:
+                # Send and save message
+                message = await channel.send('‍', components=menu)  # 0 width joiner in here to send empty message
+                if ctx.guild.id not in self.role_menus.keys():
+                    self.role_menus[ctx.guild.id] = []
+                self.role_menus[ctx.guild.id].append(message.id)
+
+        # Save new role menu message ids to file
+        with open('role_menus.json', 'w') as f:
+            json.dump(self.role_menus, f)
 
     @commands.Cog.listener()
     async def on_button_click(self, res):
         msg_id = res.message.id
-        guild_id = res.guild.id
+        guild_id = str(res.guild.id)
 
         # If clicked on role menu
         if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
+            # Load roles csv
+            roles_csv = pd.read_csv(f'role_lists/roles_{guild_id}.csv')
+
+            # Get role name
+            for _, row in roles_csv.iterrows():
+                if row['text'] == res.component.label:
+                    role_name = row['role/link']
+
             # Get object for class role
-            class_role = None
-            class_role_name = res.component.label
+            role = None
+            # role_name = res.component.label
             for role in res.guild.roles:
-                if role.name == class_role_name:
-                    class_role = role
+                if role.name == role_name:
                     break
 
             # If role doesn't exist, error
-            if class_role is None:
-                await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'The {class_role_name} role does not exist, please contact an admin')
+            if role is None:
+                await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'The {role_name} role does not exist, please contact an admin')
 
             else:
                 # Get member object to give role to or take role from
                 member = await get_member(res.guild, res.user.id)
 
                 # Assign or remove role
-                if class_role in member.roles:
-                    await member.remove_roles(class_role)
-                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Took the {class_role.name} role!')
+                if role in member.roles:
+                    await member.remove_roles(role)
+                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Took the {role.name} role!')
                 else:
-                    await member.add_roles(class_role)
-                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Gave you the {class_role.name} role!')
+                    await member.add_roles(role)
+                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Gave you the {role.name} role!')
