@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-from os.path import exists
 from time import time
 
 import discord

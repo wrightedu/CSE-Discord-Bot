@@ -1,4 +1,7 @@
-pandas
-validators
-discord-py
+aiofiles
+bing_image_downloader
 discord-components
+discord-py
+pandas
+python-dotenv
+validators
