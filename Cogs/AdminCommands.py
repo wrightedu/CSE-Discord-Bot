@@ -17,11 +17,22 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def downloadcorgis(self, ctx, amount):
-        """Downloads a given number of corgi pictures
+        """Downloads a given number of corgi pictures. 
+        Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
+        Call the download_corgies method from utils.py. Log the user and number of images downloaded. 
+
         Args: 
+            ctx:
+                author: User that called the command
+                channel: Discord channel that the command was called in
             amount: Number of pictures/pieces of media being downloaded
         
-        Returns:
+        Throws: 
+            Exception: Occurs if a user input cannot be converted to an integer
+
+        Yields:
+            -Message to log stating the user that executed the command and how many images were downloaded
+            -Message to user if the input was invalid. States that 100 Corgies are downloaded. 
             """
         try:
             amount = int(amount)
@@ -35,10 +46,23 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def clear(self, ctx, amount=''):
         """Clears a specific number of messages from a guild
+        Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
+        clear a very large number of messages from the server. If the amount is blank, tell user how to more 
+        properly use the command. Otherwise, send message confirming how many messages are being cleared and log it. 
+        Purge the appropriate number of messages from the channel. 
         Args: 
-            amount: number of messages being removed
+            ctx:
+                author: User that called the command
+                channel: Discord channel that the command was called in
+            amount: Number of messages being removed
         
-        Returns:
+        Yields: 
+            -If all messages are to be cleared: Message to user stating that all messages are being cleared.
+                -Log user and number of messages being cleared. 
+            -If X messages being cleared: Message to user stating that X messages are being cleared. 
+                -Log user and number of messages being cleared. 
+            -If input is blank: Message to user giving help on properly using command.
+                -Log failed message clear attempt
             """
 
         if amount == 'all':
@@ -63,13 +87,18 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def status(self, ctx, *, status):
-        """set status of discord bot
+        """Set status of discord bot
+        Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
+        removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
+        on the discord bot and passes in the user input to the method. Log the author and new status. 
         Args:
-            *:
+            *: Requires all following arguments to be keyword arguments. Also removes all inputs between the command
             status: Text to be displayed
         
-        Returns:
-            status: Text getting displayed"""
+        Yields:
+            -If status is 'none': Log author and that they disabled the custom status. 
+            -Otherwise: log author and the new status of Discord Bot
+            """
 
         status = status.strip()
         if status.lower() == 'none':
@@ -82,12 +111,20 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def clearrole(self, ctx, *, role_id):
-        """Remove a role from the guild
-        Args: 
-            *:
-            role_id: Name of the role being removed
+        """Remove a role from each member of a guild.
+        Remove the extra characters from the ID number of the guild. Search through every member of a guild to see if 
+        they have the role that matches the ID in question. If the member has the role, remove it from their roles. Send
+        message in chat confirming that the role has been removed, and the number of users it has been removed from. 
 
-        Returns: 
+        Args: 
+            ctx:
+                guild: Used to determine the guild that the user is typing in
+            *: Requires all following arguments to be keyword arguments. Also removes all inputs between the command 
+                call and the role_id parameter
+            role_id (string): ID of the role being removed
+
+        Yields: 
+            Message to chat regarding what role was removed and how many users were stripped of it 
             """
 
         guild = ctx.guild
@@ -97,6 +134,7 @@ class AdminCommands(commands.Cog):
 
         await log(self.bot, f'{ctx.author} is clearing {role} from all members:')
         # for member in role.get_all_members():
+        #why is the line above this commented out?? Can it be deleted because the line follow this exists?
         async for member in ctx.guild.fetch_members():
             if role in member.roles:
                 await member.remove_roles(role)
@@ -115,9 +153,10 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def restart(self, ctx):
         """Restart the discord bot
-        Args:
+        Send message to user confirming restart. Call os.execv method (similar to os.execl)
 
-        Returns:
+        Yields:
+            Message to chat confirming that the bot is restarting.
             """
 
         if await confirmation(self.bot, ctx):
@@ -128,9 +167,10 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def stop(self, ctx):
         """Shutdown the discord bot
-        Args:
+        Send message to user confirming shutdown. Exit program.
 
-        Returns:
+        Yields:
+            Message to user that discord bot is being shut down
             """
 
         if await confirmation(self.bot, ctx):
