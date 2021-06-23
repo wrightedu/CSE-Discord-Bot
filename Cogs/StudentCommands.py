@@ -22,11 +22,18 @@ class StudentCommands(commands.Cog):
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
         """Output a picture of gif(pronounced 'gif') of a corgi
-        Args: 
-            number: ID number of the picture. Can be used to find specific corgi pictures
+        Check to see if the corgis directory exists. If not, download 100 images and make a log of the event. 
+        Loop through all images in the directory containing pictures and place them in a list of images. 
+        If no number was input by user, select a random image from the list and send it in chat. If the user
+        did input a number, use it as the index for the picture list and send the appropriate picture in chat. 
 
-        Returns:
-            images: Picture of a corgi"""
+        Args: 
+            number: ID number of the picture. Can be used to find specific corgi pictures from the existing list
+
+        Yields:
+            image: picture being sent to chat
+            -log author and channel that command was used in
+            """
 
         # Check if corgis dir exists
         if not exists('dogs/corgis'):
@@ -49,13 +56,17 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def helloworld(self, ctx, language='random'):
-    """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
-
+        """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
+        Take in user input for a programming language. If input is ls, list all the languages that the command
+        can give code for. If input is not listed in the keys for output or is 'random', pick a random language 
+        to display. If input is valid, display example code for the language of choice in chat and create a log 
+        of event.
+        
         Args: 
             language: Allows the user to determine what coding language will be displayed
 
-        Returns:
-            outputs: Sample code for a 'Hello World' program in a chosen or random language
+        Yields:
+            output: Sample code for a 'Hello World' program in a chosen or random language
             """
 
         outputs = {'python': '```python\nprint("Hello World!")```',
@@ -104,15 +115,24 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def poll(self, ctx, question, *options: str):
-    """Create a poll that users can vote on
+        """Create a poll that users can vote on
+        Delete user message to call command. Prompt user to enter correct number of messages if command is called
+        impoperly. Determine what the most approptiate reactions for voting will be for the poll. Create a list 
+        of descriptions for each option that poll takers can choose from. Generate a two column format with reaction
+        images on the left and options on the right. Embed this and display this in the discord chat. 
+        Log the creation of the poll. 
 
         Args:
+            ctx:
+                channel: The channel that the command was made in.
             Question: A question that the poll taker is asking. Should be encapsulated by a set of quotation marks. 
             Options: A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
+                May have multiple entries
         
-        Returns:
+        Yields:
             embeded: A formatted version of the question and options
-            reactions: A set of reactions for users to click on in order to vote in poll. """
+            reactions: A set of reactions for users to click on in order to vote in poll. 
+            """
 
         # Delete sender's message
         await ctx.channel.purge(limit=1)
@@ -147,10 +167,24 @@ class StudentCommands(commands.Cog):
     async def roll(self, ctx, *options):
         
         """Rolls dice of any size
-        Args: 
-            *options: size of dice being rolled. Should be input as 'd{number}'.
-        Returns:
-            output: random number between 1 and the size of die being rolled. """
+        Check to see if the input is an appropriate size and quantity. Call imported dice parse module and store in
+        'output'. 'output'[0] is the raw roll, and 'output'[1] is the roll with all modifiers included. If the length
+        of the raw roll exceeds 100, the final tally is displayed to the chat. Otherwise, both the raw roll and final
+        tally are displayed. An exception is called if the parse method cannot accept the input, and a log of the event
+        is created. If the input is too large, the user is informed of this, and the user as well as failed call 
+        attempt are logged. 
+        Args:
+            channel: The channel that the command was sent in 
+            *options: Size of dice being rolled. Should be input as 'd{number}'. 
+                The presence of * suggests that the user may input multiple dice sizes,but this is not the case.
+        
+        Throws:
+            Exception: Thrown if 'options' cannot be parsed into a positive int or if user input wrong format. 
+
+        Yields:
+            output: Random number between 1 and the size of die being rolled.
+            -error messages for inputs that are invalid
+            """
 
         # Credit goes to Alan Fleming for the module that powers this command
         # https://github.com/AlanCFleming/DiceParser
@@ -173,20 +207,28 @@ class StudentCommands(commands.Cog):
     @commands.command()
     async def support(self, ctx):
         """A planned support command
+        Informs user that the command is not yet available. 
         Args: 
 
-        Returns:
-            error message"""
+        Yields:
+            error message explaining that the command is not yet available.
+            """
 
         await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
 
     @commands.command()
     async def ping(self, ctx):
         """Determine the ping a user is experiencing
-        Args: 
+        Retrieve latency field from bot and round to miliseconds. Send message informing user of latency and log
+        the user, the channel the command was called in, and latency. 
 
-        Returns:
-            latency: The amount of time taken for a computer to send a response back to the server"""
+        Args: 
+            ctx:
+                channel: The channel that the command was made in.
+
+        Yields:
+            latency: The amount of time taken for a computer to send a response back to the server
+            """
 
         latency = round(self.bot.latency * 1000)
         await ctx.send(f'{latency} ms')
