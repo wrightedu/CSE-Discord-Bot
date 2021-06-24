@@ -180,7 +180,7 @@ class ServerManagement(commands.Cog):
                 if len(msg.channel_mentions):
                     channel_name = msg.channel_mentions[0].name
 
-                # Add role to dictionary entry for channel
+            # Add role to dictionary entry for channel
             if channel_name not in menu_roles.keys():
                 menu_roles[channel_name] = []
             menu_roles[channel_name].append(list(roles_csv.loc[i]))
@@ -248,7 +248,6 @@ class ServerManagement(commands.Cog):
 
             # Get object for class role
             role = None
-            # role_name = res.component.label
             for role in res.guild.roles:
                 if role.name == role_name:
                     break
