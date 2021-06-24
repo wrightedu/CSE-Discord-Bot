@@ -222,7 +222,7 @@ class ServerManagement(commands.Cog):
             # Send each role menu
             for menu in menus:
                 # Send and save message
-                message = await channel.send('‍', components=menu)  # 0 width joiner in here to send empty message
+                message = await channel.send('‍\u200c', components=menu)  # 0 width joiner in here to send empty message
                 if ctx.guild.id not in self.role_menus.keys():
                     self.role_menus[ctx.guild.id] = []
                 self.role_menus[ctx.guild.id].append(message.id)
