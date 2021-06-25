@@ -210,7 +210,6 @@ class ServerManagement(commands.Cog):
                 emoji = await get_emoji_named(ctx.guild, emoji_name)
                 if emoji is None:
                     emoji = discord_emoji.emojize(f':{emoji_name}:', use_aliases=True)
-                print(emoji)
 
                 # If role, make button style gray. If URL, make style URL
                 if not validators.url(role_link):
