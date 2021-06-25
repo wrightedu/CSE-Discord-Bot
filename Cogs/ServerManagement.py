@@ -62,7 +62,8 @@ class ServerManagement(commands.Cog):
             # If role isn't a link, create role
             if not validators.url(row['role/link']):
                 permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-                await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
+                role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
+                role.mentionable = True
 
             # If channels to make
             if type(row['create_channels']) != float:
@@ -163,7 +164,6 @@ class ServerManagement(commands.Cog):
         roles_csv = pd.read_csv(csv_filepath)
 
         # Determine which channel to send each role menu in
-        # TODO: add optional space between letters and numbers
         class_number_regex = '^[a-zA-Z]{2,3} ?\\d{4}$'
         menu_roles = {}
         for i, row in roles_csv.iterrows():
@@ -172,7 +172,7 @@ class ServerManagement(commands.Cog):
             # If row is for class
             if re.match(class_number_regex, row['role/link']):
                 # Letters at beginning denote category
-                channel_name = f'{row["role/link"][:-4].lower().strip()1}-class-selection'
+                channel_name = f'{row["role/link"][:-4].lower().strip()}-class-selection'
 
             # If can't find channel, ask for it
             while channel_name is None:
@@ -235,7 +235,6 @@ class ServerManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_button_click(self, res):
-        print('button clicked')
         msg_id = res.message.id
         guild_id = res.guild.id
 
