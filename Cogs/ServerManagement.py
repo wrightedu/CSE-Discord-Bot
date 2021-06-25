@@ -260,7 +260,7 @@ class ServerManagement(commands.Cog):
 
         # print(guild_id, self.role_menus.keys(), guild_id in self.role_menus.keys())
         # print(msg_id, self.role_menus[guild_id], msg_id in self.role_menus[guild_id])
-        print(self.role_menus[guild_id])
+        # print(self.role_menus[guild_id])
 
         # If clicked on role menu
         if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
@@ -272,7 +272,6 @@ class ServerManagement(commands.Cog):
             for _, row in roles_csv.iterrows():
                 if res.component.label in {row['text'], f'{row["text"]} - {row["long_name"]}'}:
                     role_name = row['role/link']
-            print(f'Role name: {role_name}')
 
             # Get object for class role
             role = None
@@ -280,7 +279,6 @@ class ServerManagement(commands.Cog):
                 if guild_role.name == role_name:
                     role = guild_role
                     break
-            print(f'Got role: {role}')
 
             # If role doesn't exist, error
             if role is None:
