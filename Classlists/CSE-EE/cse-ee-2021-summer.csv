@@ -1,25 +1,27 @@
 "text","emoji","role/link","long_name","create_channels"
-"CEG 3310","microprocessor","CEG 3310","Computer Organization","#ceg3310,0#Student Voice,2#TA Voice"
-"CEG 4324","wafer","CEG 4324","Digital Integrated Circuit Design","#ceg4324,0#Student Voice,2#TA Voice"
-"CEG 4350","debian","CEG 4350","CEG 4350 (OS Internals and Design)","#ceg4350,0#Student Voice,2#TA Voice"
-"CEG 4900","websecurity","CEG 4900","Web Security","#ceg4900,0#Student Voice,2#TA Voice"
-"CEG 6324","wafer","CEG 4324","Digital Integrated Circuit Design",
-"CEG 6900","websecurity","CEG 4900","Web Security",
-"CEG 7470","trust_networks","CEG 7470","Advanced Wireless Networks","#ceg7470,0#Student Voice,2#TA Voice"
-"CS 1000","tech_and_society","CS 1000","Tech and Society","#cs1000,0#Student Voice,2#TA Voice"
-"CS 1180","java","CS 1180","Computer Science I","#cs1180,0#Student Voice,2#TA Voice"
-"CS 1181","java_2","CS 1181","Computer Science II","#cs1181,0#Student Voice,2#TA Voice"
-"CS 2900 (Internships)","internship","CS 2900 (Internships)","Internship CS and CE","#cs2900-internships,0#Student Voice,2#TA Voice"
-"CS 2900 (Data Analyitics)","python","CS 2900 (Data Analyitics)","Data Analyitics with Python","#cs2900-data-analyitics,0#Student Voice,2#TA Voice"
-"CS 3100","tree","CS 3100","Data Structures and Algorithms","#cs3100,0#Student Voice,2#TA Voice"
-"CS 3900","gamecontroller","CS 3900","Game Programming","#cs3900,0#Student Voice,2#TA Voice"
-"CS 4290","cryptography","CS 4290","Cryptography and Data Security","#cs4290,0#Student Voice,2#TA Voice"
-"CS 6290","cryptography","CS 4290","Cryptography and Data Security",
-"CS 7120","functionalprogramming","CS 7120","Functional and Logic Programming","#cs7120,0#Student Voice,2#TA Voice"
-"CS 7700","databasepp","CS 7700","Advanced Database Systems","#cs7700,0#Student Voice,2#TA Voice"
-"CS 7840","softcomputing","CS 7840","Soft Computing","#cs7840,0#Student Voice,2#TA Voice"
-"EE 2010","capacitor","EE 2010","Analog Circuit Theory","#ee2010,0#Student Voice,2#TA Voice"
-"EE 3210","slide_rule","EE 3210","Linear Systems I","#ee3210,0#Student Voice,2#TA Voice"
-"EE 4620","wafer","CEG 4324","Digital Integrated Circuit Design",
-"EE 6620","wafer","CEG 4324","Digital Integrated Circuit Design",
-"EE 7410","palpatine","EE 7410","Power Electronics I","#ee7410,0#Student Voice,2#TA Voice"
+"CEG 3310","microprocessor","CEG3310","Computer Organization","#ceg3310,0#Student Voice,2#TA Voice"
+"CEG 4324","wafer","CEG4324","Digital Integrated Circuit Design","#ceg4324,0#Student Voice,2#TA Voice"
+"CEG 4350","debian","CEG4350","CEG 4350 (OS Internals and Design)","#ceg4350,0#Student Voice,2#TA Voice"
+"CEG 4900","websecurity","CEG4900","Web Security","#ceg4900,0#Student Voice,2#TA Voice"
+"CEG 6324","wafer","CEG4324","Digital Integrated Circuit Design",
+"CEG 6900","websecurity","CEG4900","Web Security",
+"CEG 7470","trust_networks","CEG7470","Advanced Wireless Networks","#ceg7470,0#Student Voice,2#TA Voice"
+"CS 1000","tech_and_society","CS1000","Tech and Society","#cs1000,0#Student Voice,2#TA Voice"
+"CS 1180","java","CS1180","Computer Science I","#cs1180,0#Student Voice,2#TA Voice"
+"CS 1181","java_2","CS1181","Computer Science II","#cs1181,0#Student Voice,2#TA Voice"
+"CS 2900 (Internships)","internship","CS2900","Internship CS and CE","#cs2900-internships,0#Student Voice,2#TA Voice"
+"CS 2900 (Data Analyitics)","python","CS 2900 (Data Analyitics with Python)","Data Analyitics with Python","#cs2900-data-analyitics,0#Student Voice,2#TA Voice"
+"CS 3100","tree","CS3100","Data Structures and Algorithms","#cs3100,0#Student Voice,2#TA Voice"
+"CS 3900","gamecontroller","CS3900","Game Programming","#cs3900,0#Student Voice,2#TA Voice"
+"CS 4290","cryptography","CS4290","Cryptography and Data Security","#cs4290,0#Student Voice,2#TA Voice"
+"CS 6290","cryptography","CS4290","Cryptography and Data Security",
+"CS 7120","functionalprogramming","CS7120","Functional and Logic Programming","#cs7120,0#Student Voice,2#TA Voice"
+"CS 7700","databasepp","CS7700","Advanced Database Systems","#cs7700,0#Student Voice,2#TA Voice"
+"CS 7840","softcomputing","CS7840","Soft Computing","#cs7840,0#Student Voice,2#TA Voice"
+"EE 2010","capacitor","EE2010","Analog Circuit Theory","#ee2010,0#Student Voice,2#TA Voice"
+"EE 3210","slide_rule","EE3210","Linear Systems I","#ee3210,0#Student Voice,2#TA Voice"
+"EE 4620","wafer","CEG4324","Digital Integrated Circuit Design",
+"EE 6620","wafer","CEG4324","Digital Integrated Circuit Design",
+"EE 7410","palpatine","EE7410","Power Electronics I","#ee7410,0#Student Voice,2#TA Voice"
+"ACM","acm","acm","Association for Computing Machinery",
+"Collegiate Esports Club","esports_club","https://discord.gg/smmV38d",,

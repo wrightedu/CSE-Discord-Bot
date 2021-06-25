@@ -62,9 +62,12 @@ class ServerManagement(commands.Cog):
         for _, row in roles_csvs.iterrows():
             # If role isn't a link, create role
             if not validators.url(row['role/link']):
-                permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-                role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
-                role.mentionable = True
+                # If role doesn't already exist (due to cross-listing)
+                role_exists = any(role.name == row['role/link'] for role in ctx.guild.roles)
+                if not role_exists:
+                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
+                    role.mentionable = True
 
             # If channels to make
             if type(row['create_channels']) != float:
@@ -165,15 +168,21 @@ class ServerManagement(commands.Cog):
         roles_csv = pd.read_csv(csv_filepath)
 
         # Determine which channel to send each role menu in
-        class_number_regex = '^[a-zA-Z]{2,3} ?\\d{4}$'
+        class_number_regex = '^[a-zA-Z]{2,3} ?\\d{4}'
         menu_roles = {}
         for i, row in roles_csv.iterrows():
             # Get channel name for role button
             channel_name = None
             # If row is for class
-            if re.match(class_number_regex, row['role/link']):
+            if re.match(class_number_regex, row['text']):
                 # Letters at beginning denote category
-                channel_name = f'{row["role/link"][:-4].lower().strip()}-class-selection'
+                text = row['text'].lower().strip()
+                category = ''
+                for j in range(len(text)):
+                    if text[j] not in 'abcdefghijklmnopqrstuvwxyz':
+                        category = text[:j]
+                        break
+                channel_name = f'{category}-class-selection'
 
             # If can't find channel, ask for it
             while channel_name is None:
@@ -197,6 +206,7 @@ class ServerManagement(commands.Cog):
             return
 
         # For each channel, create role menus
+        self.role_menus[str(ctx.guild.id)] = []
         for channel_name, roles in menu_roles.items():
             channel = await get_channel_named(ctx.guild, channel_name)
 
@@ -218,10 +228,11 @@ class ServerManagement(commands.Cog):
                     emoji = None
 
                 # If role, make button style gray. If URL, make style URL
+                label = f'{text} - {long_name}' if str(long_name) != 'nan' else text
                 if not validators.url(role_link):
-                    buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=emoji))
+                    buttons.append(Button(style=ButtonStyle.gray, label=label, emoji=emoji))
                 else:
-                    buttons.append(Button(style=ButtonStyle.URL, label=text, emoji=emoji, url=role_link))
+                    buttons.append(Button(style=ButtonStyle.URL, label=label, emoji=emoji, url=role_link))
 
             # Reshape buttons to sets of max 5x5
             menus = []  # list of 2D grids of buttons
@@ -236,8 +247,6 @@ class ServerManagement(commands.Cog):
             for menu in menus:
                 # Send and save message
                 message = await channel.send('‍\u200c', components=menu)  # 0 width joiner in here to send empty message
-                if str(ctx.guild.id) not in self.role_menus.keys():
-                    self.role_menus[str(ctx.guild.id)] = []
                 self.role_menus[str(ctx.guild.id)].append(message.id)
 
         # Save new role menu message ids to file
@@ -249,20 +258,26 @@ class ServerManagement(commands.Cog):
         msg_id = res.message.id
         guild_id = str(res.guild.id)
 
+        # print(guild_id, self.role_menus.keys(), guild_id in self.role_menus.keys())
+        # print(msg_id, self.role_menus[guild_id], msg_id in self.role_menus[guild_id])
+        # print(self.role_menus[guild_id])
+
         # If clicked on role menu
         if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
             # Load roles csv
             roles_csv = pd.read_csv(f'role_lists/roles_{guild_id}.csv')
 
             # Get role name
+            role_name = ''
             for _, row in roles_csv.iterrows():
-                if row['text'] == res.component.label:
+                if res.component.label in {row['text'], f'{row["text"]} - {row["long_name"]}'}:
                     role_name = row['role/link']
 
             # Get object for class role
             role = None
-            for role in res.guild.roles:
-                if role.name == role_name:
+            for guild_role in res.guild.roles:
+                if guild_role.name == role_name:
+                    role = guild_role
                     break
 
             # If role doesn't exist, error
