@@ -1,0 +1,26 @@
+{
+     "Mechanical and Materials Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "class-selection",
+        "ME 3210 (System Dynamics)": {
+            "role": "ME 3210",
+            "emoji": "car_suspension"
+        },
+        "ME 3310 (Thermodynamics I)": {
+            "role": "ME 3310",
+            "emoji": "thermodynamics"
+        },
+        "ME 3350 (Fluid Dynamics)": {
+            "role": "ME 3350",
+            "emoji": "fluid_dynamics"
+        },
+        "ME 3360 (Heat Transfer)": {
+            "role": "ME 3360",
+            "emoji": "heat_transfer"
+        },
+        "ME 4140 (Mechanical Design I)": {
+            "role": "ME 4140",
+            "emoji": "mechanical_design"
+        }
+    }
+}

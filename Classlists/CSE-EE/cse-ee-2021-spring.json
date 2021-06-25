@@ -1,0 +1,439 @@
+{
+    "Computer Engineering Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "ceg-class-selection",
+        "CEG 2170 (Intro to C Programming)": {
+            "role": "CEG 2170",
+            "emoji": "cLogo"
+        },
+        "CEG 2350 (OS Concepts and Usage)": {
+            "role": "CEG 2350",
+            "emoji": "tux"
+        },
+        "CEG 2410 (System Administration)": {
+            "role": "CEG 2410",
+            "emoji": "starTrek"
+        },
+        "CEG 3120 (Intro to the Design of IT Systems)": {
+            "role": "CEG 3120",
+            "emoji": "ethernet"
+        },
+        "CEG 3310 (Computer Org)": {
+            "role": "CEG 3310",
+            "emoji": "microprocessor"
+        },
+        "CEG 3320 (Digital System Design)": {
+            "role": "CEG 3320",
+            "emoji": "and"
+        },
+        "CEG 3400 (Intro to Cyber Security)": {
+            "role": "CEG 3400",
+            "emoji": "cybersecurity"
+        },
+        "CEG 3410 (Into to Digital Forensics)": {
+            "role": "CEG 3410",
+            "emoji": "digital_forensics"
+        },
+        "CEG 4110 (Intro to Software Engineering)": {
+            "role": "CEG 4110",
+            "emoji": "softwareEngineering"
+        },
+        "CEG 4120 (Managing the Software Development Process)": {
+            "role": "CEG 4120",
+            "emoji": "git"
+        },
+        "CEG 4324 (Digital Integrated Circuit Design with PLDs and FPGAs)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        },
+        "CEG 4330 (Microprocessor Based Embedded Systems)": {
+            "role": "CEG 4330",
+            "emoji": "circuit"
+        },
+        "CEG 4350 (OS Internals and Design)": {
+            "role": "CEG 4350",
+            "emoji": "debian"
+        },
+        "CEG 4424 (Security Attacks and Defenses)": {
+            "role": "CEG 4424",
+            "emoji": "sword_and_shield"
+        },
+        "CEG 4426 (Legal Aspects of Cyber Security)": {
+            "role": "CEG 4426",
+            "emoji": "gavel"
+        },
+        "CEG 4510 (3D Modeling and Computer Animation)": {
+            "role": "CEG 4510",
+            "emoji": "blender"
+        },
+        "CEG 4750 (Information Security)": {
+            "role": "CEG 4750",
+            "emoji": "host_computer_security"
+        },
+        "CEG 4980 (Team Projects I)": {
+            "role": "CEG 4980",
+            "emoji": "oldDude"
+        },
+        "CEG 4981 (Team Projects II)": {
+            "role": "CEG 4981",
+            "emoji": "oldJaundicedDude"
+        }
+    },
+
+    "Computer Engineering Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "ceg-class-selection",
+        "CEG 6110 (Introduction to Software Engineering) (Cross-list CEG 4110)": {
+            "role": "CEG 4110",
+            "emoji": "softwareEngineering"
+        },
+        "CEG 6120 (Managing the Software Development Process) (Cross-list CEG 4120)": {
+            "role": "CEG 4120",
+            "emoji": "git"
+        },
+        "CEG 6324 (Digital Integrated Circuit Design with PLDs and FPGAs) (Cross-list CEG 4324)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        },
+        "CEG 6330 (Microprocessor-based Embedded Systems) (Cross-list CEG 4330)": {
+            "role": "CEG 4330",
+            "emoji": "circuit"
+        },
+        "CEG 6424 (Security Attacks & Defenses) Cross-list CEG 4424)": {
+            "role": "CEG 4424",
+            "emoji": "sword_and_shield"
+        },
+        "CEG 6426 (Legal Aspects of Cyber Security) (Cross-list CEG 4426)": {
+            "role": "CEG 4426",
+            "emoji": "gavel"
+        },
+        "CEG 6510 (3-D Modeling and Computer Animation) (Cross-list CEG 4510)": {
+            "role": "CEG 4510",
+            "emoji": "blender"
+        },
+        "CEG 6750 (Information Security) (Cross-list CEG 4750)": {
+            "role": "CEG 4750",
+            "emoji": "host_computer_security"
+        },
+        "CEG 7020 (Low Power VLSI System Design)": {
+            "role": "CEG 7020",
+            "emoji": "low_power"
+        },
+        "CEG 7360 (Embedded Systems)": {
+            "role": "CEG 7360",
+            "emoji": "arduino"
+        },
+        "CEG 7370 (Distributed Computing)": {
+            "role": "CEG 7370",
+            "emoji": "aws"
+        },
+        "CEG 7470 (Advanced Wireless Networks)": {
+            "role": "CEG 7470",
+            "emoji": "trust_networks"
+        },
+        "CEG 7550 (Computer Vision)": {
+            "role": "CEG 7550",
+            "emoji": "smeagol"
+        },
+        "CEG 7900 (New Frontiers in Computing)": {
+            "role": "CEG 7900",
+            "emoji": "enterprise"
+        }
+    },
+
+    "Computer Science Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "cs-class-selection",
+        "CS 1000 (Tech and Society)": {
+            "role": "CS 1000",
+            "emoji": "tech_and_society"
+        },
+        "CS 1150 (Intro to Computer Science)": {
+            "role": "CS 1150",
+            "emoji": "intro_to_computer_science"
+        },
+        "CS 1160 (Intro to Computer Programming)": {
+            "role": "CS 1160",
+            "emoji": "python"
+        },
+        "CS 1180 (Computer Science I)": {
+            "role": "CS 1180",
+            "emoji": "java"
+        },
+        "CS 1181 (Computer Science II)": {
+            "role": "CS 1181",
+            "emoji": "java_2"
+        },
+        "CS 1300 (Data Science for Everyone)": {
+            "role": "CS 1300",
+            "emoji": "dataScience"
+        },
+        "CS 2200 (Discrete Structures and Their Algorithms)": {
+            "role": "CS 2200",
+            "emoji": "facepalm"
+        },
+        "CS 2210 (Logic for Computer Scientists)": {
+            "role": "CS 2210",
+            "emoji": "logic"
+        },
+        "CS 2800 (Web Dev I)": {
+            "role": "CS 2800",
+            "emoji": "html"
+        },
+        "CS 2900 (Internship CS and CEG)": {
+            "role": "CS 2900",
+            "emoji": "internship"
+        },
+        "CS 3100 (Data Structures and Algorithms)": {
+            "role": "CS 3100",
+            "emoji": "tree"
+        },
+        "CS 3170 (Mobile Application Development)": {
+            "role": "CS 3170",
+            "emoji": "android"
+        },
+        "CS 3180 (Comparative Languages)": {
+            "role": "CS 3180",
+            "emoji": "comparative_languages"
+        },
+        "CS 3700 (Intro to Databases & Modeling)": {
+            "role": "CS 3700",
+            "emoji": "sql"
+        },
+        "CS 3800 (Web Development II)": {
+            "role": "CS 3800",
+            "emoji": "web_dev_2"
+        },
+        "CS 3840 (Applied Machine Learning)": {
+            "role": "CS 3840",
+            "emoji": "skynet"
+        },
+        "CS 4240 (Coding Theory)": {
+            "role": "CS 4240",
+            "emoji": "graph_theory"
+        },
+        "CS 4710 (Introduction to Data Mining)": {
+            "role": "CS 4710",
+            "emoji": "data_mining"
+        },
+        "CS 4830 (Systems Simulation)": {
+            "role": "CS 4830",
+            "emoji": "sim"
+        },
+        "CS 4900 (HPC & Parallel Programming)": {
+            "role": "CS 4900",
+            "emoji": "SuperComputer"
+        }
+    },
+
+    "Computer Science Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "cs-class-selection",
+        "CS 5160 (Computer Science Fundamentals)": {
+            "role": "CS 5160",
+            "emoji": "computer_science_fundamentals"
+        },
+        "CS 6240 (Coding Theory) (Cross-list CS 4240)": {
+            "role": "CS 4240",
+            "emoji": "graph_theory"
+        },
+        "CS 6710 (Introduction to Data Mining) (Cross-list CS 4710)": {
+            "role": "CS 4710",
+            "emoji": "data_mining"
+        },
+        "CS 6830 (Systems Simulation) (Cross-list CS 4830)": {
+            "role": "CS 4830",
+            "emoji": "sim"
+        },
+        "CS 6900 (HPC & Parallel Programming) (Cross-list CS 4900)": {
+            "role": "CS 4900",
+            "emoji": "SuperComputer"
+        },
+        "CS 7070 (Numerical Analysis II)": {
+            "role": "CS 7070",
+            "emoji": "numerical_analysis"
+        },
+        "CS 7200 (Algorithm Design and Analysis)": {
+            "role": "CS 7200",
+            "emoji": "algorithm_design"
+        },
+        "CS 7700 (Advanced Database Systems)": {
+            "role": "CS 7700",
+            "emoji": "databasepp"
+        },
+        "CS 7800 (Information Retrieval)": {
+            "role": "CS 7800",
+            "emoji": "external_drive"
+        },
+        "CS 7900 (Smart Cities: Devices & Methods)": {
+            "role": "CS 7900",
+            "emoji": "smart_city"
+        },
+        "CS 7900 (Intro to ANN & Deep Learning)": {
+            "role": "CS 7900",
+            "emoji": "tensorFlow"
+        },
+        "CS 7900 (New Frontiers in Computing) (Cross-list CEG 7900)": {
+            "role": "CEG 7900",
+            "emoji": "enterprise"
+        }
+    },
+
+    "Electrical Engineering Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "ee-class-selection",
+        "EE 2000 (Digital Design with HDL)": {
+            "role": "EE 2000",
+            "emoji": "logic_gate"
+        },
+        "EE 2010 (Analog Circuit Theory)": {
+            "role": "EE 2010",
+            "emoji": "capacitor"
+        },
+        "EE 3210 (Linear Systems I)": {
+            "role": "EE 3210",
+            "emoji": "slide_rule"
+        },
+        "EE 3260 (Random Signals and Noise)": {
+            "role": "EE 3260",
+            "emoji": "noise"
+        },
+        "EE 3310 (Electronic Devices and Circuits)": {
+            "role": "EE 3310",
+            "emoji": "circuit"
+        },
+        "EE 3450 (Introduction to Electromagnetics)": {
+            "role": "EE 3450",
+            "emoji": "electromagnetic_wave"
+        },
+        "EE 4000 (Linear Systems II)": {
+            "role": "EE 4000",
+            "emoji": "numerical_analysis"
+        },
+        "EE 4120 (Industrial Controls and Automation)": {
+            "role": "EE 4120",
+            "emoji": "industrial"
+        },
+        "EE 4130 (Continuous Control Systems)": {
+            "role": "EE 4130",
+            "emoji": "potentiometer"
+        },
+        "EE 4170 (Digital Control Systems)": {
+            "role": "EE 4170",
+            "emoji": "switch"
+        },
+        "EE 4210 (Digital Communication)": {
+            "role": "EE 4210",
+            "emoji": "digitalSignal"
+        },
+        "EE 4480 (Remote Sensing Detectors and Systems)": {
+            "role": "EE 4480",
+            "emoji": "remote_sensor"
+        },
+        "EE 4620 (Digital Integrated Circuit Design with PLDs and FPGAs) (Cross-list CEG 4324)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        },
+        "EE 4800 (Intro to Electronic Warfare)": {
+            "role": "EE 4800",
+            "emoji": "radar"
+        },
+        "EE 4830 (Internship in Electrical Engineering)": {
+            "role": "EE 4830",
+            "emoji": "internship"
+        },
+        "EE 4910 (Electrical Engineering Senior Design Project I) (Cross-list CEG 4980)": {
+            "role": "CEG 4980",
+            "emoji": "oldDude"
+        },
+        "EE 4920 (Electrical Engineering Senior Design Project II) (Cross-list CEG 4981)": {
+            "role": "CEG 4981",
+            "emoji": "oldJaundicedDude"
+        }
+    },
+
+    "Electrical Engineering Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "ee-class-selection",
+        "EE 5210 (Linear Systems I) (Cross-list EE 3210)": {
+            "role": "EE 3210",
+            "emoji": "slide_rule"
+        },
+        "EE 6000 (Linear Systems II) (Cross-list EE 4000)": {
+            "role": "EE 4000",
+            "emoji": "numerical_analysis"
+        },
+        "EE 6120 (Industrial Controls and Automation) (Cross-list EE 4120)": {
+            "role": "EE 4120",
+            "emoji": "industrial"
+        },
+        "EE 6130 (Continuous Control Systems) (Cross-list EE 4130)": {
+            "role": "EE 4130",
+            "emoji": "potentiometer"
+        },
+        "EE 6170 (Digital Control Systems) (Cross-list EE 4170)": {
+            "role": "EE 4170",
+            "emoji": "switch"
+        },
+        "EE 6210 (Digital Communication) (Cross-list EE 4210)": {
+            "role": "EE 4210",
+            "emoji": "digitalSignal"
+        },
+        "EE 6480(Remote Sensing Detectors and Systems) (Cross-list EE 4480)": {
+            "role": "EE 4480",
+            "emoji": "remote_sensor"
+        },
+        "EE 6550 (IC Hardware Security and Trust)": {
+            "role": "EE 6550",
+            "emoji": "rom"
+        },
+        "EE 6620 (Digital Integrated Circuit Design with PLDs and FPGAs) (Cross-list CEG 4324)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        },
+        "EE 6800 (Intro to Electronic Warfare) (Cross-list EE 4800)": {
+            "role": "EE 4800",
+            "emoji": "radar"
+        },
+        "EE 7200 (Modern Control II)": {
+            "role": "EE 7200",
+            "emoji": "control"
+        },
+        "EE 7270 (Adaptive Control)": {
+            "role": "EE 7270",
+            "emoji": "adaptive_control"
+        },
+        "EE 7350 (Wireless Communication Techniques)": {
+            "role": "EE 7350",
+            "emoji": "radio_tower"
+        },
+        "EE 7440 (RF Power Amplifiers)": {
+            "role": "EE 7440",
+            "emoji": "opamp"
+        },
+        "EE 7480 (Advanced Microwave Engineering)": {
+            "role": "EE 7480",
+            "emoji": "microwave"
+        },
+        "EE 7520 (Low Power VLSI System Design) (Cross-list CEG 7020)": {
+            "role": "CEG 7020",
+            "emoji": "low_power"
+        },
+        "EE 7560 (Advanced Robotics)": {
+            "role": "EE 7560",
+            "emoji": "terminator"
+        },
+        "EE 7620 (Detection, Estimation, and Optimal Filter Theory)": {
+            "role": "EE 7620",
+            "emoji": "filters"
+        },
+        "EE 7810 (Embedded Systems) (Cross-list CEG 7360)": {
+            "role": "CEG 7360",
+            "emoji": "arduino"
+        },
+        "EE 7840 (Computer Vision) (Cross-list CEG 7550)": {
+            "role": "CEG 7550",
+            "emoji": "smeagol"
+        }
+    }
+}

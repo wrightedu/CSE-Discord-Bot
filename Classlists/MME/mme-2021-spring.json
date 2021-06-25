@@ -1,0 +1,232 @@
+{
+     "Mechanical and Materials Undergraduate Courses (1000-3999)": {
+        "clear_channel": true,
+        "channel_name": "class-selection",
+        "EGR 1010 (Introductory Mathematics in Engineering Applications)": {
+            "role": "EGR 1010",
+            "emoji": "egr1010"
+        },
+        "EGR 3350 (Technical Writing)": {
+            "role": "EGR 3350",
+            "emoji": "egr3350"
+        },        
+        "ME 1020 (Engineering Programming with Matlab)": {
+            "role": "ME 1020",
+            "emoji": "matlab"
+        },
+        "ME 1040 (Engineering Design and Solid Modeling)": {
+            "role": "ME 1040",
+            "emoji": "solidworks"
+        },
+        "ME 2120 (Statics)": {
+            "role": "ME 2120",
+            "emoji": "statics"
+        },
+        "ME 2210 (Dynamics)": {
+            "role": "ME 2210",
+            "emoji": "rotary"
+        },
+        "ME 2700 (Structures and Properties of Materials)": {
+            "role": "ME 2700",
+            "emoji": "materials_properties"
+        },
+        "ME 3120 (Mechanics of Materials)": {
+            "role": "ME 3120",
+            "emoji": "mechanics_of_materials"
+        },
+        "ME 3210 (System Dynamics)": {
+            "role": "ME 3210",
+            "emoji": "car_suspension"
+        },
+        "ME 3310 (Thermodynamics I)": {
+            "role": "ME 3310",
+            "emoji": "thermodynamics"
+        },
+        "ME 3350 (Fluid Dynamics)": {
+            "role": "ME 3350",
+            "emoji": "fluid_dynamics"
+        },
+        "ME 3360 (Heat Transfer)": {
+            "role": "ME 3360",
+            "emoji": "heat_transfer"
+        },
+        "ME 3600 (Experimental Measurements and Instrumentation)": {
+            "role": "ME 3600",
+            "emoji": "caliper"
+        },
+        "ME 3760 (Diffusion and Kinetics)": {
+            "role": "ME 3760",
+            "emoji": "diffusion"
+        }
+    },
+    "Mechanical and Materials Undergraduate Courses (4000-4999)": {
+        "clear_channel": false,
+        "channel_name": "class-selection",
+        "ME 4120 (Finite Element Analysis)": {
+            "role": "ME 4120",
+            "emoji": "finite_element_analysis"
+        },
+        "ME 4121 (Industrial Controls and Automation)": {
+            "role": "ME 4121",
+            "emoji": "industrial_robot"
+        },
+        "ME 4140 (Mechanical Design I)": {
+            "role": "ME 4140",
+            "emoji": "mechanical_design"
+        },
+        "ME 4170 (Mechanics of Composites)": {
+            "role": "ME 4170",
+            "emoji": "composite"
+        },
+        "ME 4180 (Additive Manufacturing)": {
+            "role": "ME 4180",
+            "emoji": "3d_printer"
+        },
+        "ME 4250 (Kinematics and Design-Mechanisms)": {
+            "role": "ME 4250",
+            "emoji": "kinematics"
+        },
+        "ME 4340 (Simulation of Thermal-Fluids Problems with Advanced Engineering Software)": {
+            "role": "ME 4340",
+            "emoji": "fluid_simulation"
+        },
+        "ME 4440 (Aerospace Propulsion)": {
+            "role": "ME 4440",
+            "emoji": "rocket_ship"
+        },
+        "ME 4540 (Solar Thermal Engineering)": {
+            "role": "ME 4540",
+            "emoji": "solar_panels"
+        },
+        "ME 4610 (Thermal-Fluids Science Laboratory)": {
+            "role": "ME 4610",
+            "emoji": "thermal_fluids"
+        },
+        "ME 4620 (Mechanics and Materials Testing Lab)": {
+            "role": "ME 4620",
+            "emoji": "materials_testing"
+        },
+        "ME 4700 (Structure and Properties of Materials II)": {
+            "role": "ME 4700",
+            "emoji": "properties_of_materials_ii"
+        },
+        "ME 4740 (Materials Selection and Failure Analysis)": {
+            "role": "ME 4740",
+            "emoji": "failure_analysis"
+        },
+        "ME 4750 (Materials Characterization)": {
+            "role": "ME 4750",
+            "emoji": "tree"
+        },
+        "ME 4910 (Capstone Design I)": {
+            "role": "ME 4910",
+            "emoji": "mechanical_engineer"
+        },
+        "ME 4920 (Capstone Design II)": {
+            "role": "ME 4920",
+            "emoji": "mechanical_engineer_1"
+        }
+    },
+    "Mechanical and Materials Graduate Courses (5000-6999)": {
+        "clear_channel": true,
+        "channel_name": "graduate-class-selection",
+        "ME 5120 (Mechanics of Materials) (Cross-list ME 3120)": {
+            "role": "ME 3120",
+            "emoji": "mechanics_of_materials"
+        },
+        "ME 5210 (System Dynamics) (Cross-list ME 3210)": {
+            "role": "ME 3210",
+            "emoji": "car_suspension"
+        },
+        "ME 5310 (Thermodynamics I) (Cross-list ME 3310)": {
+            "role": "ME 3310",
+            "emoji": "thermodynamics"
+        },
+        "ME 5350 (Fluid Dynamics) (Cross-list ME 3350)": {
+            "role": "ME 3350",
+            "emoji": "fluid_dynamics"
+        },
+        "ME 5360 (Heat Transfer) (Cross-list ME 3360)": {
+            "role": "ME 3360",
+            "emoji": "heat_transfer"
+        },
+        "ME 5760 (Diffusion and Kinetics) (Cross-list ME 3760)": {
+            "role": "ME 3760",
+            "emoji": "diffusion"
+        },
+        "ME 6120 (Finite Element Analysis) (Cross-list ME 4120)": {
+            "role": "ME 4120",
+            "emoji": "finite_element_analysis"
+        },
+        "ME 6140 (Mechanical Design I) (Cross-list ME 4140)": {
+            "role": "ME 4140",
+            "emoji": "mechanical_design"
+        },
+        "ME 6170 (Mechanics of Composites) (Cross-list ME 4170)": {
+            "role": "ME 4170",
+            "emoji": "composite"
+        },
+        "ME 6180 (Additive Manufacturing) (Cross-list ME 4180)": {
+            "role": "ME 4180",
+            "emoji": "3d_printer"
+        },
+        "ME 6250 (Kinematics and Design-Mechanisms) (Cross-list ME 4250)": {
+            "role": "ME 4250",
+            "emoji": "kinematics"
+        },
+        "ME 6340 (Simulation of Thermal-Fluids Problems with Advanced Engineering Software) (Cross-list ME 4340)": {
+            "role": "ME 4340",
+            "emoji": "fluid_simulation"
+        },
+        "ME 6440 (Aerospace Propulsion) (Cross-list ME 4440)": {
+            "role": "ME 4440",
+            "emoji": "rocket_ship"
+        },
+        "ME 6540 (Solar Thermal Engineering) (Cross-list ME 4540)": {
+            "role": "ME 4540",
+            "emoji": "solar_panels"
+        },
+        "ME 6700 (Structure and Properties of Materials II) (Cross-list ME 4700)": {
+            "role": "ME 4700",
+            "emoji": "properties_of_materials_ii"
+        },
+        "ME 6740 (Materials Selection and Failure Analysis) (Cross-list ME 4740)": {
+            "role": "ME 4740",
+            "emoji": "failure_analysis"
+        },
+        "ME 6750 (Materials Characterization) (Cross-list ME 4750)": {
+            "role": "ME 4750",
+            "emoji": "tree"
+        }
+    },
+    "Mechanical and Materials Graduate Courses (7000-7999)": {
+        "clear_channel": false,
+        "channel_name": "graduate-class-selection",
+        "ME 7080 (Multidisciplinary Structural Optimization)": {
+            "role": "ME 7080",
+            "emoji": "structural_optimization"
+        },
+        "ME 7210 (Computational Methods for Structural Dynamics)": {
+            "role": "ME 7210",
+            "emoji": "i_beam"
+        },
+        "ME 7330 (Convective Heat and Mass Transfer)": {
+            "role": "ME 7330",
+            "emoji": "convection"
+        },
+        "ME 7340 (Computational Fluid Dynamics)": {
+            "role": "ME 7340",
+            "emoji": "computational_fluid_dynamics"
+        },
+        "ME 7500 (Advanced Thermodynamics)": {
+            "role": "ME 7500",
+            "emoji": "thermodynamics_ii"
+        },
+        "ME 7720 (Engineering Polymers II)": {
+            "role": "ME 7720",
+            "emoji": "polymer"
+        }
+    }
+}
+
+
