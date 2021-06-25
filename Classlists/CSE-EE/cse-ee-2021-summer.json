@@ -1,0 +1,123 @@
+{
+    "Computer Engineering Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "ceg-class-selection",
+        "CEG 3310 (Computer Org)": {
+            "role": "CEG 3310",
+            "emoji": "microprocessor"
+        },
+        "CEG 4324 (Digital Integrated Circuit Design)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        },
+        "CEG 4350 (OS Internals and Design)": {
+            "role": "CEG 4350",
+            "emoji": "debian"
+        },
+        "CEG 4900 (Web Security)": {
+            "role": "CEG 4900",
+            "emoji": "websecurity"
+        }
+    },
+
+    "Computer Engineering Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "ceg-class-selection",
+        "CEG 6324 (Digital Integrated Circuit Design) (Cross-list CEG 4324)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        },
+        "CEG 6900 (Web Security) (Cross-list CEG 4900)": {
+            "role": "CEG 4900",
+            "emoji": "websecurity"
+        },
+        "CEG 7470 (Advanced Wireless Networks)": {
+            "role": "CEG 7470",
+            "emoji": "trust_networks"
+        }
+    },
+
+    "Computer Science Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "cs-class-selection",
+        "CS 1000 (Tech and Society)": {
+            "role": "CS 1000",
+            "emoji": "tech_and_society"
+        },
+        "CS 1180 (Computer Science I)": {
+            "role": "CS 1180",
+            "emoji": "java"
+        },
+        "CS 1181 (Computer Science II)": {
+            "role": "CS 1181",
+            "emoji": "java_2"
+        },
+        "CS 2900 (Internship CS and CEG)": {
+            "role": "CS 2900",
+            "emoji": "internship"
+        },
+        "CS 3100 (Data Structures and Algorithms)": {
+            "role": "CS 3100",
+            "emoji": "tree"
+        },
+        "CS 3900 (Game Programming)": {
+            "role": "CS 3900",
+            "emoji": "gamecontroller"
+        },
+        "CS 4290 (Cryptography and Data Security)": {
+            "role": "CS 4290",
+            "emoji": "cryptography"
+        }
+    },
+
+    "Computer Science Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "cs-class-selection",
+        "CS 6290 (Cryptography and Data Security)": {
+            "role": "CS 4290",
+            "emoji": "cryptography"
+        },
+        "CS 7120 (Functional and Logic Programming)": {
+            "role": "CS 7120",
+            "emoji": "functionalprogramming"
+        },
+        "CS 7700 (Advanced Database Systems)": {
+            "role": "CS 7700",
+            "emoji": "databasepp"
+        },
+        "CS 7840 (Soft Computing)": {
+            "role": "CS 7840",
+            "emoji": "softcomputing"
+        }
+    },
+
+    "Electrical Engineering Undergraduate Courses": {
+        "clear_channel": true,
+        "channel_name": "ee-class-selection",
+        "EE 2010 (Analog Circuit Theory)": {
+            "role": "EE 2010",
+            "emoji": "capacitor"
+        },
+        "EE 3210 (Linear Systems I)": {
+            "role": "EE 3210",
+            "emoji": "slide_rule"
+        },
+        "EE 4620 (Digital Integrated Circuit Design) (Cross-list CEG 4324)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        }
+    },
+
+    "Electrical Engineering Graduate Courses": {
+        "clear_channel": false,
+        "channel_name": "ee-class-selection",
+        "EE 6620 (Digital Integrated Circuit Design) (Cross-list CEG 4324)": {
+            "role": "CEG 4324",
+            "emoji": "wafer"
+        },
+        "EE 7410 (Power Electronics I)": {
+            "role": "EE 7410",
+            "emoji": "palpatine"
+        }
+    }
+}
