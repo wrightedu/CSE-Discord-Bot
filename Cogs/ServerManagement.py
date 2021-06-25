@@ -205,13 +205,17 @@ class ServerManagement(commands.Cog):
             for role_data in roles:
                 # Data for the current role
                 text, emoji_name, role_link, long_name, create_channels = role_data
+                emoji_name = str(emoji_name)
 
                 # Get emoji object from current guild if possible
-                emoji = await get_emoji_named(ctx.guild, emoji_name)
-                if emoji is None:
-                    emoji = discord_emoji.emojize(f':{emoji_name}:', use_aliases=True)
-                    if emoji == ':nan:':
-                        emoji = None
+                if emoji_name != 'nan':
+                    emoji = await get_emoji_named(ctx.guild, emoji_name)
+                    if emoji is None:
+                        emoji = discord_emoji.emojize(f':{emoji_name}:', use_aliases=True)
+                        if emoji == f':{emoji_name}:':
+                            emoji = None
+                else:
+                    emoji = None
 
                 # If role, make button style gray. If URL, make style URL
                 if not validators.url(role_link):
