@@ -31,6 +31,12 @@ async def get_channel_named(guild, channel_name):
             return channel
 
 
+async def get_emoji_named(guild, emoji_name):
+    for emoji in guild.emojis:
+        if emoji.name == emoji_name:
+            return emoji
+
+
 async def log(client, string, timestamp=True):
     # Log to stdout
     timestamp_string = ''

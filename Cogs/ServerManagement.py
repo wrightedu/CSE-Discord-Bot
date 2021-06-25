@@ -163,7 +163,8 @@ class ServerManagement(commands.Cog):
         roles_csv = pd.read_csv(csv_filepath)
 
         # Determine which channel to send each role menu in
-        class_number_regex = '^[a-zA-Z]{2,3}\\d{4}$'
+        # TODO: add optional space between letters and numbers
+        class_number_regex = '^[a-zA-Z]{2,3} ?\\d{4}$'
         menu_roles = {}
         for i, row in roles_csv.iterrows():
             # Get channel name for role button
@@ -171,7 +172,7 @@ class ServerManagement(commands.Cog):
             # If row is for class
             if re.match(class_number_regex, row['role/link']):
                 # Letters at beginning denote category
-                channel_name = f'{row["role/link"][:-4].lower()}-class-selection'
+                channel_name = f'{row["role/link"][:-4].lower().strip()1}-class-selection'
 
             # If can't find channel, ask for it
             while channel_name is None:
@@ -206,7 +207,8 @@ class ServerManagement(commands.Cog):
 
                 # If role, make button style gray. If URL, make style URL
                 if not validators.url(role_link):
-                    buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=emoji))
+                    # buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=emoji))
+                    buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=await get_emoji_named(ctx.guild, emoji)))
                 else:
                     buttons.append(Button(style=ButtonStyle.URL, label=text, emoji=emoji, url=role_link))
 
