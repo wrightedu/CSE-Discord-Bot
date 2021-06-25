@@ -225,9 +225,9 @@ class ServerManagement(commands.Cog):
             for menu in menus:
                 # Send and save message
                 message = await channel.send('‍\u200c', components=menu)  # 0 width joiner in here to send empty message
-                if ctx.guild.id not in self.role_menus.keys():
-                    self.role_menus[ctx.guild.id] = []
-                self.role_menus[ctx.guild.id].append(message.id)
+                if str(ctx.guild.id) not in self.role_menus.keys():
+                    self.role_menus[str(ctx.guild.id)] = []
+                self.role_menus[str(ctx.guild.id)].append(message.id)
 
         # Save new role menu message ids to file
         with open('role_menus.json', 'w') as f:
@@ -236,7 +236,7 @@ class ServerManagement(commands.Cog):
     @commands.Cog.listener()
     async def on_button_click(self, res):
         msg_id = res.message.id
-        guild_id = res.guild.id
+        guild_id = str(res.guild.id)
 
         # If clicked on role menu
         if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
