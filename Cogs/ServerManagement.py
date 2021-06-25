@@ -227,10 +227,11 @@ class ServerManagement(commands.Cog):
                     emoji = None
 
                 # If role, make button style gray. If URL, make style URL
+                label = f'{text} - {long_name}' if str(long_name) != 'nan' else text
                 if not validators.url(role_link):
-                    buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=emoji))
+                    buttons.append(Button(style=ButtonStyle.gray, label=label, emoji=emoji))
                 else:
-                    buttons.append(Button(style=ButtonStyle.URL, label=text, emoji=emoji, url=role_link))
+                    buttons.append(Button(style=ButtonStyle.URL, label=label, emoji=emoji, url=role_link))
 
             # Reshape buttons to sets of max 5x5
             menus = []  # list of 2D grids of buttons
