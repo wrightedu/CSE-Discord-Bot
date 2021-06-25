@@ -206,6 +206,7 @@ class ServerManagement(commands.Cog):
             return
 
         # For each channel, create role menus
+        self.role_menus[str(ctx.guild.id)] = []
         for channel_name, roles in menu_roles.items():
             channel = await get_channel_named(ctx.guild, channel_name)
 
@@ -246,8 +247,6 @@ class ServerManagement(commands.Cog):
             for menu in menus:
                 # Send and save message
                 message = await channel.send('‍\u200c', components=menu)  # 0 width joiner in here to send empty message
-                if str(ctx.guild.id) not in self.role_menus.keys():
-                    self.role_menus[str(ctx.guild.id)] = []
                 self.role_menus[str(ctx.guild.id)].append(message.id)
 
         # Save new role menu message ids to file
@@ -259,21 +258,29 @@ class ServerManagement(commands.Cog):
         msg_id = res.message.id
         guild_id = str(res.guild.id)
 
+        # print(guild_id, self.role_menus.keys(), guild_id in self.role_menus.keys())
+        # print(msg_id, self.role_menus[guild_id], msg_id in self.role_menus[guild_id])
+        print(self.role_menus[guild_id])
+
         # If clicked on role menu
         if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
             # Load roles csv
             roles_csv = pd.read_csv(f'role_lists/roles_{guild_id}.csv')
 
             # Get role name
+            role_name = ''
             for _, row in roles_csv.iterrows():
-                if row['text'] == res.component.label:
+                if res.component.label in {row['text'], f'{row["text"]} - {row["long_name"]}'}:
                     role_name = row['role/link']
+            print(f'Role name: {role_name}')
 
             # Get object for class role
             role = None
-            for role in res.guild.roles:
-                if role.name == role_name:
+            for guild_role in res.guild.roles:
+                if guild_role.name == role_name:
+                    role = guild_role
                     break
+            print(f'Got role: {role}')
 
             # If role doesn't exist, error
             if role is None:
