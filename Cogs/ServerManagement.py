@@ -2,6 +2,7 @@ import json
 import os
 import re
 
+import emoji as discord_emoji
 import pandas as pd
 import validators
 from discord.ext import commands
@@ -207,6 +208,9 @@ class ServerManagement(commands.Cog):
 
                 # Get emoji object from current guild if possible
                 emoji = await get_emoji_named(ctx.guild, emoji_name)
+                if emoji is None:
+                    emoji = discord_emoji.emojize(f':{emoji_name}:', use_aliases=True)
+                print(emoji)
 
                 # If role, make button style gray. If URL, make style URL
                 if not validators.url(role_link):
