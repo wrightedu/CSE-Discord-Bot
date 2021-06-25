@@ -168,15 +168,21 @@ class ServerManagement(commands.Cog):
         roles_csv = pd.read_csv(csv_filepath)
 
         # Determine which channel to send each role menu in
-        class_number_regex = '^[a-zA-Z]{2,3} ?\\d{4}$'
+        class_number_regex = '^[a-zA-Z]{2,3} ?\\d{4}'
         menu_roles = {}
         for i, row in roles_csv.iterrows():
             # Get channel name for role button
             channel_name = None
             # If row is for class
-            if re.match(class_number_regex, row['role/link']):
+            if re.match(class_number_regex, row['text']):
                 # Letters at beginning denote category
-                channel_name = f'{row["role/link"][:-4].lower().strip()}-class-selection'
+                text = row['text'].lower().strip()
+                category = ''
+                for j in range(len(text)):
+                    if text[j] not in 'abcdefghijklmnopqrstuvwxyz':
+                        category = text[:j]
+                        break
+                channel_name = f'{category}-class-selection'
 
             # If can't find channel, ask for it
             while channel_name is None:
