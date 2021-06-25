@@ -1,0 +1,8 @@
+aiofiles>=0.7.0
+bing_image_downloader>=1.1.0
+discord-components==0.5.2.4
+discord-py==1.7.2
+pandas>=1.2.4
+python-dotenv>=0.17.1
+validators>=0.18.2
+emoji>=1.2.0
