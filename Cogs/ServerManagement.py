@@ -203,12 +203,14 @@ class ServerManagement(commands.Cog):
             buttons = []
             for role_data in roles:
                 # Data for the current role
-                text, emoji, role_link, long_name, create_channels = role_data
+                text, emoji_name, role_link, long_name, create_channels = role_data
+
+                # Get emoji object from current guild if possible
+                emoji = await get_emoji_named(ctx.guild, emoji_name)
 
                 # If role, make button style gray. If URL, make style URL
                 if not validators.url(role_link):
-                    # buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=emoji))
-                    buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=await get_emoji_named(ctx.guild, emoji)))
+                    buttons.append(Button(style=ButtonStyle.gray, label=text, emoji=emoji))
                 else:
                     buttons.append(Button(style=ButtonStyle.URL, label=text, emoji=emoji, url=role_link))
 
