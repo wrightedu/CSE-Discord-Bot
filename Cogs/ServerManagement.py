@@ -233,8 +233,9 @@ class ServerManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_button_click(self, res):
+        print('button clicked')
         msg_id = res.message.id
-        guild_id = str(res.guild.id)
+        guild_id = res.guild.id
 
         # If clicked on role menu
         if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
