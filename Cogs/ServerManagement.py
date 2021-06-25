@@ -104,7 +104,7 @@ class ServerManagement(commands.Cog):
         # = Destroy Categories =
 
         # List of names of categories to be destroyed, as determined by saved csv
-        destroy_category_names = roles_csvs.iloc[:, 0].tolist()
+        destroy_category_names = roles_csvs['text'].tolist()
 
         # Get list of all categories (category objects) to be destroyed and print
         destroy_categories = []
@@ -128,7 +128,7 @@ class ServerManagement(commands.Cog):
         # = Destroy Roles =
 
         # List of names of role to be destroyed, as determined by saved csv
-        destroy_role_names = roles_csvs.iloc[:, 2].tolist()
+        destroy_role_names = roles_csvs['role/link'].tolist()
 
         # Get list of all roles (role objects) to be destroyed and print
         destroy_roles = []
