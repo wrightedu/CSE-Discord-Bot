@@ -62,9 +62,12 @@ class ServerManagement(commands.Cog):
         for _, row in roles_csvs.iterrows():
             # If role isn't a link, create role
             if not validators.url(row['role/link']):
-                permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-                role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
-                role.mentionable = True
+                # If role doesn't already exist (due to cross-listing)
+                role_exists = any(role.name == row['role/link'] for role in ctx.guild.roles)
+                if not role_exists:
+                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
+                    role.mentionable = True
 
             # If channels to make
             if type(row['create_channels']) != float:
