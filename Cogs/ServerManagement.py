@@ -180,7 +180,7 @@ class ServerManagement(commands.Cog):
                 if len(msg.channel_mentions):
                     channel_name = msg.channel_mentions[0].name
 
-                # Add role to dictionary entry for channel
+            # Add role to dictionary entry for channel
             if channel_name not in menu_roles.keys():
                 menu_roles[channel_name] = []
             menu_roles[channel_name].append(list(roles_csv.loc[i]))
@@ -222,7 +222,7 @@ class ServerManagement(commands.Cog):
             # Send each role menu
             for menu in menus:
                 # Send and save message
-                message = await channel.send('‍', components=menu)  # 0 width joiner in here to send empty message
+                message = await channel.send('‍\u200c', components=menu)  # 0 width joiner in here to send empty message
                 if ctx.guild.id not in self.role_menus.keys():
                     self.role_menus[ctx.guild.id] = []
                 self.role_menus[ctx.guild.id].append(message.id)
@@ -249,7 +249,6 @@ class ServerManagement(commands.Cog):
 
             # Get object for class role
             role = None
-            # role_name = res.component.label
             for role in res.guild.roles:
                 if role.name == role_name:
                     break
