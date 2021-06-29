@@ -23,14 +23,11 @@ class AdminCommands(commands.Cog):
 
         Args: 
             ctx:
-                author: User that called the command
-                channel: Discord channel that the command was called in
-            amount: Number of pictures/pieces of media being downloaded
-        
-        Throws: 
-            Exception: Occurs if a user input cannot be converted to an integer
-
-        Yields:
+                author (Union[User, Member]): User that called the command
+                channel (Union[abc.Messageable]): Discord channel that the command was called in
+            amount (int): Number of pictures/pieces of media being downloaded
+               
+        Outputs:
             -Message to log stating the user that executed the command and how many images were downloaded
             -Message to user if the input was invalid. States that 100 Corgies are downloaded. 
             """
@@ -52,17 +49,22 @@ class AdminCommands(commands.Cog):
         Purge the appropriate number of messages from the channel. 
         Args: 
             ctx:
-                author: User that called the command
-                channel: Discord channel that the command was called in
-            amount: Number of messages being removed
+                author (Union[User, Member]): User that called the command
+                channel (Union[abc.Messageable]): Discord channel that the command was called in
+            amount (int): Number of messages being removed
         
-        Yields: 
+        Outputs: 
             -If all messages are to be cleared: Message to user stating that all messages are being cleared.
                 -Log user and number of messages being cleared. 
             -If X messages being cleared: Message to user stating that X messages are being cleared. 
                 -Log user and number of messages being cleared. 
             -If input is blank: Message to user giving help on properly using command.
                 -Log failed message clear attempt
+        
+        Logs: 
+            -If all messages are to be cleared: Log user and number of messages being cleared. 
+            -If X messages being cleared: Log user and number of messages being cleared. 
+            -If input is blank: Log failed message clear attempt
             """
 
         if amount == 'all':
@@ -92,12 +94,12 @@ class AdminCommands(commands.Cog):
         removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
         on the discord bot and passes in the user input to the method. Log the author and new status. 
         Args:
-            *: Requires all following arguments to be keyword arguments. Also removes all inputs between the command
-            status: Text to be displayed
+            * (Standards Strack): Requires all following arguments to be keyword arguments. Also removes all inputs between the command
+            status (str): Text to be displayed
         
-        Yields:
-            -If status is 'none': Log author and that they disabled the custom status. 
-            -Otherwise: log author and the new status of Discord Bot
+        Logs:
+            -If status is 'none': Log author and that they disabled the custom status.
+            -If status is not 'none': log author and the new status of Discord Bot
             """
 
         status = status.strip()
@@ -118,12 +120,12 @@ class AdminCommands(commands.Cog):
 
         Args: 
             ctx:
-                guild: Used to determine the guild that the user is typing in
-            *: Requires all following arguments to be keyword arguments. Also removes all inputs between the command 
+                guild (Optional[Guild]): Used to determine the guild that the user is typing in
+            * (Standards Strack): Requires all following arguments to be keyword arguments. Also removes all inputs between the command 
                 call and the role_id parameter
             role_id (string): ID of the role being removed
 
-        Yields: 
+        Outputs: 
             Message to chat regarding what role was removed and how many users were stripped of it 
             """
 
@@ -155,7 +157,7 @@ class AdminCommands(commands.Cog):
         """Restart the discord bot
         Send message to user confirming restart. Call os.execv method (similar to os.execl)
 
-        Yields:
+        Outputs:
             Message to chat confirming that the bot is restarting.
             """
 
@@ -169,7 +171,7 @@ class AdminCommands(commands.Cog):
         """Shutdown the discord bot
         Send message to user confirming shutdown. Exit program.
 
-        Yields:
+        Outputs:
             Message to user that discord bot is being shut down
             """
 

@@ -28,11 +28,13 @@ class StudentCommands(commands.Cog):
         did input a number, use it as the index for the picture list and send the appropriate picture in chat. 
 
         Args: 
-            number: ID number of the picture. Can be used to find specific corgi pictures from the existing list
+            number (int): ID number of the picture. Can be used to find specific corgi pictures from the existing list
 
-        Yields:
+        Outputs:
             image: picture being sent to chat
-            -log author and channel that command was used in
+
+        Logs: 
+            log author and channel that command was used in
             """
 
         # Check if corgis dir exists
@@ -61,9 +63,9 @@ class StudentCommands(commands.Cog):
         of event.
         
         Args: 
-            language: Allows the user to determine what coding language will be displayed
+            language (str): Allows the user to determine what coding language will be displayed
 
-        Yields:
+        Outputs:
             output: Sample code for a 'Hello World' program in a chosen or random language
             """
 
@@ -124,12 +126,12 @@ class StudentCommands(commands.Cog):
         Args:
             ctx:
                 channel: The channel that the command was made in.
-            Question: A question that the poll taker is asking. Should be encapsulated by a set of quotation marks. 
-            Options: A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
+            question: A question that the poll taker is asking. Should be encapsulated by a set of quotation marks. 
+            options (Tuple of str): A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
                 May have multiple entries
         
-        Yields:
-            embeded: A formatted version of the question and options
+        Outputs:
+            embed: A formatted version of the question and options
             reactions: A set of reactions for users to click on in order to vote in poll. 
             """
 
@@ -173,14 +175,10 @@ class StudentCommands(commands.Cog):
         is created. If the input is too large, the user is informed of this, and the user as well as failed call 
         attempt are logged. 
         Args:
-            channel: The channel that the command was sent in 
             *options: Size of dice being rolled. Should be input as 'd{number}'. 
                 The presence of * suggests that the user may input multiple dice sizes,but this is not the case.
-        
-        Throws:
-            Exception: Thrown if 'options' cannot be parsed into a positive int or if user input wrong format. 
 
-        Yields:
+        Outputs:
             output: Random number between 1 and the size of die being rolled.
             -error messages for inputs that are invalid
             """
@@ -206,10 +204,9 @@ class StudentCommands(commands.Cog):
     @commands.command()
     async def support(self, ctx):
         """A planned support command
-        Informs user that the command is not yet available. 
-        Args: 
+        Informs user that the command is not yet available.  
 
-        Yields:
+        Outputs:
             error message explaining that the command is not yet available.
             """
 
@@ -217,15 +214,15 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        """Determine the ping a user is experiencing
-        Retrieve latency field from bot and round to miliseconds. Send message informing user of latency and log
+        """Determine the api latency
+        Retrieve latency field from bot and round to miliseconds. Send message informing user of latency of bot and log
         the user, the channel the command was called in, and latency. 
 
         Args: 
             ctx:
                 channel: The channel that the command was made in.
 
-        Yields:
+        Outputs:
             latency: The amount of time taken for a computer to send a response back to the server
             """
 

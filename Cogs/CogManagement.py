@@ -14,10 +14,16 @@ class CogManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def reload(self, ctx, cog_name):
         """Reload a specific cog
+        Take in the name of single cog from a user and reload it. Output a message confirming reload action 
+        and use reload extension method on the cog. If reloading server managment, call load_server_managment
+        method from CogManagment.py
+
         Args: 
             cog_name: Name of the cog that will be reloaded
+        
+        Outputs:
+            Message to user informing them of what cog is being restarted. 
 
-        Returns:
             """
 
         await ctx.send(f'Reloading {cog_name}')
@@ -27,10 +33,15 @@ class CogManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def unload(self, ctx, cog_name):
         """Unload a specific cog
+        Take in the name of a cog from a user. If the user is not trying to unload the CogManagment cog,
+        send a message confirming the action. Call unload_extension command from Discord.ext, passing in 
+        the cog_name. 
+
         Args:
             cog_name: Name of the cog being unloaded
 
-        Returns:
+        Outputs:
+            Message to user informing them of what cog is being unloaded.
             """
 
         if cog_name != 'CogManagement':
@@ -41,10 +52,15 @@ class CogManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def load(self, ctx, cog_name):
         """Load a specific cog
+        Take in the name of a cog from a user. Send a message confirming the action, and call load_extension 
+        command from Discord.ext, passing in cog_name. If the cog is ServerManagment, call load_server_managment
+        method from CogManagment.py
+
         Args: 
             cog_name: Name of the cog being loaded
         
-        Returns:
+        Outputs:
+            Message to user informing them of what cog is being loaded.
         """
 
         await ctx.send(f'Loading {cog_name}')
