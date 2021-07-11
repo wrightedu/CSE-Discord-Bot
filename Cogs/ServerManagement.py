@@ -99,10 +99,34 @@ class ServerManagement(commands.Cog):
         self.reaction_message_ids[guild.id] = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
 
     @commands.Cog.listener()
+<<<<<<< HEAD
+    async def on_button_click(self, res):
+        """Add or Remove user from role based on a button click. 
+        Save message id and guild id. If the button is in the role menu, load the roles csv, get role name, and loop
+        through rows in the csv to see what role matches with the name on the button. Loop through all roles in the
+        guild roles to see if any match the role name and save it. If none match, output error message. Otherwise, 
+        call get_member method from utils.py. Check to see if the role is already in the user's list of roles. If so, 
+        remove the role. If not, add the role. 
+
+        Args:
+            res (discord.ext.commands.context.Context): Modified by discord-components and is very similar to 
+                                                        ctx in application.
+                
+        Outputs:
+            -Error message to user if the role clicked on does not exist
+        """
+        msg_id = res.message.id
+        guild_id = str(res.guild.id)
+
+        # print(guild_id, self.role_menus.keys(), guild_id in self.role_menus.keys())
+        # print(msg_id, self.role_menus[guild_id], msg_id in self.role_menus[guild_id])
+        # print(self.role_menus[guild_id])
+=======
     async def on_raw_reaction_add(self, payload):
         """Add students to roll by clicking on a reaction
         Args:
             payload: the reaction clicked? I think?
+>>>>>>> parent of e94e7d0... Quick Commit for an update on ServerManagment Cog, as well as an update
 
         Returns:
             """
