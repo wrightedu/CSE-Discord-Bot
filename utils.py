@@ -6,7 +6,6 @@ import discord
 from bing_image_downloader import downloader
 
 
-<<<<<<< HEAD
 async def get_member(guild, member_id):
     """Return a member for use in other methods
     Try to get member from the member id passed in to the method. If this doesn't work, search through the list of
@@ -68,6 +67,8 @@ async def get_emoji_named(guild, emoji_name):
             return emoji
 
 
+=======
+>>>>>>> parent of e94e7d0... Quick Commit for an update on ServerManagment Cog, as well as an update
 =======
 >>>>>>> parent of e94e7d0... Quick Commit for an update on ServerManagment Cog, as well as an update
 async def log(client, string, timestamp=True):

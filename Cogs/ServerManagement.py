@@ -99,7 +99,6 @@ class ServerManagement(commands.Cog):
         self.reaction_message_ids[guild.id] = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
 
     @commands.Cog.listener()
-<<<<<<< HEAD
     async def on_button_click(self, res):
         """Add or Remove user from role based on a button click. 
         Save message id and guild id. If the button is in the role menu, load the roles csv, get role name, and loop
@@ -121,12 +120,10 @@ class ServerManagement(commands.Cog):
         # print(guild_id, self.role_menus.keys(), guild_id in self.role_menus.keys())
         # print(msg_id, self.role_menus[guild_id], msg_id in self.role_menus[guild_id])
         # print(self.role_menus[guild_id])
-=======
     async def on_raw_reaction_add(self, payload):
         """Add students to roll by clicking on a reaction
         Args:
             payload: the reaction clicked? I think?
->>>>>>> parent of e94e7d0... Quick Commit for an update on ServerManagment Cog, as well as an update
 
         Returns:
             """
