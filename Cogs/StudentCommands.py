@@ -125,8 +125,8 @@ class StudentCommands(commands.Cog):
 
         Args:
             ctx:
-                channel (Union[abc.Messageable]): The channel that the command was made in.
-            question (str): A question that the poll taker is asking. Should be encapsulated by a set of quotation marks. 
+                channel: The channel that the command was made in.
+            question: A question that the poll taker is asking. Should be encapsulated by a set of quotation marks. 
             options (Tuple of str): A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
                 May have multiple entries
         
@@ -175,7 +175,8 @@ class StudentCommands(commands.Cog):
         is created. If the input is too large, the user is informed of this, and the user as well as failed call 
         attempt are logged. 
         Args:
-            *options(str): Size of dice being rolled. Should be input as 'd{number}'. 
+            *options: Size of dice being rolled. Should be input as 'd{number}'. 
+                The presence of * suggests that the user may input multiple dice sizes,but this is not the case.
 
         Outputs:
             output: Random number between 1 and the size of die being rolled.
@@ -219,7 +220,7 @@ class StudentCommands(commands.Cog):
 
         Args: 
             ctx:
-                channel (Union[abc.Messageable]): The channel that the command was made in.
+                channel: The channel that the command was made in.
 
         Outputs:
             latency: The amount of time taken for a computer to send a response back to the server

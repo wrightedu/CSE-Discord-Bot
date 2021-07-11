@@ -26,7 +26,7 @@ class AdminCommands(commands.Cog):
                 author (Union[User, Member]): User that called the command
                 channel (Union[abc.Messageable]): Discord channel that the command was called in
             amount (int): Number of pictures/pieces of media being downloaded
-              
+               
         Outputs:
             -Message to log stating the user that executed the command and how many images were downloaded
             -Message to user if the input was invalid. States that 100 Corgies are downloaded. 
@@ -123,7 +123,7 @@ class AdminCommands(commands.Cog):
                 guild (Optional[Guild]): Used to determine the guild that the user is typing in
             * (Standards Strack): Requires all following arguments to be keyword arguments. Also removes all inputs between the command 
                 call and the role_id parameter
-            role_id (str): ID of the role being removed
+            role_id (string): ID of the role being removed
 
         Outputs: 
             Message to chat regarding what role was removed and how many users were stripped of it 
