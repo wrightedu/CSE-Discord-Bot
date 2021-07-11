@@ -1,12 +1,8 @@
 import json
 import os
-import re
+from os.path import exists
 
-import emoji as discord_emoji
-import pandas as pd
-import validators
 from discord.ext import commands
-from discord_components import Button, ButtonStyle, InteractionType
 from utils import *
 
 
@@ -16,12 +12,6 @@ def setup(bot):
 
 class ServerManagement(commands.Cog):
     def __init__(self, bot):
-        """
-        Read the role menus file and save it to a variable "role_menus".
-        
-        Outputs: Message to user confirming that role menu ids have been read
-                -If file not found: Message to user stating that an empty rle menue dictionary was made.
-                """
         self.bot = bot
 
         # Role menu messages
@@ -39,70 +29,37 @@ class ServerManagement(commands.Cog):
     async def buildserver(self, ctx):
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
-        # Destroy server before building
-        await self.destroyserver(ctx)
-
-        # If csv file attached, overwrite existing csv
+        # If reaction roles specified in attachment
         if len(ctx.message.attachments) > 0:
             try:
-                os.remove(csv_filepath)
+                os.remove(reaction_roles_filename)
             except FileNotFoundError:
                 pass
-            await ctx.message.attachments[0].save(csv_filepath)
+            await ctx.message.attachments[0].save(reaction_roles_filename)
+            with open(reaction_roles_filename, 'r') as f:
+                self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
 
-        # Load roles csv
-        roles_csvs = pd.read_csv(csv_filepath)
+        # If reaction roles not loaded for this guild, try to load from file
+        if ctx.guild.id not in self.reaction_roles.keys():
+            print('here')
+            # Next try to load from file
+            if exists(reaction_roles_filename):
+                with open(reaction_roles_filename, 'r') as f:
+                    self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
 
-        # Print list of channels to build
-        message = '__**CREATE FOLLOWING CATEGORIES**__\n'
-        for _, row in roles_csvs.iterrows():
-            if type(row['create_channels']) != float:
-                message += f'{row["text"]}\n'
-        await ctx.send(message)
+            # Finally give up on loading and terminate command
+            else:
+                await ctx.send('Reaction roles JSON not found, rerun command with JSON attached')
+                await log(self.bot, 'Reaction roles JSON not found, rerun command with JSON attached')
+                return
 
-        # Get confirmation before building channels
-        if not await confirmation(self.bot, ctx, 'build'):
-            return
-
-        # Build all channels
-        for _, row in roles_csvs.iterrows():
-            # If role isn't a link, create role
-            if not validators.url(row['role/link']):
-                # If role doesn't already exist (due to cross-listing)
-                role_exists = any(role.name == row['role/link'] for role in ctx.guild.roles)
-                if not role_exists:
-                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-                    role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
-                    role.mentionable = True
-
-            # If channels to make
-            if type(row['create_channels']) != float:
-                channels = row['create_channels'].split(',')
-                # Create category and channels
-                if len(channels) > 0:
-                    # Create category
-                    category = await ctx.guild.create_category(row['text'])
-                    await category.set_permissions(ctx.guild.default_role, read_messages=False)
-                    for role in ctx.guild.roles:
-                        if role.name == row['role/link']:
-                            await category.set_permissions(role, read_messages=True)
-
-                # Create channels
-                for channel in channels:
-                    # Create text channel
-                    if channel.startswith('#'):
-                        text_channel = await category.create_text_channel(channel)
-                        await text_channel.edit(topic=row['long_name'])
-                    # Create voice channel
-                    else:
-                        member_count, channel_name = channel.split('#')
-                        if member_count == 0:
-                            await category.create_voice_channel(channel_name)
-                        else:
-                            await category.create_voice_channel(channel_name, user_limit=int(member_count))
-
-        # Build role menus
-        await self.rolemenu(ctx)
+        # If reaction roles JSON found (or attached)
+        await log(self.bot, f'BUILDING SERVER {ctx.guild} ({ctx.author})')
+        await destroy_server_helper(self.bot, ctx)
+        await build_server_helper(self.bot, ctx, self.reaction_roles)
+        await log(self.bot, 'Recreating reaction role menus')
+        self. reaction_message_ids = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
+        await ctx.send('Done')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -111,193 +68,105 @@ class ServerManagement(commands.Cog):
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
         roles_csvs = pd.read_csv(csv_filepath)
 
-        # = Destroy Categories =
+        Returns:
+                """
 
-        # List of names of categories to be destroyed, as determined by saved csv
-        destroy_category_names = roles_csvs['text'].tolist()
-
-        # Get list of all categories (category objects) to be destroyed and print
-        destroy_categories = []
-        message = '__**DESTROY FOLLOWING CATEGORIES**__\n'
-        for category in ctx.guild.categories:
-            if category.name in destroy_category_names:
-                message += f'{category.name}\n'
-                destroy_categories.append(category)
-        await ctx.send(message)
-
-        # Get confirmation before destroying channels
-        if len(destroy_categories) and not await confirmation(self.bot, ctx, 'destroy'):
-            return
-
-        # Destroy categories and all subchannels
-        for category in destroy_categories:
-            for channel in category.channels:
-                await channel.delete()
-            await category.delete()
-
-        # = Destroy Roles =
-
-        # List of names of role to be destroyed, as determined by saved csv
-        destroy_role_names = roles_csvs['role/link'].tolist()
-
-        # Get list of all roles (role objects) to be destroyed and print
-        destroy_roles = []
-        message = '__**DESTROY FOLLOWING ROLES**__\n'
-        for role in ctx.guild.roles:
-            if role.name in destroy_role_names:
-                message += f'{role.mention}\n'
-                destroy_roles.append(role)
-        await ctx.send(message)
-
-        # Get confirmation before destroying channels
-        if len(destroy_roles) and not await confirmation(self.bot, ctx, 'destroy'):
-            return
-
-        # Destroy categories and all subchannels
-        for role in destroy_roles:
-            await role.delete()
+        await log(self.bot, f'DESTROYING SERVER ({ctx.author})')
+        await destroy_server_helper(self.bot, ctx)
+        await ctx.send('Done')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def rolemenu(self, ctx):
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
-        # If csv file attached, overwrite existing csv
+        Returns:
+            calls create_roll_menu method"""
+
+        guild = ctx.guild
+        reaction_roles_filename = f'reaction_roles_{guild.id}.json'
+
+        # If reaction roles specified in attachment
         if len(ctx.message.attachments) > 0:
             try:
-                os.remove(csv_filepath)
+                os.remove(reaction_roles_filename)
             except FileNotFoundError:
                 pass
-            await ctx.message.attachments[0].save(csv_filepath)
+            await ctx.message.attachments[0].save(reaction_roles_filename)
+            with open(reaction_roles_filename, 'r') as f:
+                self.reaction_roles[guild.id] = (guild, json.loads(f.read()))
 
-        # Load roles csv
-        roles_csv = pd.read_csv(csv_filepath)
+        self.reaction_message_ids[guild.id] = await create_role_menu(self.bot, ctx.guild, self.reaction_roles)
 
-        # Determine which channel to send each role menu in
-        class_number_regex = '^[a-zA-Z]{2,3} ?\\d{4}'
-        menu_roles = {}
-        for i, row in roles_csv.iterrows():
-            # Get channel name for role button
-            channel_name = None
-            # If row is for class
-            if re.match(class_number_regex, row['text']):
-                # Letters at beginning denote category
-                text = row['text'].lower().strip()
-                category = ''
-                for j in range(len(text)):
-                    if text[j] not in 'abcdefghijklmnopqrstuvwxyz':
-                        category = text[:j]
-                        break
-                channel_name = f'{category}-class-selection'
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        """Add students to roll by clicking on a reaction
+        Args:
+            payload: the reaction clicked? I think?
 
-            # If can't find channel, ask for it
-            while channel_name is None:
-                await ctx.send(f'Channel for `{row["text"]}` not found, enter channel to send to')
-                msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
-                if len(msg.channel_mentions):
-                    channel_name = msg.channel_mentions[0].name
+        Returns:
+            """
 
-            # Add role to dictionary entry for channel
-            if channel_name not in menu_roles.keys():
-                menu_roles[channel_name] = []
-            menu_roles[channel_name].append(list(roles_csv.loc[i]))
+        try:
+            guild_id = payload.guild_id
+            if payload.message_id in self.reaction_message_ids[guild_id]:
+                # Get guild
+                guild = discord.utils.find(lambda g: g.id == guild_id, self.bot.guilds)
 
-        # Get confirmation before purging
-        channel_names_string = ''
-        for channel_name in menu_roles.keys():
-            channel_names_string += (await get_channel_named(ctx.guild, channel_name)).mention + '\n'
-        await ctx.send(f'The following channels will be **PURGED**!!! Continue?\n{channel_names_string}')
-        if not await confirmation(self.bot, ctx, 'purge'):
-            await ctx.send('Terminating execution')
-            return
+                # Get guild reaction roles
+                guild_reaction_roles = self.reaction_roles[guild_id][1]
 
-        # For each channel, create role menus
-        self.role_menus[str(ctx.guild.id)] = []
-        for channel_name, roles in menu_roles.items():
-            channel = await get_channel_named(ctx.guild, channel_name)
+                # Find a role corresponding to the emoji name.
+                classes = []
+                for menu in guild_reaction_roles.keys():
+                    for class_name in guild_reaction_roles[menu].keys():
+                        if class_name not in ['channel_name', 'clear_channel']:
+                            classes.append(guild_reaction_roles[menu][class_name])
+                role = None
+                for _class in classes:
+                    emoji = f':{_class["emoji"]}:'
+                    if emoji in str(payload.emoji):
+                        role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
 
-            # Iterate through this channel's roles, creating 1D list of all buttons required
-            buttons = []
-            for role_data in roles:
-                # Data for the current role
-                text, emoji_name, role_link, long_name, create_channels = role_data
-                emoji_name = str(emoji_name)
-
-                # Get emoji object from current guild if possible
-                if emoji_name != 'nan':
-                    emoji = await get_emoji_named(ctx.guild, emoji_name)
-                    if emoji is None:
-                        emoji = discord_emoji.emojize(f':{emoji_name}:', use_aliases=True)
-                        if emoji == f':{emoji_name}:':
-                            emoji = None
-                else:
-                    emoji = None
-
-                # If role, make button style gray. If URL, make style URL
-                label = f'{text} - {long_name}' if str(long_name) != 'nan' else text
-                if not validators.url(role_link):
-                    buttons.append(Button(style=ButtonStyle.gray, label=label, emoji=emoji))
-                else:
-                    buttons.append(Button(style=ButtonStyle.URL, label=label, emoji=emoji, url=role_link))
-
-            # Reshape buttons to sets of max 5x5
-            menus = []  # list of 2D grids of buttons
-            for i in range(0, len(buttons), 25):
-                chunk = buttons[i:i + 25]
-                menus.append([chunk[i:i + 5] for i in range(0, len(chunk), 5)])
-
-            # Clear channel
-            await channel.purge()
-
-            # Send each role menu
-            for menu in menus:
-                # Send and save message
-                message = await channel.send('‍\u200c', components=menu)  # 0 width joiner in here to send empty message
-                self.role_menus[str(ctx.guild.id)].append(message.id)
-
-        # Save new role menu message ids to file
-        with open('role_menus.json', 'w') as f:
-            json.dump(self.role_menus, f)
+                # If role found, assign it
+                if role is not None:
+                    member = await guild.fetch_member(payload.user_id)
+                    if not member.bot:  # Error suppression
+                        # Get class name from role
+                        await member.add_roles(role)
+                        await dm(member, f'Welcome to {role}!')
+                        await log(self.bot, f'Assigned role {role} to {member}')
+        except Exception:
+            pass
+            # await log(self.bot, 'Error suppressed, likely due to bot reacting to a role menu')
 
     @commands.Cog.listener()
     async def on_button_click(self, res):
         msg_id = res.message.id
         guild_id = str(res.guild.id)
 
-        # print(guild_id, self.role_menus.keys(), guild_id in self.role_menus.keys())
-        # print(msg_id, self.role_menus[guild_id], msg_id in self.role_menus[guild_id])
-        # print(self.role_menus[guild_id])
+        # Get guild
+        guild_id = payload.guild_id
+        guild = discord.utils.find(lambda g: g.id == guild_id, self.bot.guilds)
 
-        # If clicked on role menu
-        if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
-            # Load roles csv
-            roles_csv = pd.read_csv(f'role_lists/roles_{guild_id}.csv')
+        # Get guild reaction roles
+        guild_reaction_roles = self.reaction_roles[guild_id][1]
 
-            # Get role name
-            role_name = ''
-            for _, row in roles_csv.iterrows():
-                if res.component.label in {row['text'], f'{row["text"]} - {row["long_name"]}'}:
-                    role_name = row['role/link']
+        # Find a role corresponding to the emoji name.
+        classes = []
+        for menu in guild_reaction_roles.keys():
+            for class_name in guild_reaction_roles[menu].keys():
+                if class_name not in ['channel_name', 'clear_channel']:
+                    classes.append(guild_reaction_roles[menu][class_name])
+        role = None
+        for _class in classes:
+            emoji = f':{_class["emoji"]}:'
+            if emoji in str(payload.emoji):
+                role = discord.utils.find(lambda r: r.name == _class['role'].replace(' ', ''), guild.roles)
 
-            # Get object for class role
-            role = None
-            for guild_role in res.guild.roles:
-                if guild_role.name == role_name:
-                    role = guild_role
-                    break
-
-            # If role doesn't exist, error
-            if role is None:
-                await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'The {role_name} role does not exist, please contact an admin')
-
-            else:
-                # Get member object to give role to or take role from
-                member = await get_member(res.guild, res.user.id)
-
-                # Assign or remove role
-                if role in member.roles:
-                    await member.remove_roles(role)
-                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Took the {role.name} role!')
-                else:
-                    await member.add_roles(role)
-                    await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Gave you the {role.name} role!')
+        # If role found, take it
+        if role is not None:
+            member = await guild.fetch_member(payload.user_id)
+            await member.remove_roles(role)
+            await dm(member, f'We\'ve taken you out of {role}')
+            await log(self.bot, f'Took role {role} from {member}')

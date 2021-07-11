@@ -1,3 +1,6 @@
+import json
+from os.path import exists
+
 from discord.ext import commands
 from utils import *
 
@@ -28,6 +31,8 @@ class CogManagement(commands.Cog):
 
         await ctx.send(f'Reloading {cog_name}')
         self.bot.reload_extension(f'Cogs.{cog_name}')
+        if cog_name == 'ServerManagement':
+            await self.load_server_management()
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -65,7 +70,6 @@ class CogManagement(commands.Cog):
 
         await ctx.send(f'Loading {cog_name}')
         self.bot.load_extension(f'Cogs.{cog_name}')
-<<<<<<< HEAD
         if cog_name == 'ServerManagement':
             await self.load_server_management()
 
@@ -107,8 +111,6 @@ class CogManagement(commands.Cog):
             cog.reaction_message_ids = await create_role_menu(self.bot, guild, reaction_roles)
         except Exception:
             await log(self.bot, f'    failed, no reaction roles JSON')
-=======
->>>>>>> bdf2a9de1ae0ae98413008f18136f2eac806acab
 
     async def load_server_management(self):
         """Pass in information to the ServerManagment cog so it may handle role menus properly
