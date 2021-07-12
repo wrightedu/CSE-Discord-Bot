@@ -16,6 +16,12 @@ def setup(bot):
 
 class ServerManagement(commands.Cog):
     def __init__(self, bot):
+        """
+        Read the role menus file and save it to a variable "role_menus".
+        
+        Outputs: Message to user confirming that role menu ids have been read
+                -If file not found: Message to user stating that an empty rle menue dictionary was made.
+                """
         self.bot = bot
 
         # Role menu messages
