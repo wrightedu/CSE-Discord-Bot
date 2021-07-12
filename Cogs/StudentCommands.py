@@ -92,7 +92,8 @@ class StudentCommands(commands.Cog):
                    'php': '```php\n<?php\necho \'Hello World\';\n?>```',
                    'lisp': '```lisp\n(DEFUN hello ()\n  (PRINT (LIST \'HELLO \'WORLD))\n)\n(hello)```',
                    'basic': '```basic\n10 PRINT "Hello World"\n20 END```',
-                   'cobol': '```cobol\n       identification division.\n       program-id. cobol.\n       procedure division.\n       main.\n           display \'Hello world!\' end-display.\n           stop run.```'}
+                   'cobol': '```cobol\n       identification division.\n       program-id. cobol.\n       procedure division.\n       main.\n           display \'Hello world!\' end-display.\n           stop run.```',
+                   'papyrus': '```papyrus\nScriptname helloworld\n\nEvent OnPlayerLoadGame()\n\tDebug.Notification("Hello World!")\nEndEvent```'}
 
         # List languages
         if language == 'ls':
