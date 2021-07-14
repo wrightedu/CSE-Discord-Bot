@@ -37,7 +37,21 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildserver(self, ctx):
-        """"""
+        """Generate channels and roles based on a csv
+        Save the filepath of the roles csv. Call the destroy server method and check to see if there is a csv attatched
+        to the message calling the command. If so, delete the existing csv and save the attatched file. Use pandas to
+        read the roles csv. Loop through all of the rows in the csv, and if the row is not of type float, add it as a
+        catagory to be generated. Send message to user confirming that these catagories are to be made. Loop through the
+        rows in the csv, and create a link if there is none already existing. If the role doesn't exist, generate it. 
+        Seperate channels to be made from the row and seperate each channel to be made, using commas as a seperator. 
+        Create the necessary catagories within the guild and set permissions. For each channel defined within the row, 
+        determine whether it will be a text or voice channel and generate. Finally, call the rolemenu method. 
+
+        Args:
+            ctx: 
+                message (Message): The message sent calling the command. 
+                    attachment (List[Attachment]): Any attachment that may be tagged on to the message calling the command
+        """
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         # Destroy server before building
@@ -108,7 +122,7 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def destroyserver(self, ctx):
-        """
+        """Systematically delete every role and every channel
         Save the most likely filepath for the roles csv. Load it, and read it using pandas. Create a list
         of the names of catagories to be destroyed by reading the roles csv. Loop through the catagories
         in the guild and see if it is in the csv. If it is, add it to a list of names of catogories to be 
@@ -116,7 +130,8 @@ class ServerManagement(commands.Cog):
         method from utils.py to ensure command is desired, then loop through every channel within every
         catagory and delete them. Read through the roles csv and save to a list 'destroy_role_names'. Loop
         through every role within the guild and check to see if it is in the list of roles to destroy. If
-        so, add it to a list of roles to destroy. Confirm that the user wishes to destroy these. 
+        so, add it to a list of roles to destroy. Confirm that the user wishes to destroy these. Then destroy
+        them. 
         
         """
         # Load roles csv
@@ -186,8 +201,8 @@ class ServerManagement(commands.Cog):
 
         Args:
             CTX:
-                Message: The message being sent that is calling the command
-                    attatchments: objects such as files that have been attatched to the message. 
+                message (Message): The message being sent that is calling the command
+                    attatchments (List[Attachment]): objects such as files that have been attatched to the message. 
         
         Outputs: 
             -Array of buttons for the role menu.
@@ -293,9 +308,19 @@ class ServerManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_button_click(self, res):
-        """
+        """Add or Remove user from role based on a button click. 
+        Save message id and guild id. If the button is in the role menu, load the roles csv, get role name, and loop
+        through rows in the csv to see what role matches with the name on the button. Loop through all roles in the
+        guild roles to see if any match the role name and save it. If none match, output error message. Otherwise, 
+        call get_member method from utils.py. Check to see if the role is already in the user's list of roles. If so, 
+        remove the role. If not, add the role. 
+
         Args:
-            res: 
+            res (discord.ext.commands.context.Context): Modified by discord-components and is very similar to 
+                                                        ctx in application.
+                
+        Outputs:
+            -Error message to user if the role clicked on does not exist
         """
         msg_id = res.message.id
         guild_id = str(res.guild.id)
