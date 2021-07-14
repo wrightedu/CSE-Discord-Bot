@@ -19,7 +19,7 @@ class CogManagement(commands.Cog):
         method from CogManagment.py
 
         Args: 
-            cog_name: Name of the cog that will be reloaded
+            cog_name (str): Name of the cog that will be reloaded
         
         Outputs:
             Message to user informing them of what cog is being restarted. 
@@ -38,7 +38,7 @@ class CogManagement(commands.Cog):
         the cog_name. 
 
         Args:
-            cog_name: Name of the cog being unloaded
+            cog_name(str): Name of the cog being unloaded
 
         Outputs:
             Message to user informing them of what cog is being unloaded.
@@ -57,7 +57,7 @@ class CogManagement(commands.Cog):
         method from CogManagment.py
 
         Args: 
-            cog_name: Name of the cog being loaded
+            cog_name(str): Name of the cog being loaded
         
         Outputs:
             Message to user informing them of what cog is being loaded.
