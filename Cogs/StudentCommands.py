@@ -28,15 +28,14 @@ class StudentCommands(commands.Cog):
         # Get images from directory
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
         print(images[0])
-
-        # Pick a random image
-        if number != -1 and (0 < number < len(images)):
-            image = images[number]
-        else:
-            image = images[randint(0, len(images) - 1)]
+        
+        # Generates a random number if no number is given
+        if 0 <= number < len(images):
+            number = randint(0, len(images) - 1)
+        image = images[number]
 
         # Send image
-        await ctx.send(file=discord.File(image))
+        await ctx.send(f"Sending doggo number {number}:",file=discord.File(image))
         await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
 
     @commands.command()
