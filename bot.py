@@ -72,6 +72,15 @@ async def on_command_error(ctx, error):
         await log(client, f'{author} attempted to run `{message}` but failed because of an unexpected error: {error}')
 
 
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    channel = message.channel
+    if channel.name == 'i-made-a-poppy':
+        await message.add_reaction("💩")
+
+
 if __name__ == '__main__':
     # Run bot from key given by command line argument
     client.run(TOKEN)
