@@ -29,7 +29,7 @@ class StudentCommands(commands.Cog):
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
         print(images[0])
         #Generates a random number if no number is given
-        if number == -1:
+        if 0 <= number < len(images):
             number = randint(0, len(images) - 1)
         image = images[number]
         # Send image
