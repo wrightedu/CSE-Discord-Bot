@@ -148,13 +148,13 @@ class StudentCommands(commands.Cog):
     @commands.command()
     async def attendance(self, ctx):
 
-        # The user object does not have a .voice.channel attribute so simply using author.id.voice does not work here
+        # Gets users in the same voice chat as the requester and lists their @'s.
         try:
-            channel = ctx.guild.get_member(ctx.message.author.id).voice.channel
+            channel = ctx.message.author.voice.channel
             members = channel.members
             members.remove(ctx.author)
             if members:
-                attendees = "\n".join([member.name for member in members])
+                attendees = "\n".join([member.mention for member in members])
                 await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
             else:
                 await ctx.message.channel.send("There are no users in your voice channel.")
