@@ -144,3 +144,20 @@ class StudentCommands(commands.Cog):
         latency = round(self.bot.latency * 1000)
         await ctx.send(f'{latency} ms')
         await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
+
+    @commands.command()
+    async def attendance(self, ctx):
+
+        # Gets users in the same voice chat as the requester and lists their @'s.
+        try:
+            channel = ctx.message.author.voice.channel
+            members = channel.members
+            members.remove(ctx.author)
+            if members:
+                attendees = "\n".join([member.mention for member in members])
+                await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
+            else:
+                await ctx.message.channel.send("There are no users in your voice channel.")
+        except AttributeError:
+            await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
+        
