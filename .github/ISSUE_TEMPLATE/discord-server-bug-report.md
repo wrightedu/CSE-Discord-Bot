@@ -1,9 +1,9 @@
 ---
 name: Discord Server Bug Report
-about: Report unexpected behavior with a Discord Server
+about: Report unexpected behavior with a Discord server
 title: ''
-labels: ''
-assignees: ''
+labels: server bug
+assignees: CodingPenguin1, tux2603
 
 ---
 
