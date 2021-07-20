@@ -11,9 +11,6 @@ class Listeners(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author == self.bot.user:
-            return
-        channel = message.channel
-        if channel.name == 'i-made-a-poopy':
-            await message.add_reaction("💩")
+    async def on_message(self, ctx):
+        if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
+            await ctx.add_reaction("💩")
