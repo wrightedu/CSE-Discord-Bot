@@ -5,7 +5,7 @@ List any dependencies that are required for this change.
 
 ## Issues
 
-Resolves # (issue)
+Closes # (issue)
 
 ## Type of change
 
