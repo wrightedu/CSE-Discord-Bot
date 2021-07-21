@@ -64,5 +64,3 @@ class CogManagement(commands.Cog):
 
         await ctx.send(f'Loading {cog_name}')
         self.bot.load_extension(f'Cogs.{cog_name}')
-        if cog_name == 'ServerManagement':
-            await self.load_server_management()
