@@ -50,7 +50,6 @@ async def get_channel_named(guild, channel_name):
 
     for channel in guild.channels:
         if channel.name == channel_name:
-            print(type(channel))
             return channel
 
 
