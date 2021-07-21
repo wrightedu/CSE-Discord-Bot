@@ -178,8 +178,3 @@ class AdminCommands(commands.Cog):
         if await confirmation(self.bot, ctx):
             await ctx.send('Stopping...')
             exit(0)
-
-    # ! FOR TESTING ONLY
-    @commands.command()
-    async def debug(self, ctx):
-        await log(self.bot, 'test')
