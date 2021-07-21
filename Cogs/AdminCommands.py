@@ -22,15 +22,13 @@ class AdminCommands(commands.Cog):
         Call the download_corgies method from utils.py. Log the user and number of images downloaded.
 
         Args:
-            ctx:
-                author (Union[User, Member]): User that called the command
-                channel (Union[abc.Messageable]): Discord channel that the command was called in
             amount (int): Number of pictures/pieces of media being downloaded
 
         Outputs:
-            -Message to log stating the user that executed the command and how many images were downloaded
-            -Message to user if the input was invalid. States that 100 Corgies are downloaded.
-            """
+            Message to log stating the user that executed the command and how many images were downloaded
+            Message to user if the input was invalid. States that 100 corgis are downloaded.
+        """
+
         try:
             amount = int(amount)
         except Exception:
@@ -47,25 +45,13 @@ class AdminCommands(commands.Cog):
         clear a very large number of messages from the server. If the amount is blank, tell user how to more
         properly use the command. Otherwise, send message confirming how many messages are being cleared and log it.
         Purge the appropriate number of messages from the channel.
+
         Args:
-            ctx:
-                author (Union[User, Member]): User that called the command
-                channel (Union[abc.Messageable]): Discord channel that the command was called in
-            amount (int): Number of messages being removed
+            amount (int): Number of messages to be removed
 
         Outputs:
-            -If all messages are to be cleared: Message to user stating that all messages are being cleared.
-                -Log user and number of messages being cleared.
-            -If X messages being cleared: Message to user stating that X messages are being cleared.
-                -Log user and number of messages being cleared.
-            -If input is blank: Message to user giving help on properly using command.
-                -Log failed message clear attempt
-
-        Logs:
-            -If all messages are to be cleared: Log user and number of messages being cleared.
-            -If X messages being cleared: Log user and number of messages being cleared.
-            -If input is blank: Log failed message clear attempt
-            """
+            States the amount of messages being cleared or, if invalid input, help on how to use the command
+        """
 
         if amount == 'all':
             if not await confirmation(self.bot, ctx):
@@ -93,14 +79,10 @@ class AdminCommands(commands.Cog):
         Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
         removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
         on the discord bot and passes in the user input to the method. Log the author and new status.
-        Args:
-            * (Standards Strack): Requires all following arguments to be keyword arguments. Also removes all inputs between the command
-            status (str): Text to be displayed
 
-        Logs:
-            -If status is 'none': Log author and that they disabled the custom status.
-            -If status is not 'none': log author and the new status of Discord Bot
-            """
+        Args:
+            status (str): Text to be displayed
+        """
 
         status = status.strip()
         if status.lower() == 'none':
@@ -119,15 +101,11 @@ class AdminCommands(commands.Cog):
         message in chat confirming that the role has been removed, and the number of users it has been removed from.
 
         Args:
-            ctx:
-                guild (Optional[Guild]): Used to determine the guild that the user is typing in
-            * (Standards Strack): Requires all following arguments to be keyword arguments. Also removes all inputs between the command
-                call and the role_id parameter
-            role_id (string): ID of the role being removed
+            role_id (str): ID of the role being removed
 
         Outputs:
             Message to chat regarding what role was removed and how many users were stripped of it
-            """
+        """
 
         guild = ctx.guild
         role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
@@ -154,11 +132,11 @@ class AdminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def restart(self, ctx):
         """Restart the discord bot
-        Send message to user confirming restart. Call os.execv method (similar to os.execl)
+        Send message to user confirming restart, then restarts the bot
 
         Outputs:
             Message to chat confirming that the bot is restarting.
-            """
+        """
 
         if await confirmation(self.bot, ctx):
             await ctx.send('Restarting...')
@@ -172,7 +150,7 @@ class AdminCommands(commands.Cog):
 
         Outputs:
             Message to user that discord bot is being shut down
-            """
+        """
 
         if await confirmation(self.bot, ctx):
             await ctx.send('Stopping...')
