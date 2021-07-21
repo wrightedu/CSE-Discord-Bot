@@ -26,8 +26,7 @@ class CogManagement(commands.Cog):
 
         Outputs:
             Message to user informing them of what cog is being restarted.
-
-            """
+        """
 
         await ctx.send(f'Reloading {cog_name}')
         self.bot.reload_extension(f'Cogs.{cog_name}')
@@ -47,7 +46,7 @@ class CogManagement(commands.Cog):
 
         Outputs:
             Message to user informing them of what cog is being unloaded.
-            """
+        """
 
         if cog_name != 'CogManagement':
             await ctx.send(f'Unloading {cog_name}')
@@ -84,8 +83,8 @@ class CogManagement(commands.Cog):
         cog and pass in the reaction_roles and reaction_message_ids dictionaries. Set reaction_message_ids in the cog
         to the output of the create_roll_menu method from utils.py. The bot, guild, and reaction_roles dictionay
         are passed in to this method.
-
         """
+
         # Initialize each guild
         await self.bot.change_presence(activity=discord.Game(f'Building servers'), status=discord.Status.idle)
         reaction_roles = {}
