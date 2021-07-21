@@ -18,6 +18,15 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 @bot.event
 async def on_ready():
+    """Initializes cogs on bot startup
+
+    Sets up Discord components
+    Begins logging
+    Loads all cogs
+    Sets status
+    Finishes startup log
+    """
+
     # Set up Discord Components
     DiscordComponents(bot)
 
@@ -53,6 +62,11 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx, error):
+    """Generic error handler
+
+    If a command errors with a MissingRequiredArgument, MissingRole, or CommandNotFound error, triggers custom error message.
+    If other error type, sends message with error statement
+    """
     author, message = ctx.author, ctx.message.content
 
     if isinstance(error, commands.MissingRequiredArgument):
