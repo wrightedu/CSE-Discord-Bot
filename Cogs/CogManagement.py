@@ -17,15 +17,15 @@ class CogManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def reload(self, ctx, cog_name):
         """Reload a specific cog
-        Take in the name of single cog from a user and reload it. Output a message confirming reload action 
+        Take in the name of single cog from a user and reload it. Output a message confirming reload action
         and use reload extension method on the cog. If reloading server managment, call load_server_managment
         method from CogManagment.py
 
-        Args: 
+        Args:
             cog_name: Name of the cog that will be reloaded
-        
+
         Outputs:
-            Message to user informing them of what cog is being restarted. 
+            Message to user informing them of what cog is being restarted.
 
             """
 
@@ -39,8 +39,8 @@ class CogManagement(commands.Cog):
     async def unload(self, ctx, cog_name):
         """Unload a specific cog
         Take in the name of a cog from a user. If the user is not trying to unload the CogManagment cog,
-        send a message confirming the action. Call unload_extension command from Discord.ext, passing in 
-        the cog_name. 
+        send a message confirming the action. Call unload_extension command from Discord.ext, passing in
+        the cog_name.
 
         Args:
             cog_name: Name of the cog being unloaded
@@ -57,13 +57,13 @@ class CogManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def load(self, ctx, cog_name):
         """Load a specific cog
-        Take in the name of a cog from a user. Send a message confirming the action, and call load_extension 
+        Take in the name of a cog from a user. Send a message confirming the action, and call load_extension
         command from Discord.ext, passing in cog_name. If the cog is ServerManagment, call load_server_managment
         method from CogManagment.py
 
-        Args: 
+        Args:
             cog_name: Name of the cog being loaded
-        
+
         Outputs:
             Message to user informing them of what cog is being loaded.
         """
@@ -75,16 +75,16 @@ class CogManagement(commands.Cog):
 
     async def load_server_management(self):
         """Pass in information to the ServerManagment cog so it may handle role menus properly
-        In the bots's presence, change the game to 'Building Servers' and the status to idle. Create empty 
-        dictionaries for the reaction roles and reaction message ids. For every guild in the server, log that the 
-        bot is doing work on said guild. Set the most likely filename for each server's reaction role as 
-        reaction_roles_filename utilising the id of each guild for its respective reaction role file. If 
+        In the bots's presence, change the game to 'Building Servers' and the status to idle. Create empty
+        dictionaries for the reaction roles and reaction message ids. For every guild in the server, log that the
+        bot is doing work on said guild. Set the most likely filename for each server's reaction role as
+        reaction_roles_filename utilising the id of each guild for its respective reaction role file. If
         said file exists, set a new key in reaction_roles as the guild id, and the item as the guild followed
         by the information from the reaction_roles file. When this has been done for all guilds, get the ServerManagment
         cog and pass in the reaction_roles and reaction_message_ids dictionaries. Set reaction_message_ids in the cog
         to the output of the create_roll_menu method from utils.py. The bot, guild, and reaction_roles dictionay
-        are passed in to this method. 
-        
+        are passed in to this method.
+
         """
         # Initialize each guild
         await self.bot.change_presence(activity=discord.Game(f'Building servers'), status=discord.Status.idle)

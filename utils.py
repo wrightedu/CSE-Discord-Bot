@@ -10,14 +10,15 @@ async def get_member(guild, member_id):
     """Return a member for use in other methods
     Try to get member from the member id passed in to the method. If this doesn't work, search through the list of
     all members and extract a matching member id. If this doesn't work, refresh member list and return member if the
-    id matches the intended member id. If this doesn't work, return none. 
+    id matches the intended member id. If this doesn't work, return none.
 
     Args:
         member_id (int): id of the member
 
     Returns:
-        member (Member): An instance of the member being called for
+        member (discord.Member): An instance of the member being called for
     """
+
     # Primary method
     member = guild.get_member(member_id)
     if member is not None:
@@ -42,47 +43,47 @@ async def get_channel_named(guild, channel_name):
     Loop through all the channels in the guild. If the channel matches the input channel name, return it.
 
     Args:
-        channel_name (str): name of the channel being quiered. 
-    
+        channel_name (str): name of the channel being quiered.
+
     Returns:
-        channel (Union[abc.GuildChannel, Object]): An instance of the channel being quieried
+        channel (discord.channel.TextChannel): An instance of the channel being quieried
     """
+
     for channel in guild.channels:
         if channel.name == channel_name:
+            print(type(channel))
             return channel
 
 
 async def get_emoji_named(guild, emoji_name):
     """Return an emoji for use in other methods.
-    Search through all the emojis in the guild. If the name of one mathces the input emoji name, return it. 
+    Search through all the emojis in the guild. If the name of one mathces the input emoji name, return it.
 
     Args:
         emoji_name (str): name of the emoji being searched for
 
-    Returns: 
+    Returns:
         emoji (discord.Emoji): an instance of the emoji being quieried for.
     """
+
     for emoji in guild.emojis:
         if emoji.name == emoji_name:
             return emoji
 
 
-=======
->>>>>>> parent of e94e7d0... Quick Commit for an update on ServerManagment Cog, as well as an update
-=======
->>>>>>> parent of e94e7d0... Quick Commit for an update on ServerManagment Cog, as well as an update
-async def log(client, string, timestamp=True):
+async def log(bot, string, timestamp=True):
     """Save a record of events occuring within the server
-    Save the current date and time as a string and print it. Loop through guilds in the client, then for each
+    Save the current date and time as a string and print it. Loop through guilds in the bot, then for each
     guild search through all channels. If the channel name is 'bot-logs', send a log message there. Use
     Aiofiles to open log in read mode, and save previous logs. Use Aiofiles in write mode to append the log
-    message to the document as well as the string. 
-    
+    message to the document as well as the string.
+
     Args:
-        client (client): The client connection connected to Discord
-        string (str): The message being sent to the log. 
-        timestamp (bool): Determine whether a timestamp will be given. Automatically set to true. 
+        bot (discord.ext.commands.bot.Bot): The bot object
+        string (str): The message being sent to the log.
+        timestamp (bool): Determine whether a timestamp will be given. Automatically set to true.
     """
+
     # Log to stdout
     timestamp_string = ''
     if timestamp:
@@ -90,7 +91,7 @@ async def log(client, string, timestamp=True):
     print(timestamp_string + ' ' + string)
 
     # Log to channel
-    for guild in client.guilds:
+    for guild in bot.guilds:
         for channel in guild.text_channels:
             if channel.name == 'bot-logs':
                 try:
@@ -111,30 +112,34 @@ async def log(client, string, timestamp=True):
         await f.write(timestamp_string + ' ' + string + '\n')
 
 
-async def download_corgis(client, ctx, amount):
+async def download_corgis(bot, ctx, amount):
     """Download Corgi Pictures
     Send message to user informing them how many corgis will be downloaded. Use the downloader to download
     a specified amount of corgies into 'dogs' with a functioning adult filter. Log the event.
 
     Args:
-        client (client): The client connection connected to Discord 
-        amount (int): The number of corgi pictures being downloaded. 
+        bot (discord.ext.commands.bot.Bot): The bot object
+        amount (int): The number of corgi pictures being downloaded.
+
+    Outputs:
+        The amount of images downloaded
 
     Logs:
-        -Who sent command and the amount of pictures downloaded. 
+        Who sent command and the amount of pictures downloaded.
     """
+
     await ctx.send(f'Downloading {amount} images')
     downloader.download('corgis',
                         limit=amount,
                         output_dir='dogs',
                         adult_filter_off=False,
                         force_replace=False)
-    await log(client, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
+    await log(bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
 
 
-async def create_role_menu(client, guild, reaction_roles):
+async def create_role_menu(bot, guild, reaction_roles):
     def get_emoji(emoji_name):
-        emoji = discord.utils.get(client.emojis, name=emoji_name)
+        emoji = discord.utils.get(bot.emojis, name=emoji_name)
         if emoji is not None:
             return emoji
         return f':{emoji_name}:'
@@ -182,7 +187,7 @@ async def create_role_menu(client, guild, reaction_roles):
     return reaction_message_ids
 
 
-async def build_server_helper(client, ctx, reaction_roles):
+async def build_server_helper(bot, ctx, reaction_roles):
     guild = ctx.guild
 
     # Builds new class channels/categories from reaction roles
@@ -198,7 +203,7 @@ async def build_server_helper(client, ctx, reaction_roles):
                 creation_list_message += class_number + '\n'
     await ctx.send(creation_list_message)
 
-    if await confirmation(client, ctx, 'build'):
+    if await confirmation(bot, ctx, 'build'):
         # Iterate through all menus in reaction roles
         for menu in guild_reaction_roles:
             # Iterate through all classes in each menu
@@ -234,7 +239,7 @@ async def build_server_helper(client, ctx, reaction_roles):
                         await category.create_voice_channel('TA Voice', user_limit=2)
 
 
-async def destroy_server_helper(client, ctx):
+async def destroy_server_helper(bot, ctx):
     guild = ctx.guild
 
     # Deletes all class channels/categories
@@ -248,7 +253,7 @@ async def destroy_server_helper(client, ctx):
             deletion_list_message += category.name + '\n'
     await ctx.send(deletion_list_message)
 
-    if await confirmation(client, ctx, 'destroy'):
+    if await confirmation(bot, ctx, 'destroy'):
         # Find all matching categories in the guild
         for category in guild.categories:
             if class_names.match(category.name):
@@ -266,27 +271,28 @@ async def destroy_server_helper(client, ctx):
                 await role.delete()
 
 
-async def confirmation(client, ctx, confirm_string='confirm'):
+async def confirmation(bot, ctx, confirm_string='confirm'):
     """Add a layer of security to sensitive commands by adding a confirmation step
     Send message to user informing what confirmation code is. Ensure the next message received is by the author
-    of the origional command. If so, ensure said message is the proper confirmation code. If this is the case, 
-    execute action and return true. If not, inform user that the action failed and return false. 
+    of the origional command. If so, ensure said message is the proper confirmation code. If this is the case,
+    execute action and return true. If not, inform user that the action failed and return false.
     Args:
-        client (client): The client connection connected to Discord 
+        bot (discord.ext.commands.bot.Bot): The bot object
         confirm_string (str): The string that must be sent by user to confirm action. Automatically set to 'confirm'.
 
     Outputs:
-        -If confirmation is successful: Message to user confirming execution
-        -If confirmation is not successful: Message to user informing of termination of execution
+        If confirmation is successful: Message to user confirming execution
+        If confirmation is not successful: Message to user informing of termination of execution
 
     Returns:
-        -(bool): A boolean value used to determine whether the action requesting confirmation may be completed
+        (bool): Whether or not the confirmation succeeded
     """
+
     # Ask for confirmation
     await ctx.send(f'Enter `{confirm_string}` to confirm action')
 
     # Wait for confirmation
-    msg = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+    msg = await bot.wait_for('message', check=lambda message: message.author == ctx.author)
     if msg.content == confirm_string:
         await ctx.send(f'Action confirmed, executing')
         return True
@@ -296,12 +302,17 @@ async def confirmation(client, ctx, confirm_string='confirm'):
 
 
 async def dm(member, content):
-    """Send a direct message to another user. 
-    Create a dm channel between the user and intended recipient. Send the desired message from the user to the 
-    recipient through the new channel. 
+    """Send a direct message to another user.
+    Create a dm channel between the user and intended recipient. Send the desired message from the user to the
+    recipient through the new channel.
+
     Args:
         member (discord.Member): The member to receive the dm
         content (str): The contents of the message being sent
+
+    Outputs:
+        A message with content `content` to a DM with `member`
     """
+
     channel = await member.create_dm()
     await channel.send(content)
