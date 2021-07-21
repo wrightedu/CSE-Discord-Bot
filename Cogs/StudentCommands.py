@@ -120,10 +120,8 @@ class StudentCommands(commands.Cog):
         Log the creation of the poll.
 
         Args:
-            ctx:
-                channel (Union[abc.Messageable]): The channel that the command was made in.
             question (str): A question that the poll taker is asking. Should be encapsulated by a set of quotation marks.
-            options (Tuple of str): A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
+            options (tuple (str)): A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
                 May have multiple entries
 
         Outputs:
@@ -170,7 +168,7 @@ class StudentCommands(commands.Cog):
         attempt are logged.
 
         Args:
-            *options(str): Size of dice being rolled. Should be input as 'd{number}'.
+            *options(str): Input to dice parser. String of various different forms
 
         Outputs:
             Result of dice rolled and pruned, or otherwise specified
@@ -207,7 +205,7 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        """Determine the api latency
+        """Sends the Discord WebSocket protocol latency
         Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
 
         Outputs:
@@ -220,6 +218,10 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def attendance(self, ctx):
+        """Sends a list of all members in the same voice channel as the command author
+        If the command author is in a voice channel with at least one other member,
+        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
+        """
 
         # Gets users in the same voice chat as the requester and lists their @'s.
         try:
@@ -233,4 +235,3 @@ class StudentCommands(commands.Cog):
                 await ctx.message.channel.send("There are no users in your voice channel.")
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
-        
