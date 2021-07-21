@@ -136,7 +136,6 @@ class AdminCommands(commands.Cog):
 
         await log(self.bot, f'{ctx.author} is clearing {role} from all members:')
         # for member in role.get_all_members():
-        # why is the line above this commented out?? Can it be deleted because the line follow this exists?
         async for member in ctx.guild.fetch_members():
             if role in member.roles:
                 await member.remove_roles(role)
