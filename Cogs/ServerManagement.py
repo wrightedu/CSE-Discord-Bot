@@ -81,7 +81,8 @@ class ServerManagement(commands.Cog):
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         Returns:
-            calls create_roll_menu method"""
+            calls create_roll_menu method
+        """
 
         guild = ctx.guild
         reaction_roles_filename = f'reaction_roles_{guild.id}.json'
@@ -100,17 +101,17 @@ class ServerManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_button_click(self, res):
-        """Add or Remove user from role based on a button click. 
+        """Add or Remove user from role based on a button click.
         Save message id and guild id. If the button is in the role menu, load the roles csv, get role name, and loop
         through rows in the csv to see what role matches with the name on the button. Loop through all roles in the
-        guild roles to see if any match the role name and save it. If none match, output error message. Otherwise, 
-        call get_member method from utils.py. Check to see if the role is already in the user's list of roles. If so, 
-        remove the role. If not, add the role. 
+        guild roles to see if any match the role name and save it. If none match, output error message. Otherwise,
+        call get_member method from utils.py. Check to see if the role is already in the user's list of roles. If so,
+        remove the role. If not, add the role.
 
         Args:
-            res (discord.ext.commands.context.Context): Modified by discord-components and is very similar to 
+            res (discord.ext.commands.context.Context): Modified by discord-components and is very similar to
                                                         ctx in application.
-                
+
         Outputs:
             -Error message to user if the role clicked on does not exist
         """
