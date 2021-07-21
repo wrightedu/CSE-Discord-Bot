@@ -2,7 +2,7 @@
 name: Bot Bug Report
 about: Report unexpected behavior with our Discord bot
 title: ''
-labels: ''
+labels: bot bug
 assignees: ''
 
 ---
