@@ -27,6 +27,7 @@ If you come up with any edge cases you didn't test while writing this PR, cancel
 # Checklist:
 
 - [ ] All local commits have been pushed to remote
+- [ ] All changes on the base branch have been merged into this branch, either by rebase or merge
 - [ ] My code is [PEP-8](https://pep8.org/) compliant (excluding maximum line length, keep that to 100ish characters)
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
