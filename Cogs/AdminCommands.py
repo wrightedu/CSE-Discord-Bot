@@ -47,7 +47,7 @@ class AdminCommands(commands.Cog):
         Purge the appropriate number of messages from the channel.
 
         Args:
-            amount (int): Number of messages to be removed
+            amount (str): Number of messages to be removed
 
         Outputs:
             States the amount of messages being cleared or, if invalid input, help on how to use the command
