@@ -31,6 +31,14 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildserver(self, ctx):
+        """Creates class channels
+        Try to destroy all class channels
+        Read in a role csv from a cached file or attachment on command message
+        Get confirmation from author
+        Create all categories, channels, and roles
+        Create role menus
+        """
+
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         # Destroy server before building
@@ -101,6 +109,16 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def destroyserver(self, ctx):
+        """Destroys all class channels off cached file
+        Load in cached classlist csv
+        Create list of all channels to be deleted, send to author
+        Get confirmation from author
+        Delete all listed categories and channels
+        Create list of all roles to be deleted, send to author
+        Get confirmation from author
+        Delete all listed roles
+        """
+
         # Load roles csv
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
         roles_csvs = pd.read_csv(csv_filepath)
@@ -154,6 +172,15 @@ class ServerManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def rolemenu(self, ctx):
+        """Creates role menus
+        Read in a role csv from a cached file or attachment on command message
+        Try to figure out which channels to send each role button in
+        For those that can't be determined, ask for user input
+        Get confirmation before purging role selection channels
+        Create groupings of buttons to fit into a 5x5 grid, row major, left to right
+        Send button groups to appropriate channels
+        Save button group message ids to self.role_menus and file
+        """
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         # If csv file attached, overwrite existing csv
@@ -255,12 +282,15 @@ class ServerManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_button_click(self, res):
+        """Handles button clicks for role menus
+        If button clicked is a role menu message,
+        Get the role name from the button label
+        Get role from role name
+        If role doesn't exist, error
+        If role does exist, apply or remove the role to the member who clicked the button
+        """
         msg_id = res.message.id
         guild_id = str(res.guild.id)
-
-        # print(guild_id, self.role_menus.keys(), guild_id in self.role_menus.keys())
-        # print(msg_id, self.role_menus[guild_id], msg_id in self.role_menus[guild_id])
-        # print(self.role_menus[guild_id])
 
         # If clicked on role menu
         if guild_id in self.role_menus.keys() and msg_id in self.role_menus[guild_id]:
