@@ -168,7 +168,7 @@ class StudentCommands(commands.Cog):
         attempt are logged.
 
         Args:
-            *options(str): Input to dice parser. String of various different forms
+            *options(tuple(str)): Input to dice parser. String of various different forms
 
         Outputs:
             Result of dice rolled and pruned, or otherwise specified
