@@ -16,7 +16,7 @@ Any issues with this bot or any official Wright State University Discord server 
 
 ## Contributions
 
-[Ryan Slater](https://github.com/CodingPenguin1) is the primary author of this project.
+[Ryan Slater](https://github.com/CodingPenguin1) is the primary author of this project.\
 [The Wright State University CSE Dev Team](https://github.com/orgs/wrightedu/teams/cse-dev-team) is primarily responsible for the ongoing development and upkeep of this project.
 
 Credit goes to [Alan Fleming](https://github.com/AlanCFleming) for the dice parser used in this project. Visit [his DiceParser repository](https://github.com/AlanCFleming/DiceParser) for more information.

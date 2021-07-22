@@ -20,6 +20,19 @@ class StudentCommands(commands.Cog):
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
+        """Sends a picture of a corgi
+        Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
+        Loop through all images in the directory containing pictures and place them in a list of images.
+        If no number was input by user, select a random image from the list and send it in chat. If the user
+        did input a number, use it as the index for the picture list and send the appropriate picture in chat.
+
+        Args:
+            number (int): ID number of the picture. Can be used to find specific corgi pictures from the existing list
+
+        Outputs:
+            image: picture being sent to chat
+        """
+
         # Check if corgis dir exists
         if not exists('dogs/corgis'):
             await log(self.bot, 'Corgis directory not found, downloading 100 images')
@@ -39,6 +52,19 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def helloworld(self, ctx, language='random'):
+        """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
+        Take in user input for a programming language. If input is ls, list all the languages that the command
+        can give code for. If input is not listed in the keys for output or is 'random', pick a random language
+        to display. If input is valid, display example code for the language of choice in chat and create a log
+        of event.
+
+        Args:
+            language (str): Allows the user to determine what coding language will be displayed
+
+        Outputs:
+            Sample code for a 'Hello World' program in a chosen or random language
+        """
+
         outputs = {'python': '```python\nprint("Hello World!")```',
                    'c++': '```c++\n#include <iostream>\n\nint main() {\n    std::cout << "Hello world!" << std::endl;\n}```',
                    'java': '```java\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println("Hello world!");\n    }\n}```',
@@ -86,6 +112,22 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def poll(self, ctx, question, *options: str):
+        """Create a poll that users can vote on
+        Delete user message to call command. Prompt user to enter correct number of messages if command is called
+        impoperly. Determine what the most approptiate reactions for voting will be for the poll. Create a list
+        of descriptions for each option that poll takers can choose from. Generate a two column format with reaction
+        images on the left and options on the right. Embed this and display this in the discord chat.
+        Log the creation of the poll.
+
+        Args:
+            question (str): A question that the poll taker is asking. Should be encapsulated by a set of quotation marks.
+            options (tuple (str)): A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
+                May have multiple entries
+
+        Outputs:
+            Message stating the question of the poll with answers bound to numeric emojis. Reacts to the message with those emojis
+        """
+
         # Delete sender's message
         await ctx.channel.purge(limit=1)
 
@@ -117,6 +159,21 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def roll(self, ctx, *options):
+        """Rolls dice based on input
+        Check to see if the input is an appropriate size and quantity. Call imported dice parse module and store in
+        'output'. 'output'[0] is the raw roll, and 'output'[1] is the roll with all modifiers included. If the length
+        of the raw roll exceeds 100, the final tally is displayed to the chat. Otherwise, both the raw roll and final
+        tally are displayed. An exception is called if the parse method cannot accept the input, and a log of the event
+        is created. If the input is too large, the user is informed of this, and the user as well as failed call
+        attempt are logged.
+
+        Args:
+            options(tuple(str)): Input to dice parser. String of various different forms
+
+        Outputs:
+            Result of dice rolled and pruned, or otherwise specified
+        """
+
         # Credit goes to Alan Fleming for the module that powers this command
         # https://github.com/AlanCFleming/DiceParser
         dice = ' '.join(options)
@@ -137,16 +194,34 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def support(self, ctx):
+        """A planned support command
+        Informs user that the command is not yet available.
+
+        Outputs:
+            error message explaining that the command is not yet available.
+        """
+
         await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
 
     @commands.command()
     async def ping(self, ctx):
+        """Sends the Discord WebSocket protocol latency
+        Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
+
+        Outputs:
+            Sends a message containing the Discord WebSocket protocol latency
+        """
+
         latency = round(self.bot.latency * 1000)
         await ctx.send(f'{latency} ms')
         await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
 
     @commands.command()
     async def attendance(self, ctx):
+        """Sends a list of all members in the same voice channel as the command author
+        If the command author is in a voice channel with at least one other member,
+        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
+        """
 
         # Gets users in the same voice chat as the requester and lists their @'s.
         try:
@@ -160,4 +235,3 @@ class StudentCommands(commands.Cog):
                 await ctx.message.channel.send("There are no users in your voice channel.")
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
-        
