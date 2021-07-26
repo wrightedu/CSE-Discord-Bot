@@ -42,7 +42,7 @@ class StudentCommands(commands.Cog):
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
 
         # Generates a random number if no number is given
-        if number < 0:
+        if number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
         image = images[number]
 
