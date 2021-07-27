@@ -59,6 +59,11 @@ class StudentCommands(commands.Cog):
         to display. If input is valid, display example code for the language of choice in chat and create a log
         of event.
 
+        In order to get the code for the language that the user requsted, the bot loads in a dictionary from a 
+        yaml file called "helloworld.yml". Each language entry in the yaml has two keys, "tag" which contains the
+        discord codeblock tag for the language, and "code" which contains the code needed to print "Hello World!"
+        in the language.
+
         Args:
             language (str): Allows the user to determine what coding language will be displayed
 
