@@ -1,4 +1,5 @@
 import random
+import yaml
 from os.path import exists
 from pathlib import Path
 from random import randint
@@ -42,7 +43,7 @@ class StudentCommands(commands.Cog):
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
 
         # Generates a random number if no number is given
-        if number < 0:
+        if number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
         image = images[number]
 
@@ -65,49 +66,33 @@ class StudentCommands(commands.Cog):
             Sample code for a 'Hello World' program in a chosen or random language
         """
 
-        outputs = {'python': '```python\nprint("Hello World!")```',
-                   'c++': '```c++\n#include <iostream>\n\nint main() {\n    std::cout << "Hello world!" << std::endl;\n}```',
-                   'java': '```java\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println("Hello world!");\n    }\n}```',
-                   'c': '```c\n#include <stdio.h>\n\nint main() {\n    printf("Hello world!\\n");\n    return 0;\n}```',
-                   'bash': '```bash\necho "Hello world!"```',
-                   'javascript': '```javascript\nconsole.log("Hello world!");```',
-                   'brainf': '```\n++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.```',
-                   'rust': '```rust\nfn main() {\n    println!("Hello World!");\n}```',
-                   'matlab': '```matlab\ndisp(\'hello world\')```',
-                   'html': '```html\n<!DOCTYPE html>\n\n<html>\n  <head>\n    <title>Hello world!</title>\n    <meta charset="utf-8" />\n  </head>\n\n  <body>\n    <p>Wait a minute. This isn\'t a programming language!</p>\n  </body>\n</html>```',
-                   'csharp': '```csharp\nnamespace CSEBot {\n    class HelloWorld {\n        static void Main(string[] args) {\n            System.Console.WriteLine("Hello World!");\n        }\n    }\n}```',
-                   'vb': '```vb\nImports System\n\nModule Module1\n    Sub Main()\n        Console.WriteLine("Hello World!")\n        Console.WriteLine("Press Enter Key to Exit.")\n        Console.ReadLine()\n    End Sub\nEnd Module```',
-                   'r': '```r\nprint("Hello World!", quote = FALSE)```',
-                   'go': '```go\npackage main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello world!")\n}```',
-                   'swift': '```swift\nimport Swift\nprint("Hello world!")```',
-                   'haskell': '```haskell\nmodule Main where\nmain = putStrLn "Hello World"```',
-                   'befunge': '```befunge\n64+"!dlrow olleH">:#,_@```',
-                   'perl': '```perl\nprint "Hello world!"```',
-                   'php': '```php\n<?php\necho \'Hello World\';\n?>```',
-                   'lisp': '```lisp\n(DEFUN hello ()\n  (PRINT (LIST \'HELLO \'WORLD))\n)\n(hello)```',
-                   'basic': '```basic\n10 PRINT "Hello World"\n20 END```',
-                   'cobol': '```cobol\n       identification division.\n       program-id. cobol.\n       procedure division.\n       main.\n           display \'Hello world!\' end-display.\n           stop run.```',
-                   'papyrus': '```papyrus\nScriptname helloworld\n\nEvent OnPlayerLoadGame()\n\tDebug.Notification("Hello World!")\nEndEvent```'}
+        # Read in the langague data from the yaml file
+        with open('helloworld.yml', 'r') as f:
+            language_data = yaml.load(f)
+
+        # clean input
+        language = language.lower()
 
         # List languages
         if language == 'ls':
-            languages = [i for i in outputs]
+            languages = [i for i in language_data]
             languages.sort()
             languages = '\n'.join(languages)
             await ctx.send(f'I know:\n{languages}')
             return
 
         # If invalid input, make it random
-        language = language.lower()
-        if language != 'random' and language not in outputs.keys():
+        if language != 'random' and language not in language_data:
             language = 'random'
 
         # If random, pick random language
         if language == 'random':
-            languages = [i for i in outputs]
+            languages = [i for i in language_data]
             language = random.choice(languages)
 
-        await ctx.send(f'{language}\n{outputs[language]}')
+        # Build the message
+        message = f'{language}\n```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
+        await ctx.send(message)
         await log(self.bot, f'{ctx.author} ran /helloworld with language {language} in #{ctx.channel}')
 
     @commands.command()
