@@ -75,9 +75,11 @@ class StudentCommands(commands.Cog):
         with open('helloworld.yml', 'r') as f:
             language_data = yaml.load(f)
 
+        # clean input
+        language = language.lower()
 
         # List languages
-        if language.lower() == 'ls':
+        if language == 'ls':
             languages = [i for i in language_data]
             languages.sort()
             languages = '\n'.join(languages)
@@ -85,7 +87,6 @@ class StudentCommands(commands.Cog):
             return
 
         # If invalid input, make it random
-        language = language.lower()
         if language != 'random' and language not in language_data:
             language = 'random'
 
