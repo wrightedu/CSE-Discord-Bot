@@ -91,7 +91,7 @@ class StudentCommands(commands.Cog):
             language = random.choice(languages)
 
         # Build the message
-        message = f'```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
+        message = f'{language}\n```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
         await ctx.send(message)
         await log(self.bot, f'{ctx.author} ran /helloworld with language {language} in #{ctx.channel}')
 
