@@ -8,12 +8,15 @@ from discord_components import DiscordComponents
 from dotenv import load_dotenv
 
 from utils import *
+import logging
+
 
 intents = discord.Intents(messages=True, guilds=True, members=True, voice_states=True)
 bot = commands.Bot(command_prefix='-', intents=intents)
 start_time = time()
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+logging.basicConfig(level=logging.INFO)
 
 
 @bot.event

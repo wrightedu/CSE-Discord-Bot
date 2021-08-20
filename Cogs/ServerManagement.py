@@ -80,6 +80,7 @@ class ServerManagement(commands.Cog):
             # If channels to make
             if type(row['create_channels']) != float:
                 channels = row['create_channels'].split(',')
+                print('creating channels:', channels)
                 # Create category and channels
                 if len(channels) > 0:
                     # Create category
