@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import re
@@ -75,6 +76,7 @@ class ServerManagement(commands.Cog):
                 if not role_exists:
                     permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
                     role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
+                    await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
                     role.mentionable = True
 
             # If channels to make
@@ -85,24 +87,31 @@ class ServerManagement(commands.Cog):
                 if len(channels) > 0:
                     # Create category
                     category = await ctx.guild.create_category(row['text'])
+                    await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
                     await category.set_permissions(ctx.guild.default_role, read_messages=False)
+                    await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
                     for role in ctx.guild.roles:
                         if role.name == row['role/link']:
                             await category.set_permissions(role, read_messages=True)
+                            await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
 
                 # Create channels
                 for channel in channels:
                     # Create text channel
                     if channel.startswith('#'):
                         text_channel = await category.create_text_channel(channel)
+                        await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
                         await text_channel.edit(topic=row['long_name'])
+                        await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
                     # Create voice channel
                     else:
                         member_count, channel_name = channel.split('#')
                         if member_count == 0:
                             await category.create_voice_channel(channel_name)
+                            await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
                         else:
                             await category.create_voice_channel(channel_name, user_limit=int(member_count))
+                            await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
 
         # Build role menus
         await self.rolemenu(ctx)
@@ -146,7 +155,9 @@ class ServerManagement(commands.Cog):
         for category in destroy_categories:
             for channel in category.channels:
                 await channel.delete()
+                await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
             await category.delete()
+            await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
 
         # = Destroy Roles =
 
@@ -169,6 +180,7 @@ class ServerManagement(commands.Cog):
         # Destroy categories and all subchannels
         for role in destroy_roles:
             await role.delete()
+            await asyncio.sleep(1 / 30)  # 30 is safely under the 50 requests/second limit of the Discord API
 
     @commands.command()
     @commands.has_permissions(administrator=True)
