@@ -45,11 +45,18 @@ class StudentCommands(commands.Cog):
         # Generates a random number if no number is given
         if number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
-        image = images[number]
 
-        # Send image
-        await ctx.send(f'Corgi #{number}:', file=discord.File(image))
-        await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
+        # If 404, send cute error
+        if number == 404:
+            await ctx.send('Error: Corgi 404 Not Found')
+            
+        # sends predetermined image elsewise
+        else:
+            image = images[number]
+
+            # Send image
+            await ctx.send(f'Corgi #{number}:', file=discord.File(image))
+            await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
 
     @commands.command()
     async def helloworld(self, ctx, language='random'):
