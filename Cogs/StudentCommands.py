@@ -53,7 +53,9 @@ class StudentCommands(commands.Cog):
 
             # Send image
             await ctx.send(f'Corgi #{number}:', file=discord.File(image))
-            await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
+        
+        # put in the log channel that the corgme command was run
+        await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
 
     @commands.command()
     async def helloworld(self, ctx, language='random'):
