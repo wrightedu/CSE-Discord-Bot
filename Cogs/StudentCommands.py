@@ -42,16 +42,17 @@ class StudentCommands(commands.Cog):
         # Get images from directory
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
 
-        # Generates a random number if no number is given
-        if number < 0 or number > (len(images) - 1):
-            number = randint(0, len(images) - 1)
-
         # If 404, send cute error
         if number == 404:
             await ctx.send('Error: Corgi 404 Not Found')
             
+        # Generates a random number if no number is given
+        if number < 0 or number > (len(images) - 1):
+            number = randint(0, len(images) - 1)
+
+            
         # sends predetermined image elsewise
-        else:
+        else: #TODO: CHECK IF THIS IS STILL NEEDED NOW THAT 404 MOVED ABOVE
             image = images[number]
 
             # Send image
