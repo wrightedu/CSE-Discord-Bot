@@ -44,7 +44,7 @@ class StudentCommands(commands.Cog):
 
         # If 404, send cute error
         if number == 404:
-            await ctx.send(f'Error: Corgi 404 Not Found', file=discord.File('Corgi404Error/Corgi404Error.png'))
+            await ctx.send(file=discord.File('Corgi404Error/Corgi404Error.png'))
             
         # Generates a random number if no number is given
         elif number < 0 or number > (len(images) - 1):
