@@ -26,6 +26,7 @@ class StudentCommands(commands.Cog):
         Loop through all images in the directory containing pictures and place them in a list of images.
         If no number was input by user, select a random image from the list and send it in chat. If the user
         did input a number, use it as the index for the picture list and send the appropriate picture in chat.
+        The number 404 is a special case.
 
         Args:
             number (int): ID number of the picture. Can be used to find specific corgi pictures from the existing list
