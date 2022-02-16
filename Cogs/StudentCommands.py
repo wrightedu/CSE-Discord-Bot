@@ -47,12 +47,8 @@ class StudentCommands(commands.Cog):
             await ctx.send('Error: Corgi 404 Not Found')
             
         # Generates a random number if no number is given
-        if number < 0 or number > (len(images) - 1):
+        elif number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
-
-            
-        # sends predetermined image elsewise
-        else: #TODO: CHECK IF THIS IS STILL NEEDED NOW THAT 404 MOVED ABOVE
             image = images[number]
 
             # Send image
