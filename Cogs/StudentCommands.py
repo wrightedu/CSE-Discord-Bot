@@ -45,15 +45,17 @@ class StudentCommands(commands.Cog):
 
         # If 404, send cute error
         if number == 404:
-            await ctx.send(file=discord.File('Corgi404Error/Corgi404Error.png'))
+            await ctx.send(file=discord.File('assets/Corgi404Error.png'))
+            return
             
         # Generates a random number if no number is given
         elif number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
-            image = images[number]
+            
+        image = images[number]
 
-            # Send image
-            await ctx.send(f'Corgi #{number}:', file=discord.File(image))
+        # Send image
+        await ctx.send(f'Corgi #{number}:', file=discord.File(image))
         
         # put in the log channel that the corgme command was run
         await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
