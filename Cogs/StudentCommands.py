@@ -26,6 +26,7 @@ class StudentCommands(commands.Cog):
         Loop through all images in the directory containing pictures and place them in a list of images.
         If no number was input by user, select a random image from the list and send it in chat. If the user
         did input a number, use it as the index for the picture list and send the appropriate picture in chat.
+        The number 404 is a special case.
 
         Args:
             number (int): ID number of the picture. Can be used to find specific corgi pictures from the existing list
@@ -42,13 +43,21 @@ class StudentCommands(commands.Cog):
         # Get images from directory
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
 
+        # If 404, send cute error
+        if number == 404:
+            await ctx.send(file=discord.File('assets/Corgi404Error.png'))
+            return
+            
         # Generates a random number if no number is given
-        if number < 0 or number > (len(images) - 1):
+        elif number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
+            
         image = images[number]
 
         # Send image
         await ctx.send(f'Corgi #{number}:', file=discord.File(image))
+        
+        # put in the log channel that the corgme command was run
         await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
 
     @commands.command()
