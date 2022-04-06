@@ -84,13 +84,20 @@ class AdminCommands(commands.Cog):
             status (str): Text to be displayed
         """
 
+        # open a file to store the status in
+        statusFile = open('assets/status.txt', 'w')
+
         status = status.strip()
         if status.lower() == 'none':
             await self.bot.change_presence(activity=None)
             await log(self.bot, f'{ctx.author} disabled the custom status')
+            statusFile.write('Raider Up!') # Default status for when the bot restarts
         elif len(status) <= 128:
             await self.bot.change_presence(activity=discord.Game(status))
             await log(self.bot, f'{ctx.author} changed the custom status to "Playing {status}"')
+            statusFile.write(status) # write the new status to the file
+        
+        statusFile.close() # close the file
 
     @commands.command()
     @commands.has_permissions(administrator=True)
