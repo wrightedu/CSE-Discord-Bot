@@ -155,27 +155,3 @@ class AdminCommands(commands.Cog):
         if await confirmation(self.bot, ctx):
             await ctx.send('Stopping...')
             exit(0)
-
-    @commands.command(aliases=['FAQ'])
-    @commands.has_permissions(administrator=True)
-    async def faq(self, ctx):
-        """Responds with frequently asked questions
-        Sends a message to the user that contains frequently asked questions
-        
-
-        Outputs:
-            Message to user frequently asked questions in the discord
-        """
-
-        embed=discord.Embed(
-        title="FAQ",
-            url="http://www.wright.edu/",
-            description="Here are some frequently asked questions",
-            color=discord.Color.blue())
-        embed.set_author(name="CSE Dev Team", url="http://www.wright.edu/", icon_url="https://d28htnjz2elwuj.cloudfront.net/wp-content/uploads/2019/04/30105443/Wright-State-University-400x400.jpg")
-
-        embed.add_field(name="How do I add a class?", value="Go to the appropriate 'class selection' channel and click the button of your class", inline=False)
-        embed.add_field(name="Need help with coding?", value="If you are in a class higher than 1181, ask questions in your class chat otherwise go to the appropriate help room", inline=False)
-        embed.add_field(name="What can I send in chats?", value="This server is an official discord server of Wright State therefore please do not send any code that pertains to any project/homework in all channels. Please also refrain from any language you ", inline=False)
-        embed.add_field(name="Why wont my role add?", value="Please make sure you have clicked the button. If you have give discord a moment, sometimes discord is slow.", inline=False)
-        await ctx.send(embed=embed)
