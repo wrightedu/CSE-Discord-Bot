@@ -1,6 +1,7 @@
 import os
 import sys
 from time import sleep
+import re
 
 from discord.ext import commands
 from utils import *
@@ -155,3 +156,63 @@ class AdminCommands(commands.Cog):
         if await confirmation(self.bot, ctx):
             await ctx.send('Stopping...')
             exit(0)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def stats(self, ctx):
+        """Outputs various stats of the server
+        Send message with server stats to user
+
+        Outputs:
+            Message to chat including total number of channels, text channels, voice channels, users, classes, roles,
+            and people with top ten roles.
+        """
+
+        guild=ctx.guild
+
+        embed=discord.Embed(
+        title="Server Stats",
+            description="Important Stats of the Server",
+            color=discord.Color.green())
+
+        total_text_channels = len(guild.text_channels)
+        total_voice_channels = len(guild.voice_channels)
+        total_channels = total_text_channels + total_voice_channels 
+        total_users = len(ctx.guild.members)
+
+        num_roles = 0
+        for role in guild.roles:
+            num_roles += 1
+        
+        num_classes = 0
+        for category in guild.categories:
+            class_name = re.search("^\w{2,3} \d{4}", category.name)
+            if class_name != None:
+                num_classes += 1
+
+        embed.add_field(name="Total Channels: ", value=total_channels)
+        embed.add_field(name="Text Channels: ", value=total_text_channels)
+        embed.add_field(name="Voice Channels: ", value=total_voice_channels)
+        embed.add_field(name="Max Channels: ", value=500)
+        embed.add_field(name="Total Users: ", value=total_users)
+        embed.add_field(name="Total Classes: ", value=num_classes)
+        embed.add_field(name="Total Roles: ", value=num_roles)
+        embed.add_field(name=chr(173), value=chr(173))
+        embed.add_field(name=chr(173), value=chr(173))
+        embed.add_field(name="Users with\nTop Roles", value='\u200b')
+        embed.add_field(name=chr(173), value=chr(173))
+        embed.add_field(name=chr(173), value=chr(173))
+       
+        roles_list = []
+        for role in guild.roles:
+            users_with_role = len(role.members)
+            roles_list.append((role, users_with_role))
+        
+        top_roles = sorted(roles_list, key=lambda y: y[1], reverse=True)[1:]
+
+        for index, value in enumerate(top_roles):
+            if index > 9:
+                break
+            embed.add_field(name=value[0], value=value[1])
+
+        await ctx.reply(embed=embed)
