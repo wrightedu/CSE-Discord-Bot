@@ -17,7 +17,7 @@ log
 *.sql
 *.sqlite
 *.swp
-
+status.txt
 
 # OS generated files #
 ######################

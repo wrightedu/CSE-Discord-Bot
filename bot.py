@@ -50,7 +50,18 @@ async def on_ready():
                 pass
 
     # Show the bot as online
-    await bot.change_presence(activity=discord.Game('Raider Up!'), status=discord.Status.online, afk=False)
+    # If the bot had a status prior to shutting down, restore it
+    # if it didn't, set it to 'Raider Up!'
+
+    try:
+        async with aiofiles.open('status.txt', mode='r') as sf:
+            contents = await sf.read()
+    except FileNotFoundError:
+        async with aiofiles.open('status.txt', mode='w') as sf:
+            await sf.write('Raider Up!')
+            contents = 'Raider Up!'
+        
+    await bot.change_presence(activity=discord.Game(contents), status=discord.Status.online, afk=False)
     await log(bot, 'Bot is online')
 
     # Print startup duration
