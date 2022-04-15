@@ -168,10 +168,10 @@ class AdminCommands(commands.Cog):
             and people with top ten roles.
         """
 
-        guild=ctx.guild
+        guild = ctx.guild
 
-        embed=discord.Embed(
-        title="Server Stats",
+        embed = discord.Embed(
+            title="Server Stats",
             description="Important Stats of the Server",
             color=discord.Color.green())
 
