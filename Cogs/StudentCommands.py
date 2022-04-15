@@ -242,10 +242,10 @@ class StudentCommands(commands.Cog):
         """
 
         embed = discord.Embed(
-        title = "FAQ",
-            url = "http://www.wright.edu/",
-            description = "Here are some frequently asked questions",
-            color = discord.Color.blue())
+            title="FAQ",
+            url="http://www.wright.edu/",
+            description="Here are some frequently asked questions",
+            color=discord.Color.blue())
         embed.set_author(name="CSE Dev Team", url="http://www.wright.edu/", icon_url="https://d28htnjz2elwuj.cloudfront.net/wp-content/uploads/2019/04/30105443/Wright-State-University-400x400.jpg")
 
         embed.add_field(name="How do I add a class?", value="Go to the appropriate 'class selection' channel and click the button of your class", inline=False)
