@@ -40,9 +40,12 @@ class ServerManagement(commands.Cog):
         """
 
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
-
         # Destroy server before building
-        await self.destroyserver(ctx)
+        try:
+            await self.destroyserver(ctx)
+        except FileNotFoundError:
+            print('the role_lists directory doesnt exist')
+            return
 
         # If csv file attached, overwrite existing csv
         if len(ctx.message.attachments) > 0:
@@ -120,8 +123,13 @@ class ServerManagement(commands.Cog):
         """
 
         # Load roles csv
+
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
-        roles_csvs = pd.read_csv(csv_filepath)
+
+        try:
+            roles_csvs = pd.read_csv(csv_filepath)
+        except FileNotFoundError:
+            raise FileNotFoundError
 
         # = Destroy Categories =
 
