@@ -1,0 +1,99 @@
+"text","emoji","role/link","long_name","create_channels"
+"CEG 1900",,"CEG 1900","Internship","#ceg1900,0#Student Voice,2#TA Voice"
+"CEG 2350",,"CEG 2350","Operating Systems Concepts and Usage","#ceg2350,0#Student Voice,2#TA Voice"
+"CEG 2400",,"CEG 2400","Intro to PC Networking","#ceg2400,0#Student Voice,2#TA Voice"
+"CEG 2410",,"CEG 2410","System Administration","#ceg2410,0#Student Voice,2#TA Voice"
+"CEG 3120",,"CEG 3120","Intro to the Design of IT Systems","#ceg3120,0#Student Voice,2#TA Voice"
+"CEG 3310",,"CEG 3310","Computer Org","#ceg3310,0#Student Voice,2#TA Voice"
+"CEG 3320",,"CEG 3320","Digital System Design","#ceg3320,0#Student Voice,2#TA Voice"
+"CEG 3400",,"CEG 3400","Intro to Cyber Security","#ceg3400,0#Student Voice,2#TA Voice"
+"CEG 3410",,"CEG 3410","Intro to Digital Forensics","#ceg3410,0#Student Voice,2#TA Voice"
+"CEG 4110",,"CEG 4110","Intro to Software Engineering","#ceg4110,0#Student Voice,2#TA Voice"
+"CEG 4120",,"CEG 4120","Managing the Software Engineering Process","#ceg4120,0#Student Voice,2#TA Voice"
+"CEG 4324",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs","#ceg4324,0#Student Voice,2#TA Voice"
+"CEG 4350",,"CEG 4350","Operating System Internals and Design","#ceg4350,0#Student Voice,2#TA Voice"
+"CEG 4424",,"CEG 4424","Security Attacks and Defense","#ceg4424,0#Student Voice,2#TA Voice"
+"CEG 4426",,"CEG 4426","Legal Aspects of Cyber Security","#ceg4426,0#Student Voice,2#TA Voice"
+"CEG 4430",,"CEG 4430","Cyber Network Security","#ceg4430,0#Student Voice,2#TA Voice"
+"CEG 4750",,"CEG 4750","Information Security","#ceg4750,0#Student Voice,2#TA Voice"
+"CEG 4980",,"CEG 4980","Team Projects I","#ceg4980,0#Student Voice,2#TA Voice"
+"CEG 4981",,"CEG 4981","Team Projects II","#ceg4981,0#Student Voice,2#TA Voice"
+"CEG 6110",,"CEG 4110","Intro to Software Engineering",
+"CEG 6120",,"CEG 4120","Managing the Software Engineering Process",
+"CEG 6324",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs",
+"CEG 6424",,"CEG 4424","Security Attacks and Defense",
+"CEG 6426",,"CEG 4426","Legal Aspects of Cyber Security",
+"CEG 6430",,"CEG 4430","Cyber Network Security",
+"CEG 6750",,"CEG 4750","Information Security",
+"CEG 7020",,"CEG 7020","Low Power VLSI System Design","#ceg7020,0#Student Voice"
+"CEG 7420",,"CEG 7420","Reverse Engineering and Program Analysis","#ceg7420,0#Student Voice"
+"CEG 7470",,"CEG 7470","Advanced Wireless Networks","#ceg7470,0#Student Voice"
+"CEG 7550",,"CEG 7550","Computer Vision","#ceg7550,0#Student Voice"
+"CEG 7560",,"CEG 7560","Visualization and Image Processing for Cyber Security","#ceg7560,0#Student Voice"
+"CS 1000",,"CS 1000","Technology and Society","#cs1000,0#Student Voice,2#TA Voice"
+"CS 1150",,"CS 1150","Introduction to Computer Science","#cs1150,0#Student Voice,2#TA Voice"
+"CS 1160",,"CS 1160","Introduction to Computer Programming","#cs1160,0#Student Voice,2#TA Voice"
+"CS 1180",,"CS 1180","Computer Science I","#cs1180,0#Student Voice,2#TA Voice"
+"CS 1181",,"CS 1181","Computer Science II","#cs1181,0#Student Voice,2#TA Voice"
+"CS 1900",,"CS 1900","Internship","#cs1900,0#Student Voice,2#TA Voice"
+"CS 2200",,"CS 2200","Discrete Structures and Their Algorithms","#cs2200,0#Student Voice,2#TA Voice"
+"CS 3100",,"CS 3100","Data Structures and Algorithms","#cs3100,0#Student Voice,2#TA Voice"
+"CS 3170",,"CS 3170","Mobile Application Development","#cs3170,0#Student Voice,2#TA Voice"
+"CS 3180",,"CS 3180","Comparative Languages","#cs3180,0#Student Voice,2#TA Voice"
+"CS 3200",,"CS 3200","Theoretical Foundations of Computing","#cs3200,0#Student Voice,2#TA Voice"
+"CS 3700",,"CS 3700","Introduction to Databases & Modeling","#cs3700,0#Student Voice,2#TA Voice"
+"CS 3800",,"CS 3800","Web Development II","#cs3800,0#Student Voice,2#TA Voice"
+"CS 3840",,"CS 3840","Applied Machine Learning","#cs3840,0#Student Voice,2#TA Voice"
+"CS 4290",,"CS 4290","Cryptography and Data Security","#cs4290,0#Student Voice,2#TA Voice"
+"CS 4710",,"CS 4710","Introduction to Data Mining","#cs4710,0#Student Voice,2#TA Voice"
+"CS 4900 (HPC & Parallel Programming)",,"CS 4900 (HPC & Parallel Programming)","HPC & Parallel Programming","#cs4900-HPC-And-Parallel-Programming,0#Student Voice,2#TA Voice"
+"CS 4900 (Quantum Computing)",,"CS 4900 (Quantum Computing)","Quantum Computing","#cs4900-Quantum-Computing,0#Student Voice,2#TA Voice"
+"CS 5160",,"CS 5160","Computer Science Fundamentals","#cs5160,0#Student Voice,2#TA Voice"
+"CS 6290",,"CS 4290","Cryptography and Data Security",
+"CS 6710",,"CS 4710","Introduction to Data Mining",
+"CS 6900 (HPC & Parallel Programming)",,"CS 4900 (HPC & Parallel Programming)","HPC & Parallel Programming",
+"CS 6900 (Quantum Computing)",,"CS 4900 (Quantum Computing)","Quantum Computing",
+"CS 7200",,"CS 7200","Algorithm Design and Analysis","#cs7200,0#Student Voice,2#TA Voice"
+"CS 7700",,"CS 7700","Advanced Database Systems","#cs7700,0#Student Voice,2#TA Voice"
+"CS 7800",,"CS 7800","Information Retrieval","#cs7800,0#Student Voice,2#TA Voice"
+"CS 7840",,"CS 7480","Soft Computing","#cs7840,0#Student Voice,2#TA Voice"
+"CS 7900",,"CS 7900","Advanced Artificial Intelligence","#cs7900,0#Student Voice,2#TA Voice"
+"EE 2000",,"EE 2000","Digital Design with HDL","#ee2000,0#Student Voice,2#TA Voice"
+"EE 2010",,"EE 2010","Analog Circuit Theory","#ee2010,0#Student Voice,2#TA Voice"
+"EE 2011",,"EE 2011","Analog Circuit Techniques","#ee2011,0#Student Voice,2#TA Voice"
+"EE 3210",,"EE 3210","Linear Systems I","#ee3210,0#Student Voice,2#TA Voice"
+"EE 3260",,"EE 3260","Random Signals and Noise","#ee3260,0#Student Voice,2#TA Voice"
+"EE 3310",,"EE 3310","Electronic Devices and Circuits","#ee3310,0#Student Voice,2#TA Voice"
+"EE 3450",,"EE 3450","Introduction to Electromagnetics","#ee3450,0#Student Voice,2#TA Voice"
+"EE 4000",,"EE 4000","Linear Systems II","#ee4000,0#Student Voice,2#TA Voice"
+"EE 4120",,"EE 4120","Industrial Controls and Automation","#ee4120,0#Student Voice,2#TA Voice"
+"EE 4130",,"EE 4130",Continuous Control Systems","#ee4130,0#Student Voice,2#TA Voice"
+"EE 4170",,"EE 4170","Digital Control Systems","#ee4170,0#Student Voice,2#TA Voice"
+"EE 4210",,"EE 4210","Digital Communication","#ee4210,0#Student Voice,2#TA Voice"
+"EE 4550",,"EE 4550","IC Hardware Security and Trust","#ee4550,0#Student Voice,2#TA Voice"
+"EE 4620",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs",
+"EE 4800 (Intro to Electronic Warfare)",,"EE 4800 (Intro to Electronic Warfare)","Intro to Electronic Warfare","#ee4800,0#Student Voice,2#TA Voice"
+"EE 4800 (Modern Power Systems)",,"EE 4800 (Modern Power Systems)","Modern Power Systems","#ee4800,0#Student Voice,2#TA Voice"
+"EE 4910",,"CEG 4980","Electrical Engineering Senior Design I",
+"EE 4920",,"CEG 4981","Electrical Engineering Senior Design II",
+"EE 4990",,"EE 4990","Special Problems in Electrical Engineering","#ee4990,0#Student Voice,2#TA Voice"
+"EE 5260",,"EE 3260","Random Signals and Noise",
+"EE 6000",,"EE 4000","Linear Systems II",
+"EE 6120",,"EE 4120","Industrial Controls and Automation",
+"EE 6130",,"EE 4130",Continuous Control Systems,
+"EE 6170",,"EE 4170","Digital Control Systems",
+"EE 6210",,"EE 4210","Digital Communication",
+"EE 6550",,"EE 4550","IC Hardware Security and Trust",
+"EE 6620",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs",
+"EE 6800 (Intro to Electronic Warfare)",,"EE 4800 (Intro to Electronic Warfare)","Intro to Electronic Warfare",
+"EE 6800 (Modern Power Systems)",,"EE 4800 (Modern Power Systems)","Modern Power Systems",
+"EE 7280",,"EE 7280","Intelligent Control","#ee7280,0#Student Voice"
+"EE 7330",,"EE 7330","Modern Radar Theory","#ee7330,0#Student Voice"
+"EE 7360",,"EE 7360","Advanced Wireless Communication Techniques","#ee7360,0#Student Voice"
+"EE 7520",,"CEG 7020","Low Power VLSI System Design",
+"EE 7620",,"EE 7620","Advanced Digital Signal Processing","#ee7620,0#Student Voice"
+"EE 7840",,"CEG 7550","Computer Vision",
+"Career Services","career_services","Career Services",,
+"ACM","acm","ACM","Association for Computing Machinery",
+"IEEE","ieee","IEEE","Institute of Electrical and Electronics Engineers",
+"Collegiate Esports Club","esports_club","https://discord.gg/smmV38d",,
