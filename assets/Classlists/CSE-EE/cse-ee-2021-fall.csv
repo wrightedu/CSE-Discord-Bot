@@ -1,0 +1,116 @@
+"text","emoji","role/link","long_name","create_channels"
+"CEG 2170",,"CEG 2170","Introduction to C Programming for Scientists and Engineers","#ceg2170,0#Student Voice,2#TA Voice"
+"CEG 2350",,"CEG 2350","Operating System Concepts and Usage","#ceg2350,0#Student Voice,2#TA Voice"
+"CEG 2400",,"CEG 2400","Introduction to PC Networking","#ceg2400,0#Student Voice,2#TA Voice"
+"CEG 3110",,"CEG 3110","Introduction to Software Testing","#ceg3110,0#Student Voice,2#TA Voice"
+"CEG 3120",,"CEG 3120","Introduction to the Design of Information Technology Systems","#ceg3120,0#Student Voice,2#TA Voice"
+"CEG 3310",,"CEG 3310","Computer Organization","#ceg3310,0#Student Voice,2#TA Voice"
+"CEG 3320",,"CEG 3320","Digital System Design","#ceg3320,0#Student Voice,2#TA Voice"
+"CEG 3400",,"CEG 3400","Introduction to Cyber Security","#ceg3400,0#Student Voice,2#TA Voice"
+"CEG 3500",,"CEG 3500","Introduction to Augmented & Virtual Reality","#ceg3500,0#Student Voice,2#TA Voice"
+"CEG 4110",,"CEG 4110","Introduction to Software Engineering","#ceg4110,0#Student Voice,2#TA Voice"
+"CEG 4230",,"CEG 4230","Introduction to Robotics","#ceg4230,0#Student Voice,2#TA Voice"
+"CEG 4322",,"CEG 4322","Very Large Scale Integrated Circuit Design","#ceg4322,0#Student Voice,2#TA Voice"
+"CEG 4324",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs","#ceg4324,0#Student Voice,2#TA Voice"
+"CEG 4330",,"CEG 4330","Microprocessor-Based Embedded Systems","#ceg4330,0#Student Voice,2#TA Voice"
+"CEG 4350",,"CEG 4350","Operating System Internals and Design","#ceg4350,0#Student Voice,2#TA Voice"
+"CEG 4420",,"CEG 4420","Host Computer Security","#ceg4420,0#Student Voice,2#TA Voice"
+"CEG 4422",,"CEG 4422","Secure Computing Practices","#ceg4422,0#Student Voice,2#TA Voice"
+"CEG 4424",,"CEG 4424","Security Attacks and Defenses","#ceg4424,0#Student Voice,2#TA Voice"
+"CEG 4430",,"CEG 4430","Cyber Network Security","#ceg4430,0#Student Voice,2#TA Voice"
+"CEG 4980",,"CEG 4980","Team Projects I","#ceg4980,0#Student Voice,2#TA Voice"
+"CEG 4981",,"CEG 4981","Team Projects II","#ceg4981,0#Student Voice,2#TA Voice"
+"CEG 6110",,"CEG 4110","Introduction to Software Engineering",
+"CEG 6230",,"CEG 4230","Introduction to Robotics",
+"CEG 6322",,"CEG 6322","VLSI Design","#ceg6322,0#Student Voice,2#TA Voice"
+"CEG 6324",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs",
+"CEG 6330",,"CEG 4330","Microprocessor-Based Embedded Systems",
+"CEG 6420",,"CEG 4420","Host Computer Security",
+"CEG 6422",,"CEG 4422","Secure Computing Practices",
+"CEG 6424",,"CEG 6424","Security Attacks & Defenses","#ceg6424,0#Student Voice,2#TA Voice"
+"CEG 6430",,"CEG 4430","Cyber Network Security",
+"CEG 7370",,"CEG 7370","Distributed Computing","#ceg7370,0#Student Voice,2#TA Voice"
+"CEG 7380",,"CEG 7380","Cloud Computing","#ceg7380,0#Student Voice,2#TA Voice"
+"CEG 7450",,"CEG 7450","Advanced Computer Networks","#ceg7450,0#Student Voice,2#TA Voice"
+"CEG 7470",,"CEG 7470","Advanced Wireless Networks","#ceg7470,0#Student Voice,2#TA Voice"
+"CEG 7580",,"CEG 7580","Digital Image Processing","#ceg7580,0#Student Voice,2#TA Voice"
+"CS 1000",,"CS 1000","Technology and Society","#cs1000,0#Student Voice,2#TA Voice"
+"CS 1010",,"CS 1010","Introduction to Computers and Office Productivity Software","#cs1010,0#Student Voice,2#TA Voice"
+"CS 1030",,"CS 1030","Survey of CS and CEG","#cs1030,0#Student Voice,2#TA Voice"
+"CS 1150",,"CS 1150","Introduction to Computer Science","#cs1150,0#Student Voice,2#TA Voice"
+"CS 1160",,"CS 1160","Introduction to Computer Programming","#cs1160,0#Student Voice,2#TA Voice"
+"CS 1180",,"CS 1180","Computer Science I","#cs1180,0#Student Voice,2#TA Voice"
+"CS 1181",,"CS 1181","Computer Science II","#cs1181,0#Student Voice,2#TA Voice"
+"CS 1300",,"CS 1300","Data Science for Everyone","#cs1300,0#Student Voice,2#TA Voice"
+"CS 2200",,"CS 2200","Discrete Structures and Their Algorithms","#cs2200,0#Student Voice,2#TA Voice"
+"CS 2800",,"CS 2800","Web Development I","#cs2800,0#Student Voice,2#TA Voice"
+"CS 2900 (Virtualization Special Topics)",,"CS 2900 (Virtualization Special Topics)","Virtualization Special Topics","#cs-2900-virtualization-special-topics,0#Student Voice,2#TA Voice"
+"CS 2900 (Professional IT Practices)",,"CS 2900 (Professional IT Practices)","Professional IT Practices","#cs-2900-professional-it-practices,0#Student Voice,2#TA Voice"
+"CS 3100",,"CS 3100","Data Structures and Algorithms","#cs3100,0#Student Voice,2#TA Voice"
+"CS 3170",,"CS 3170","Mobile Application Development","#cs3170,0#Student Voice,2#TA Voice"
+"CS 3180",,"CS 3180","Comparative Languages","#cs3180,0#Student Voice,2#TA Voice"
+"CS 3200",,"CS 3200","Theoretical Foundations of Computing","#cs3200,0#Student Voice,2#TA Voice"
+"CS 3260",,"CS 3260","Numerical Methods for Computational Science","#cs3260,0#Student Voice,2#TA Voice"
+"CS 3700",,"CS 3700","Introduction to Databases & Modeling","#cs3700,0#Student Voice,2#TA Voice"
+"CS 4270",,"CS 4270","Optimization Techniques","#cs4270,0#Student Voice,2#TA Voice"
+"CS 4280",,"CS 4280","Combinatorics and Graph Theory","#cs4280,0#Student Voice,2#TA Voice"
+"CS 4700",,"CS 4700","Database Management Systems","#cs4700,0#Student Voice,2#TA Voice"
+"CS 4850",,"CS 4850","Foundations of Artificial Intelligence","#cs4850,0#Student Voice,2#TA Voice"
+"CS 4900",,"CS 4900","Quantum Computing","#cs4900,0#Student Voice,2#TA Voice"
+"CS 5160",,"CS 5160","Computer Science Fundamentals","#cs5160,0#Student Voice,2#TA Voice"
+"CS 6270",,"CS 4270","Optimization Techniques",
+"CS 6280",,"CS 4280","Combinatorics and Graph Theory",
+"CS 6700",,"CS 4700","Database Management Systems",
+"CS 6850",,"CS 4850","Foundations of Artificial Intelligence",
+"CS 6900",,"CS 4900","Quantum Computing",
+"CS 7100",,"CS 7100","Advanced Programming Languages","#cs7100,0#Student Voice,2#TA Voice"
+"CS 7200",,"CS 7200","Algorithm Design and Analysis","#cs7200,0#Student Voice,2#TA Voice"
+"CS 7600",,"CS 7600","Trust Networks","#cs7600,0#Student Voice,2#TA Voice"
+"CS 7830",,"CS 7830","Machine Learning","#cs7830,0#Student Voice,2#TA Voice"
+"CS 7900 (ANN & Deep Learning)",,"CS 7900 (ANN & Deep Learning)","ANN & Deep Learning","#cs-7900-ann-&-deep-learning,0#Student Voice,2#TA Voice"
+"CS 7900 (Advanced Quantum Computing)",,"CS 7900 (Advanced Quantum Computing)","Advanced Quantum Computing","#cs-7900-advanced-quantum-computing,0#Student Voice,2#TA Voice"
+"EE 1000",,"EE 1000","Introduction to Electrical Engineering","#ee1000,0#Student Voice,2#TA Voice"
+"EE 2000",,"EE 2000","Digital Design with HDL","#ee2000,0#Student Voice,2#TA Voice"
+"EE 2010",,"EE 2010","Analog Circuit Theory","#ee2010,0#Student Voice,2#TA Voice"
+"EE 2011",,"EE 2011","Analog Circuit Techniques","#ee2011,0#Student Voice,2#TA Voice"
+"EE 3210",,"EE 3210","Linear Systems I","#ee3210,0#Student Voice,2#TA Voice"
+"EE 3260",,"EE 3260","Random Signals and Noise","#ee3260,0#Student Voice,2#TA Voice"
+"EE 3310",,"EE 3310","Electronic Devices and Circuits","#ee3310,0#Student Voice,2#TA Voice"
+"EE 3450",,"EE 3450","Introduction to Electromagnetics","#ee3450,0#Student Voice,2#TA Voice"
+"EE 4000",,"EE 4000","Linear Systems II","#ee4000,0#Student Voice,2#TA Voice"
+"EE 4100",,"EE 4100","Nano-Fabrication of Integrated Solid State Devices","#ee4100,0#Student Voice,2#TA Voice"
+"EE 4120",,"EE 4120","Industrial Controls and Automation","#ee4120,0#Student Voice,2#TA Voice"
+"EE 4130",,"EE 4130","Continuous Control Systems","#ee4130,0#Student Voice,2#TA Voice"
+"EE 4190",,"EE 4190","Introduction to Intelligent Control Systems","#ee4190,0#Student Voice,2#TA Voice"
+"EE 4210",,"EE 4210","Digital Communication","#ee4210,0#Student Voice,2#TA Voice"
+"EE 4360",,"EE 4360","Digital Signal Processing: Theory, Application and Implementation","#ee4360,0#Student Voice,2#TA Voice"
+"EE 4540",,"CEG 4322","Very Large Scale Integrated Circuit Design",
+"EE 4560",,"CEG 4230","Introduction to Robotics",
+"EE 4620",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs",
+"EE 4750",,"EE 4750","Introduction to Radar Systems","#ee4750,0#Student Voice,2#TA Voice"
+"EE 4810",,"EE 4810","Full-Time Curricular Practical Training in Electrical Engineering","#ee4810,0#Student Voice,2#TA Voice"
+"EE 4820",,"EE 4820","Part-Time Curricular Practical Training in Electrical Engineering","#ee4820,0#Student Voice,2#TA Voice"
+"EE 4830",,"EE 4830","Internship in Electrical Engineering","#ee4830,0#Student Voice,2#TA Voice"
+"EE 4910",,"EE 4910","Electrical Engineering Senior Design Project I","#ee4910,0#Student Voice,2#TA Voice"
+"EE 4920",,"EE 4920","Electrical Engineering Senior Design Project II","#ee4920,0#Student Voice,2#TA Voice"
+"EE 6000",,"EE 4000","Linear Systems II",
+"EE 6100",,"EE 4100","Nano-Fabrication of Integrated Solid State Devices",
+"EE 6120",,"EE 4120","Industrial Controls and Automation",
+"EE 6130",,"EE 4130","Continuous Control Systems",
+"EE 6190",,"EE 4190","Introduction to Intelligent Control Systems",
+"EE 6210",,"EE 4210","Digital Communication",
+"EE 6360",,"EE 4360","Digital Signal Processing: Theory, Application and Implementation",
+"EE 6540",,"CEG 4322","Very Large Scale Integrated Circuit Design",
+"EE 6560",,"CEG 4230","Introduction to Robotics",
+"EE 6620",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs",
+"EE 6750",,"EE 4750","Introduction to Radar Systems",
+"EE 7020",,"EE 7020","Modern Control I","#ee7020,0#Student Voice,2#TA Voice"
+"EE 7150",,"CEG 7580","Digital Image Processing",
+"EE 7370",,"EE 7370","Advanced Electronic Warfare","#ee7370,0#Student Voice,2#TA Voice"
+"EE 7430",,"EE 7430","High Frequency Magnetic Components","#ee7430,0#Student Voice,2#TA Voice"
+"EE 7510",,"EE 7510","Digital Wideband Receiver Design","#ee7510,0#Student Voice,2#TA Voice"
+"EE 7610",,"EE 7610","Random Processes","#ee7610,0#Student Voice,2#TA Voice"
+"Career Services","career_services","Career Services",,
+"ACM","acm","ACM","Association for Computing Machinery",
+"IEEE","ieee","IEEE","Institute of Electrical and Electronics Engineers",
+"Collegiate Esports Club","esports_club","https://discord.gg/smmV38d",,
