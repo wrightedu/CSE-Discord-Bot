@@ -6,3 +6,4 @@ pandas>=1.2.4
 python-dotenv>=0.17.1
 validators>=0.18.2
 emoji>=1.2.0
+PyYAML>=6.0
