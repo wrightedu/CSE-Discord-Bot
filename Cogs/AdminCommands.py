@@ -237,12 +237,18 @@ class AdminCommands(commands.Cog):
             Logs that the specific user used the announcement command
         '''
 
-        # uncomment this line in order to test
-        # channel = self.bot.get_channel(974011954362470400)
+        # creates channel name to get the channels to print the announcement
+        channel_name = None
+        
+        # asking for a/multiple channel(s) to send the announcement
+        await ctx.send(f'Please enter channel(s) to send this announcement: ')
+        msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
 
-        # comment this line in order to test
-        channel = self.bot.get_channel(688088270671970371)
+        # if there are no channels return out of the command
+        if not msg.channel_mentions:
+            return
 
         # logs appropriately and sends the message to the specified channel
         await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
-        await channel.send(message)
+        for channel_name in msg.channel_mentions:
+            await channel_name.send(message)
