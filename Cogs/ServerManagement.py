@@ -41,10 +41,13 @@ class ServerManagement(commands.Cog):
 
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
         # Destroy server before building
+
         try:
             await self.destroyserver(ctx)
         except FileNotFoundError:
-            print('the role_lists directory doesnt exist')
+            await log(self.bot, f'{ctx.author} tried running /buildserver but failed. The role_lists directory did not exist on their local machine.')
+            await log(self.bot, 'In order to run this command the user must create the role_lists directory')
+            await ctx.send('The role_lists directory doesnt exist. Please fix this error before continuing.')
             return
 
         # If csv file attached, overwrite existing csv
