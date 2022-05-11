@@ -131,7 +131,7 @@ class ServerManagement(commands.Cog):
 
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
-        # If the role_lists directory doesnt exist raise a FileNotFoundError back to the buildserver command
+        # If the role_lists directory doesn't exist raise a FileNotFoundError back to the buildserver command
         try:
             roles_csvs = pd.read_csv(csv_filepath)
         except FileNotFoundError:
