@@ -44,6 +44,8 @@ class ServerManagement(commands.Cog):
 
         try:
             await self.destroyserver(ctx)
+
+        # If the role_lists directory doesn't exist the program notifies the user and ends the buildserver command
         except FileNotFoundError:
             await log(self.bot, f'{ctx.author} tried running /buildserver but failed. The role_lists directory did not exist on their local machine.')
             await log(self.bot, 'In order to run this command the user must create the role_lists directory')
@@ -129,6 +131,7 @@ class ServerManagement(commands.Cog):
 
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
+        # If the role_lists directory doesnt exist raise a FileNotFoundError back to the buildserver command
         try:
             roles_csvs = pd.read_csv(csv_filepath)
         except FileNotFoundError:
