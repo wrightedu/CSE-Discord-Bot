@@ -208,7 +208,7 @@ class AdminCommands(commands.Cog):
         embed.add_field(name="Users with\nTop Roles", value='\u200b')
         embed.add_field(name=chr(173), value=chr(173))
         embed.add_field(name=chr(173), value=chr(173))
-       
+        
         roles_list = []
         for role in guild.roles:
             users_with_role = len(role.members)
@@ -222,3 +222,27 @@ class AdminCommands(commands.Cog):
             embed.add_field(name=value[0], value=value[1])
 
         await ctx.reply(embed=embed)
+
+    @commands.command(aliases=['announce'])
+    @commands.has_permissions(administrator=True)
+    async def announcement(self, ctx, *, message):
+        '''
+        Uses the bot to announce something instead of having an admin to do so
+
+        Args:
+            message: The announcement to have the bot to tell the students
+
+        Outputs:
+            The announcement to the respective News channel in the CSE server
+            Logs that the specific user used the announcement command
+        '''
+
+        # uncomment this line in order to test
+        # channel = self.bot.get_channel(974011954362470400)
+
+        # comment this line in order to test
+        channel = self.bot.get_channel(688088270671970371)
+
+        # logs appropriately and sends the message to the specified channel
+        await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
+        await channel.send(message)
