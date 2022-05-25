@@ -208,7 +208,7 @@ class AdminCommands(commands.Cog):
         embed.add_field(name="Users with\nTop Roles", value='\u200b')
         embed.add_field(name=chr(173), value=chr(173))
         embed.add_field(name=chr(173), value=chr(173))
-       
+        
         roles_list = []
         for role in guild.roles:
             users_with_role = len(role.members)
@@ -222,3 +222,38 @@ class AdminCommands(commands.Cog):
             embed.add_field(name=value[0], value=value[1])
 
         await ctx.reply(embed=embed)
+
+    @commands.command(aliases=['announcement'], help="-announce MSG to several #channels")
+    @commands.has_permissions(administrator=True)
+    async def announce(self, ctx, *, message=''):
+        '''
+        Uses the bot to announce something instead of having an admin to do so
+
+        Args:
+            message: The announcement to have the bot to tell the students
+
+        Outputs:
+            The announcement to the respective News channel in the CSE server
+            Logs that the specific user used the announcement command
+        '''
+
+        # Error message if there's no announcement.
+        if message == '':
+            await ctx.send(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
+            return
+
+        # creates channel name to get the channels to print the announcement
+        channel_name = None
+        
+        # asking for a/multiple channel(s) to send the announcement
+        await ctx.send(f'Please enter channel(s) to send this announcement: ')
+        msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+
+        # if there are no channels return out of the command
+        if not msg.channel_mentions:
+            return
+
+        # logs appropriately and sends the message to the specified channel
+        await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
+        for channel_name in msg.channel_mentions:
+            await channel_name.send(message)
