@@ -223,9 +223,9 @@ class AdminCommands(commands.Cog):
 
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=['announce'])
+    @commands.command(aliases=['announcement'], help="-announce MSG to several #channels")
     @commands.has_permissions(administrator=True)
-    async def announcement(self, ctx, *, message):
+    async def announce(self, ctx, *, message=''):
         '''
         Uses the bot to announce something instead of having an admin to do so
 
@@ -236,6 +236,11 @@ class AdminCommands(commands.Cog):
             The announcement to the respective News channel in the CSE server
             Logs that the specific user used the announcement command
         '''
+
+        # Error message if there's no announcement.
+        if message == '':
+            await ctx.send(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
+            return
 
         # creates channel name to get the channels to print the announcement
         channel_name = None

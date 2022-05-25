@@ -83,7 +83,7 @@ async def on_command_error(ctx, error):
     author, message = ctx.author, ctx.message.content
 
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('Missing required arguement')
+        await ctx.send('Missing required argument')
         await ctx.send_help()
         await log(bot, f'{author} attempted to run `{message}` but failed because they were missing a required argument')
 
