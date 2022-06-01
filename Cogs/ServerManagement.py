@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import json
 import os
 import re
@@ -17,6 +18,7 @@ def setup(bot):
 class ServerManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.faq_channels = []
 
         # Role menu messages
         # Lists of message ids keyed by guild ids
@@ -339,3 +341,48 @@ class ServerManagement(commands.Cog):
                 else:
                     await member.add_roles(role)
                     await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Gave you the {role.name} role!')
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        """
+        Checks if the author of the message was a bot and if it was sent in a correct channel
+        Looks through a message that has been sent to see if it was a question
+        If the message had a ? in it it replies to it with "That looks interesting"
+        """
+
+        # If the author is a bot return
+        if message.author.bot:
+            return
+
+        # Loop through all requested faq channels
+        for channel in self.faq_channels:
+
+            # Checks if the channel is a requested faq channel
+            if channel == message.channel:
+
+                # If there is a ? in the content reply "That looks interesting" and break out of the loop
+                if '?' in message.content:
+                    await message.reply("That looks interesting")
+                    break
+    
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def faq(self, ctx):
+        """
+        Allows/disallows the faq machine learning feature for a specific channel
+        """
+
+        # Iterates through all channels in the faq_channels
+        for channel in self.faq_channels:
+            
+            # If the channel is in the list remove it and return
+            if channel == ctx.channel:
+                self.faq_channels.remove(ctx.channel)
+                return
+
+            # If the channel is not in the current channel continue
+            else:
+                continue
+        
+        # If the channel is not in the list add it to the end
+        self.faq_channels.append(ctx.channel)
