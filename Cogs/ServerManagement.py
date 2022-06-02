@@ -354,16 +354,12 @@ class ServerManagement(commands.Cog):
         if message.author.bot:
             return
 
-        # Loop through all requested faq channels
-        for channel in self.faq_channels:
+        # Checks if the channel is a requested faq channel
+        if message.channel in self.faq_channels:
 
-            # Checks if the channel is a requested faq channel
-            if channel == message.channel:
-
-                # If there is a ? in the content reply "That looks interesting" and break out of the loop
-                if '?' in message.content:
-                    await message.reply("That looks interesting")
-                    break
+            # If there is a ? in the content reply "That looks interesting" and break out of the loop
+            if '?' in message.content:
+                await message.reply("That looks interesting")
     
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -372,17 +368,21 @@ class ServerManagement(commands.Cog):
         Allows/disallows the faq machine learning feature for a specific channel
         """
 
-        # Iterates through all channels in the faq_channels
-        for channel in self.faq_channels:
-            
-            # If the channel is in the list remove it and return
-            if channel == ctx.channel:
-                self.faq_channels.remove(ctx.channel)
-                return
+        
+        
 
-            # If the channel is not in the current channel continue
-            else:
-                continue
+        # If the channel is in the list remove it and return
+        if ctx.channel in self.faq_channels:
+            self.faq_channels.remove(ctx.channel)
+            await ctx.reply("FAQ has been disabled for this channel!")
+
+            # Logging
+            await log(self.bot, f'{ctx.author} has disabled FAQ for the {ctx.channel} channel')
+            return
         
         # If the channel is not in the list add it to the end
+        await ctx.reply("FAQ has been enabled for this channel!")
         self.faq_channels.append(ctx.channel)
+
+        # Logging
+        await log(self.bot, f'{ctx.author} has enabled FAQ for the {ctx.channel} channel')
