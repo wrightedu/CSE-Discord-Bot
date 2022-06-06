@@ -2,8 +2,10 @@ import os
 import sys
 from time import sleep
 import re
+from datetime import datetime
 
 from discord.ext import commands
+from discord import MessageType
 from utils import *
 
 
@@ -257,3 +259,42 @@ class AdminCommands(commands.Cog):
         await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
         for channel_name in msg.channel_mentions:
             await channel_name.send(message)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def message_history(self, ctx):
+        """
+        """
+
+        guild = ctx.guild
+
+        # messages = await channel.history(limit=3, check=check).flatten()
+        # print(messages)
+        # for message in messages:
+        #     print(message.content)
+
+        await ctx.send(f"Please enter a user's discord username.")
+        username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
+        # print(username_message.author.name)
+        # print(username_message.content)
+
+        await ctx.send(f"Please enter a date in the following format: 'MM/DD/YYYY'.")
+        date_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
+        date_object = datetime.strptime(date_message.content, "%m/%d/%Y")
+        # print(date_object)
+        
+        channels = guild.text_channels
+        for channel in channels:
+            async for message in channel.history(limit=None, after=date_object):
+                if message.author.name == username_message.content and message.type is MessageType.default:
+                    print(message.content)
+                    if message.reference:
+                        print("a reply")
+                        # pass
+                    else:
+                        # print(message.content)
+                        print("not a reply")
+                    print(message.jump_url)
+                    for reaction in message.reactions:
+                        print(reaction)
+                    print("\n")
