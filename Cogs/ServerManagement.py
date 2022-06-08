@@ -345,9 +345,7 @@ class ServerManagement(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         """
-        Checks if the author of the message was a bot and if it was sent in a correct channel
-        Looks through a message that has been sent to see if it was a question
-        If the message had a ? in it it replies to it with "That looks interesting"
+        Listens to every message, responds if there is a '?' and the channel has been FAQ enabled
         """
 
         # If the author is a bot return
@@ -386,3 +384,4 @@ class ServerManagement(commands.Cog):
 
         # Logging
         await log(self.bot, f'{ctx.author} has enabled FAQ for the {ctx.channel} channel')
+        
