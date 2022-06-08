@@ -263,10 +263,9 @@ class AdminCommands(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def message_history(self, ctx):
-        """Outputs all messages from a specified user after a specified date and various pertinent data to a file
-        Takes in user input for the name of a user who's message history is desired and a date after which to search messages.
-        Outputs all messages from the user after the date, whether those messages are a reply, a link to those messages,
-        and all reactions to those messages to a file, which is then output to the server.
+        """Outputs all messages from a specified user after a specified date with some metadata to a file
+        Prompts user for username and date. Outputs messages authored by that username and sent after that date
+        to a file. Outputs file to discord channel if it is less that 4 MB.
 
         Outputs:
             A file to chat including all messages from a user after a date, whether those messages are a reply,
@@ -278,15 +277,38 @@ class AdminCommands(commands.Cog):
         await ctx.send(f"Please enter a user's discord username.")
         username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
 
+        print("280")
+
+        member_found = False
+        for member in guild.members:
+            if member.name == username_message.content:
+                member_found = True
+                break
+            
+        print("288")
+
+        if not member_found:
+            await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
+            if not await confirmation(self.bot, ctx, confirm_string="yes"):
+                return
+
+        print(f"295 {member_found}")
+
         await ctx.send(f"Please enter a date in the following format: 'MM/DD/YYYY'.")
         date_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
         date_object = datetime.strptime(date_message.content, "%m/%d/%Y")
         
+        print(f"301 {date_object}")
         message_history_file = open("/tmp/message_history.txt", "w")
         channels = guild.text_channels
 
+        print(f"305 number of channels {len(channels)}")
+
         for channel in channels:
-            async for message in channel.history(limit=None, after=date_object):
+            messages = await channel.history(limit=None, after=date_object).flatten()
+            print(len(messages))
+            for message in messages:
+            # async for message in channel.history(limit=None, after=date_object):
                 if message.author.name == username_message.content and message.type is MessageType.default:
                     message_history_file.write(f"{message.content}\n")
                     if message.reference:
@@ -299,11 +321,15 @@ class AdminCommands(commands.Cog):
                     message_history_file.write(f"\n")
 
         message_history_file.close()
-        size = os.path.getsize("/tmp/message_history.txt")
 
-        if size <= 4194304:
+        print("324")
+
+        size = os.path.getsize("/tmp/message_history.txt")
+        if size == 0:
+            await ctx.send(f"No messages were found.")
+        elif size <= 4194304:
             await ctx.send(file=discord.File("/tmp/message_history.txt"))
         else:
             await ctx.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
-            
+
         os.remove("/tmp/message_history.txt")
