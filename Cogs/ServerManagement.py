@@ -6,12 +6,12 @@ import emoji as discord_emoji
 import pandas as pd
 import validators
 from discord.ext import commands
-from discord_components import Button, ButtonStyle, InteractionType
+# from discord_components import Button, ButtonStyle, InteractionType
 from utils import *
 
 
-def setup(bot):
-    bot.add_cog(ServerManagement(bot))
+async def setup(bot):
+    await bot.add_cog(ServerManagement(bot))
 
 
 class ServerManagement(commands.Cog):

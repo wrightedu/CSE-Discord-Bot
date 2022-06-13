@@ -7,8 +7,8 @@ from discord.ext import commands
 from utils import *
 
 
-def setup(bot):
-    bot.add_cog(AdminCommands(bot))
+async def setup(bot):
+    await bot.add_cog(AdminCommands(bot))
 
 
 class AdminCommands(commands.Cog):

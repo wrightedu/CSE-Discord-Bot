@@ -11,8 +11,8 @@ from utils import *
 from diceParser import parse
 
 
-def setup(bot):
-    bot.add_cog(StudentCommands(bot))
+async def setup(bot):
+    await bot.add_cog(StudentCommands(bot))
 
 
 class StudentCommands(commands.Cog):
