@@ -194,4 +194,3 @@ def months_ago(months):
     delta = datetime.timedelta(days=num_days)
     that_day = now - delta
     return that_day
-    
