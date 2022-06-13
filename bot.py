@@ -62,7 +62,7 @@ async def on_ready():
         async with aiofiles.open('status.txt', mode='w') as sf:
             await sf.write('Raider Up!')
             contents = 'Raider Up!'
-        
+
     await bot.change_presence(activity=discord.Game(contents), status=discord.Status.online, afk=False)
     await log(bot, 'Bot is online')
 

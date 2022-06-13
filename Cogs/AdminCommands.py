@@ -4,6 +4,7 @@ from time import sleep
 import re
 
 from discord.ext import commands
+from discord import MessageType
 from utils import *
 
 
@@ -257,3 +258,63 @@ class AdminCommands(commands.Cog):
         await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
         for channel_name in msg.channel_mentions:
             await channel_name.send(message)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def message_history(self, ctx):
+        """Outputs all messages from a specified user after a specified date with some metadata to a file
+        Prompts user for username and date. Outputs messages authored by that username and sent after that date
+        to a file. Outputs file to discord channel if it is less that 4 MB.
+
+        Outputs:
+            A file to chat including all messages from a user after a date, whether those messages are a reply,
+            a link to those messages, and all reactions to those messages.
+        """
+
+        guild = ctx.guild
+
+        await ctx.send(f"Please enter a user's discord username.")
+        username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
+
+        member_found = False
+        for member in guild.members:
+            if member.name == username_message.content:
+                member_found = True
+                break
+
+        if not member_found:
+            await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
+            if not await confirmation(self.bot, ctx, confirm_string="yes"):
+                return
+
+        that_day = months_ago(4)
+        
+        message_history_file = open("/tmp/message_history.txt", "w")
+        channel = ctx.channel
+      
+        # gets 250 most recent messages posted less than 4 months ago
+        messages = await channel.history(limit=250, after=that_day, oldest_first=False).flatten()
+
+        for message in messages:
+            if message.author.name == username_message.content and message.type is MessageType.default:
+                message_history_file.write(f"{message.content}\n")
+                if message.reference:
+                    message_history_file.write(f"a reply\n")
+                else:
+                    message_history_file.write(f"not a reply\n")
+                message_history_file.write(f"{message.jump_url}\n")
+                for reaction in message.reactions:
+                    message_history_file.write(f"{reaction}\n")
+                message_history_file.write(f"\n")
+
+        message_history_file.close()
+
+        size = os.path.getsize("/tmp/message_history.txt")
+        if size == 0:
+            await ctx.send(f"No messages were found.")
+        elif size <= 4194304:
+            await ctx.send(file=discord.File("/tmp/message_history.txt"))
+        else:
+            await ctx.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
+
+        os.remove("/tmp/message_history.txt")
