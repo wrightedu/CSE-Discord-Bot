@@ -229,4 +229,3 @@ class StudentCommands(commands.Cog):
                 await ctx.message.channel.send("There are no users in your voice channel.")
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
-            

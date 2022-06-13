@@ -346,7 +346,6 @@ class ServerManagement(commands.Cog):
         """
         Listens to every message, responds if there is a '?' and the channel has been FAQ enabled
         """
-
         # If the author is a bot return
         if message.author.bot:
             return
@@ -364,10 +363,6 @@ class ServerManagement(commands.Cog):
         """
         Allows/disallows the faq machine learning feature for a specific channel
         """
-
-        
-        
-
         # If the channel is in the list remove it and return
         if ctx.channel in self.faq_channels:
             self.faq_channels.remove(ctx.channel)
@@ -383,4 +378,3 @@ class ServerManagement(commands.Cog):
 
         # Logging
         await log(self.bot, f'{ctx.author} has enabled FAQ for the {ctx.channel} channel')
-        
