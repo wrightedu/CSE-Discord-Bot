@@ -12,7 +12,7 @@ from utils import *
 intents = discord.Intents(messages=True, guilds=True, members=True, voice_states=True)
 
 
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix='-', intents=intents)
 start_time = time()
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')

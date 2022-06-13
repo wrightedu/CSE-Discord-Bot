@@ -2,7 +2,6 @@ import os
 import sys
 from time import sleep
 import re
-from datetime import datetime
 
 from discord.ext import commands
 from discord import MessageType
@@ -277,52 +276,38 @@ class AdminCommands(commands.Cog):
         await ctx.send(f"Please enter a user's discord username.")
         username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
 
-        print("280")
-
         member_found = False
         for member in guild.members:
             if member.name == username_message.content:
                 member_found = True
                 break
-            
-        print("288")
 
         if not member_found:
             await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
             if not await confirmation(self.bot, ctx, confirm_string="yes"):
                 return
 
-        print(f"295 {member_found}")
-
-        await ctx.send(f"Please enter a date in the following format: 'MM/DD/YYYY'.")
-        date_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
-        date_object = datetime.strptime(date_message.content, "%m/%d/%Y")
+        that_day = months_ago(4)
         
-        print(f"301 {date_object}")
         message_history_file = open("/tmp/message_history.txt", "w")
-        channels = guild.text_channels
+        channel = ctx.channel
+      
+        # gets 250 most recent messages posted less than 4 months ago
+        messages = await channel.history(limit=250, after=that_day, oldest_first=False).flatten()
 
-        print(f"305 number of channels {len(channels)}")
-
-        for channel in channels:
-            messages = await channel.history(limit=None, after=date_object).flatten()
-            print(len(messages))
-            for message in messages:
-            # async for message in channel.history(limit=None, after=date_object):
-                if message.author.name == username_message.content and message.type is MessageType.default:
-                    message_history_file.write(f"{message.content}\n")
-                    if message.reference:
-                        message_history_file.write(f"a reply\n")
-                    else:
-                        message_history_file.write(f"not a reply\n")
-                    message_history_file.write(f"{message.jump_url}\n")
-                    for reaction in message.reactions:
-                        message_history_file.write(f"{reaction}\n")
-                    message_history_file.write(f"\n")
+        for message in messages:
+            if message.author.name == username_message.content and message.type is MessageType.default:
+                message_history_file.write(f"{message.content}\n")
+                if message.reference:
+                    message_history_file.write(f"a reply\n")
+                else:
+                    message_history_file.write(f"not a reply\n")
+                message_history_file.write(f"{message.jump_url}\n")
+                for reaction in message.reactions:
+                    message_history_file.write(f"{reaction}\n")
+                message_history_file.write(f"\n")
 
         message_history_file.close()
-
-        print("324")
 
         size = os.path.getsize("/tmp/message_history.txt")
         if size == 0:
