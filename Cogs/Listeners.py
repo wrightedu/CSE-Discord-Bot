@@ -2,8 +2,8 @@ from discord.ext import commands
 from utils import *
 
 
-def setup(bot):
-    bot.add_cog(Listeners(bot))
+async def setup(bot):
+    await bot.add_cog(Listeners(bot))
 
 
 class Listeners(commands.Cog):

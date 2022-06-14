@@ -4,12 +4,12 @@ from time import time
 
 import discord
 from discord.ext import commands
-from discord_components import DiscordComponents
+# from discord_components import DiscordComponents
 from dotenv import load_dotenv
 
 from utils import *
 
-intents = discord.Intents(messages=True, guilds=True, members=True, voice_states=True)
+intents = discord.Intents(messages=True, guilds=True, members=True, voice_states=True, message_content=True)
 
 
 bot = commands.Bot(command_prefix='-', intents=intents)
@@ -30,7 +30,7 @@ async def on_ready():
     """
 
     # Set up Discord Components
-    DiscordComponents(bot)
+    # DiscordComponents(bot)
 
     # Startup status
     await bot.change_presence(activity=discord.Game('Booting'), status=discord.Status.dnd)
@@ -46,7 +46,7 @@ async def on_ready():
     for file in os.listdir('Cogs'):
         if not file.startswith('__') and file.endswith('.py'):
             try:
-                bot.load_extension(f'Cogs.{file[:-3]}')
+                await bot.load_extension(f'Cogs.{file[:-3]}')
                 await log(bot, f'Loaded cog: {file[:-3]}')
             except commands.errors.NoEntryPointError:
                 pass
@@ -62,8 +62,8 @@ async def on_ready():
         async with aiofiles.open('status.txt', mode='w') as sf:
             await sf.write('Raider Up!')
             contents = 'Raider Up!'
-
-    await bot.change_presence(activity=discord.Game(contents), status=discord.Status.online, afk=False)
+        
+    await bot.change_presence(activity=discord.Game(contents), status=discord.Status.online)
     await log(bot, 'Bot is online')
 
     # Print startup duration

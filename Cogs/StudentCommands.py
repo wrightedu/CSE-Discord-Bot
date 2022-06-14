@@ -11,13 +11,33 @@ from utils import *
 from diceParser import parse
 
 
-def setup(bot):
-    bot.add_cog(StudentCommands(bot))
+async def setup(bot):
+    await bot.add_cog(StudentCommands(bot))
 
 
 class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    async def attendance(self, ctx):
+        """Sends a list of all members in the same voice channel as the command author
+        If the command author is in a voice channel with at least one other member,
+        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
+        """
+
+        # Gets users in the same voice chat as the requester and lists their @'s.
+        try:
+            channel = ctx.message.author.voice.channel
+            members = channel.members
+            members.remove(ctx.author)
+            if members:
+                attendees = "\n".join([member.mention for member in members])
+                await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
+            else:
+                await ctx.message.channel.send("There are no users in your voice channel.")
+        except AttributeError:
+            await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
@@ -103,6 +123,19 @@ class StudentCommands(commands.Cog):
         message = f'{language}\n```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
         await ctx.send(message)
         await log(self.bot, f'{ctx.author} ran /helloworld with language {language} in #{ctx.channel}')
+
+    @commands.command()
+    async def ping(self, ctx):
+        """Sends the Discord WebSocket protocol latency
+        Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
+
+        Outputs:
+            Sends a message containing the Discord WebSocket protocol latency
+        """
+
+        latency = round(self.bot.latency * 1000)
+        await ctx.send(f'{latency} ms')
+        await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
 
     @commands.command()
     async def poll(self, ctx, question, *options: str):
@@ -196,36 +229,3 @@ class StudentCommands(commands.Cog):
         """
 
         await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
-
-    @commands.command()
-    async def ping(self, ctx):
-        """Sends the Discord WebSocket protocol latency
-        Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
-
-        Outputs:
-            Sends a message containing the Discord WebSocket protocol latency
-        """
-
-        latency = round(self.bot.latency * 1000)
-        await ctx.send(f'{latency} ms')
-        await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
-
-    @commands.command()
-    async def attendance(self, ctx):
-        """Sends a list of all members in the same voice channel as the command author
-        If the command author is in a voice channel with at least one other member,
-        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
-        """
-
-        # Gets users in the same voice chat as the requester and lists their @'s.
-        try:
-            channel = ctx.message.author.voice.channel
-            members = channel.members
-            members.remove(ctx.author)
-            if members:
-                attendees = "\n".join([member.mention for member in members])
-                await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
-            else:
-                await ctx.message.channel.send("There are no users in your voice channel.")
-        except AttributeError:
-            await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
