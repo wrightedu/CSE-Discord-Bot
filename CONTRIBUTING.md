@@ -14,7 +14,7 @@ All functions and methods should have docstrings following the [Google docstring
 
 ### Dependencies
 
-This Discord bot requires the dependecies listed in [REQUIREMENTS.txt](REQUIREMENTS.txt). Any time a new dependency is added or an old one is updated, REQUIREMENTS.txt should be updated accordingly.
+This Discord bot requires the dependencies listed in [REQUIREMENTS.txt](REQUIREMENTS.txt). Any time a new dependency is added or an old one is updated, REQUIREMENTS.txt should be updated accordingly.
 
 You can `pip install -r REQUIREMENTS.txt` to install all dependencies in one command. We recommend using an environment, either a Python built-in environment or [Anaconda](https://www.anaconda.com/products/individual).
 
