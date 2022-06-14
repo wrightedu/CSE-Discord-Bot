@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 import aiofiles
 import discord
@@ -85,7 +85,7 @@ async def log(bot, string, timestamp=True):
     # Log to stdout
     timestamp_string = ''
     if timestamp:
-        timestamp_string = f'[{str(datetime.now())[:-7]}]'
+        timestamp_string = f'[{str(datetime.datetime.now())[:-7]}]'
     print(timestamp_string + ' ' + string)
 
     # Log to channel
@@ -180,3 +180,17 @@ async def dm(member, content):
 
     channel = await member.create_dm()
     await channel.send(content)
+
+def months_ago(months):
+    """Gets the date and time a certain number of months ago
+    Assumes 30 days in a month
+
+    Returns:
+        that_day (datetime): the date and time some months ago
+    """
+
+    num_days = months*30
+    now = datetime.datetime.now()
+    delta = datetime.timedelta(days=num_days)
+    that_day = now - delta
+    return that_day
