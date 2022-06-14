@@ -5,36 +5,76 @@ import discord
 from bing_image_downloader import downloader
 
 
-async def get_member(guild, member_id):
-    """Return a member for use in other methods
-    Try to get member from the member id passed in to the method. If this doesn't work, search through the list of
-    all members and extract a matching member id. If this doesn't work, refresh member list and return member if the
-    id matches the intended member id. If this doesn't work, return none.
-
+async def confirmation(bot, ctx, confirm_string='confirm'):
+    """Add a layer of security to sensitive commands by adding a confirmation step
+    Send message to user informing what confirmation code is. Ensure the next message received is by the author
+    of the origional command. If so, ensure said message is the proper confirmation code. If this is the case,
+    execute action and return true. If not, inform user that the action failed and return false.
     Args:
-        member_id (int): id of the member
+        bot (discord.ext.commands.bot.Bot): The bot object
+        confirm_string (str): The string that must be sent by user to confirm action. Automatically set to 'confirm'.
+
+    Outputs:
+        If confirmation is successful: Message to user confirming execution
+        If confirmation is not successful: Message to user informing of termination of execution
 
     Returns:
-        member (discord.Member): An instance of the member being called for
+        (bool): Whether or not the confirmation succeeded
     """
 
-    # Primary method
-    member = guild.get_member(member_id)
-    if member is not None:
-        return member
+    # Ask for confirmation
+    await ctx.send(f'Enter `{confirm_string}` to confirm action')
 
-    # Secondary method
-    for member in guild.members:
-        if str(member.id) == str(member_id):
-            return member
+    # Wait for confirmation
+    msg = await bot.wait_for('message', check=lambda message: message.author == ctx.author)
+    if msg.content == confirm_string:
+        await ctx.send(f'Action confirmed, executing')
+        return True
+    else:
+        await ctx.send(f'Confirmation failed, terminating execution')
+        return False
 
-    # If can't find member, refresh member lists and retry
-    async for member in guild.fetch_members():
-        if member.id == member_id:
-            return member
 
-    # If all else fails, return None
-    return None
+async def download_corgis(bot, ctx, amount):
+    """Download Corgi Pictures
+    Send message to user informing them how many corgis will be downloaded. Use the downloader to download
+    a specified amount of corgies into 'dogs' with a functioning adult filter. Log the event.
+
+    Args:
+        bot (discord.ext.commands.bot.Bot): The bot object
+        amount (int): The number of corgi pictures being downloaded.
+
+    Outputs:
+        The amount of images downloaded
+
+    Logs:
+        Who sent command and the amount of pictures downloaded.
+    """
+
+    await ctx.send(f'Downloading {amount} images')
+    downloader.download('corgis',
+                        limit=amount,
+                        output_dir='dogs',
+                        adult_filter_off=False,
+                        force_replace=False)
+    await log(bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
+
+
+async def dm(member, content):
+    """Send a direct message to another user.
+    Create a dm channel between the user and intended recipient. Send the desired message from the user to the
+    recipient through the new channel.
+
+    Args:
+        member (discord.Member): The member to receive the dm
+        content (str): The contents of the message being sent
+
+    Outputs:
+        A message with content `content` to a DM with `member`
+    """
+
+    channel = await member.create_dm()
+    await channel.send(content)
 
 
 async def get_channel_named(guild, channel_name):
@@ -67,6 +107,38 @@ async def get_emoji_named(guild, emoji_name):
     for emoji in guild.emojis:
         if emoji.name == emoji_name:
             return emoji
+
+
+async def get_member(guild, member_id):
+    """Return a member for use in other methods
+    Try to get member from the member id passed in to the method. If this doesn't work, search through the list of
+    all members and extract a matching member id. If this doesn't work, refresh member list and return member if the
+    id matches the intended member id. If this doesn't work, return none.
+
+    Args:
+        member_id (int): id of the member
+
+    Returns:
+        member (discord.Member): An instance of the member being called for
+    """
+
+    # Primary method
+    member = guild.get_member(member_id)
+    if member is not None:
+        return member
+
+    # Secondary method
+    for member in guild.members:
+        if str(member.id) == str(member_id):
+            return member
+
+    # If can't find member, refresh member lists and retry
+    async for member in guild.fetch_members():
+        if member.id == member_id:
+            return member
+
+    # If all else fails, return None
+    return None
 
 
 async def log(bot, string, timestamp=True):
@@ -109,77 +181,6 @@ async def log(bot, string, timestamp=True):
             await f.write(line.strip() + '\n')
         await f.write(timestamp_string + ' ' + string + '\n')
 
-
-async def download_corgis(bot, ctx, amount):
-    """Download Corgi Pictures
-    Send message to user informing them how many corgis will be downloaded. Use the downloader to download
-    a specified amount of corgies into 'dogs' with a functioning adult filter. Log the event.
-
-    Args:
-        bot (discord.ext.commands.bot.Bot): The bot object
-        amount (int): The number of corgi pictures being downloaded.
-
-    Outputs:
-        The amount of images downloaded
-
-    Logs:
-        Who sent command and the amount of pictures downloaded.
-    """
-
-    await ctx.send(f'Downloading {amount} images')
-    downloader.download('corgis',
-                        limit=amount,
-                        output_dir='dogs',
-                        adult_filter_off=False,
-                        force_replace=False)
-    await log(bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
-
-
-async def confirmation(bot, ctx, confirm_string='confirm'):
-    """Add a layer of security to sensitive commands by adding a confirmation step
-    Send message to user informing what confirmation code is. Ensure the next message received is by the author
-    of the origional command. If so, ensure said message is the proper confirmation code. If this is the case,
-    execute action and return true. If not, inform user that the action failed and return false.
-    Args:
-        bot (discord.ext.commands.bot.Bot): The bot object
-        confirm_string (str): The string that must be sent by user to confirm action. Automatically set to 'confirm'.
-
-    Outputs:
-        If confirmation is successful: Message to user confirming execution
-        If confirmation is not successful: Message to user informing of termination of execution
-
-    Returns:
-        (bool): Whether or not the confirmation succeeded
-    """
-
-    # Ask for confirmation
-    await ctx.send(f'Enter `{confirm_string}` to confirm action')
-
-    # Wait for confirmation
-    msg = await bot.wait_for('message', check=lambda message: message.author == ctx.author)
-    if msg.content == confirm_string:
-        await ctx.send(f'Action confirmed, executing')
-        return True
-    else:
-        await ctx.send(f'Confirmation failed, terminating execution')
-        return False
-
-
-async def dm(member, content):
-    """Send a direct message to another user.
-    Create a dm channel between the user and intended recipient. Send the desired message from the user to the
-    recipient through the new channel.
-
-    Args:
-        member (discord.Member): The member to receive the dm
-        content (str): The contents of the message being sent
-
-    Outputs:
-        A message with content `content` to a DM with `member`
-    """
-
-    channel = await member.create_dm()
-    await channel.send(content)
 
 def months_ago(months):
     """Gets the date and time a certain number of months ago

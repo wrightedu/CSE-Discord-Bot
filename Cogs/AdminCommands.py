@@ -16,28 +16,40 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=['announcement'], help="-announce MSG to several #channels")
     @commands.has_permissions(administrator=True)
-    async def downloadcorgis(self, ctx, amount):
-        """Downloads a given number of corgi pictures.
-        Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
-        Call the download_corgies method from utils.py. Log the user and number of images downloaded.
+    async def announce(self, ctx, *, message=''):
+        '''
+        Uses the bot to announce something instead of having an admin to do so
 
         Args:
-            amount (int): Number of pictures/pieces of media being downloaded
+            message: The announcement to have the bot to tell the students
 
         Outputs:
-            Message to log stating the user that executed the command and how many images were downloaded
-            Message to user if the input was invalid. States that 100 corgis are downloaded.
-        """
+            The announcement to the respective News channel in the CSE server
+            Logs that the specific user used the announcement command
+        '''
 
-        try:
-            amount = int(amount)
-        except Exception:
-            amount = 100
-            await ctx.send(f'Invalid parameter, downloading {amount} images')
-        await download_corgis(self.bot, ctx, amount)
-        await log(self.bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
+        # Error message if there's no announcement.
+        if message == '':
+            await ctx.send(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
+            return
+
+        # creates channel name to get the channels to print the announcement
+        channel_name = None
+        
+        # asking for a/multiple channel(s) to send the announcement
+        await ctx.send(f'Please enter channel(s) to send this announcement: ')
+        msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+
+        # if there are no channels return out of the command
+        if not msg.channel_mentions:
+            return
+
+        # logs appropriately and sends the message to the specified channel
+        await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
+        for channel_name in msg.channel_mentions:
+            await channel_name.send(message)
 
     @commands.command(help='`-clear AMOUNT` to clear AMOUNT messages\n`-clear all` to clear all messages from this channel')
     @commands.has_permissions(administrator=True)
@@ -76,32 +88,6 @@ class AdminCommands(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def status(self, ctx, *, status):
-        """Set status of discord bot
-        Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
-        removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
-        on the discord bot and passes in the user input to the method. Log the author and new status.
-
-        Args:
-            status (str): Text to be displayed
-        """
-
-        # open a file to store the status in
-        async with aiofiles.open('status.txt', mode='w') as f:
-        
-            status = status.strip()
-            if status.lower() == 'none':
-                await self.bot.change_presence(activity=None)
-                await log(self.bot, f'{ctx.author} disabled the custom status')
-                await f.write('Raider Up!') # Default status for when the bot restarts
-            elif len(status) <= 128:
-                await self.bot.change_presence(activity=discord.Game(status))
-                await log(self.bot, f'{ctx.author} changed the custom status to "Playing {status}"')
-                await f.write(status) # write the new status to the file
-
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
     async def clearrole(self, ctx, *, role_id):
         """Remove a role from each member of a guild.
         Remove the extra characters from the ID number of the guild. Search through every member of a guild to see if
@@ -135,35 +121,115 @@ class AdminCommands(commands.Cog):
             await ctx.send(f'No members have the role @{role}')
         else:
             await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
+    
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def downloadcorgis(self, ctx, amount):
+        """Downloads a given number of corgi pictures.
+        Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
+        Call the download_corgies method from utils.py. Log the user and number of images downloaded.
+
+        Args:
+            amount (int): Number of pictures/pieces of media being downloaded
+
+        Outputs:
+            Message to log stating the user that executed the command and how many images were downloaded
+            Message to user if the input was invalid. States that 100 corgis are downloaded.
+        """
+
+        try:
+            amount = int(amount)
+        except Exception:
+            amount = 100
+            await ctx.send(f'Invalid parameter, downloading {amount} images')
+        await download_corgis(self.bot, ctx, amount)
+        await log(self.bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
+    
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def history(self, ctx):
+        """Outputs all messages from a specified user after a specified date with some metadata to a file
+        Prompts user for username and date. Outputs messages authored by that username and sent after that date
+        to a file. Outputs file to discord channel if it is less that 4 MB.
+
+        Outputs:
+            A file to chat including all messages from a user after a date, whether those messages are a reply,
+            a link to those messages, and all reactions to those messages.
+        """
+
+        guild = ctx.guild
+
+        await ctx.send(f"Please enter a user's discord username.")
+        username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
+
+        member_found = False
+        for member in guild.members:
+            if member.name == username_message.content:
+                member_found = True
+                break
+
+        if not member_found:
+            await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
+            if not await confirmation(self.bot, ctx, confirm_string="yes"):
+                return
+
+        that_day = months_ago(4)
+        
+        history_file = open("/tmp/history.txt", "w")
+        channel = ctx.channel
+      
+        # gets 250 most recent messages posted less than 4 months ago
+        messages = await channel.history(limit=250, after=that_day, oldest_first=False).flatten()
+
+        for message in messages:
+            if message.author.name == username_message.content and message.type is MessageType.default:
+                history_file.write(f"{message.content}\n")
+                if message.reference:
+                    history_file.write(f"a reply\n")
+                else:
+                    history_file.write(f"not a reply\n")
+                history_file.write(f"{message.jump_url}\n")
+                for reaction in message.reactions:
+                    history_file.write(f"{reaction}\n")
+                history_file.write(f"\n")
+
+        history_file.close()
+
+        size = os.path.getsize("/tmp/history.txt")
+        if size == 0:
+            await ctx.send(f"No messages were found.")
+        elif size <= 4194304:
+            await ctx.send(file=discord.File("/tmp/history.txt"))
+        else:
+            await ctx.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
+
+        os.remove("/tmp/history.txt")
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def restart(self, ctx):
-        """Restart the discord bot
-        Send message to user confirming restart, then restarts the bot
+    async def status(self, ctx, *, status):
+        """Set status of discord bot
+        Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
+        removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
+        on the discord bot and passes in the user input to the method. Log the author and new status.
 
-        Outputs:
-            Message to chat confirming that the bot is restarting.
+        Args:
+            status (str): Text to be displayed
         """
 
-        if await confirmation(self.bot, ctx):
-            await ctx.send('Restarting...')
-            os.execv(sys.argv[0], sys.argv)
-
-    @commands.command(aliases=['shutdown', 'poweroff', 'exit'])
-    @commands.has_permissions(administrator=True)
-    async def stop(self, ctx):
-        """Shutdown the discord bot
-        Send message to user confirming shutdown. Exit program.
-
-        Outputs:
-            Message to user that discord bot is being shut down
-        """
-
-        if await confirmation(self.bot, ctx):
-            await ctx.send('Stopping...')
-            exit(0)
-
+        # open a file to store the status in
+        async with aiofiles.open('status.txt', mode='w') as f:
+        
+            status = status.strip()
+            if status.lower() == 'none':
+                await self.bot.change_presence(activity=None)
+                await log(self.bot, f'{ctx.author} disabled the custom status')
+                await f.write('Raider Up!') # Default status for when the bot restarts
+            elif len(status) <= 128:
+                await self.bot.change_presence(activity=discord.Game(status))
+                await log(self.bot, f'{ctx.author} changed the custom status to "Playing {status}"')
+                await f.write(status) # write the new status to the file
+    
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def stats(self, ctx):
@@ -224,97 +290,31 @@ class AdminCommands(commands.Cog):
 
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=['announcement'], help="-announce MSG to several #channels")
-    @commands.has_permissions(administrator=True)
-    async def announce(self, ctx, *, message=''):
-        '''
-        Uses the bot to announce something instead of having an admin to do so
-
-        Args:
-            message: The announcement to have the bot to tell the students
-
-        Outputs:
-            The announcement to the respective News channel in the CSE server
-            Logs that the specific user used the announcement command
-        '''
-
-        # Error message if there's no announcement.
-        if message == '':
-            await ctx.send(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
-            return
-
-        # creates channel name to get the channels to print the announcement
-        channel_name = None
-        
-        # asking for a/multiple channel(s) to send the announcement
-        await ctx.send(f'Please enter channel(s) to send this announcement: ')
-        msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
-
-        # if there are no channels return out of the command
-        if not msg.channel_mentions:
-            return
-
-        # logs appropriately and sends the message to the specified channel
-        await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
-        for channel_name in msg.channel_mentions:
-            await channel_name.send(message)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def message_history(self, ctx):
-        """Outputs all messages from a specified user after a specified date with some metadata to a file
-        Prompts user for username and date. Outputs messages authored by that username and sent after that date
-        to a file. Outputs file to discord channel if it is less that 4 MB.
+    async def restart(self, ctx):
+        """Restart the discord bot
+        Send message to user confirming restart, then restarts the bot
 
         Outputs:
-            A file to chat including all messages from a user after a date, whether those messages are a reply,
-            a link to those messages, and all reactions to those messages.
+            Message to chat confirming that the bot is restarting.
         """
 
-        guild = ctx.guild
+        if await confirmation(self.bot, ctx):
+            await ctx.send('Restarting...')
+            os.execv(sys.argv[0], sys.argv)
 
-        await ctx.send(f"Please enter a user's discord username.")
-        username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
+    @commands.command(aliases=['shutdown', 'poweroff', 'exit'])
+    @commands.has_permissions(administrator=True)
+    async def stop(self, ctx):
+        """Shutdown the discord bot
+        Send message to user confirming shutdown. Exit program.
 
-        member_found = False
-        for member in guild.members:
-            if member.name == username_message.content:
-                member_found = True
-                break
+        Outputs:
+            Message to user that discord bot is being shut down
+        """
 
-        if not member_found:
-            await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
-            if not await confirmation(self.bot, ctx, confirm_string="yes"):
-                return
-
-        that_day = months_ago(4)
-        
-        message_history_file = open("/tmp/message_history.txt", "w")
-        channel = ctx.channel
-      
-        # gets 250 most recent messages posted less than 4 months ago
-        messages = await channel.history(limit=250, after=that_day, oldest_first=False).flatten()
-
-        for message in messages:
-            if message.author.name == username_message.content and message.type is MessageType.default:
-                message_history_file.write(f"{message.content}\n")
-                if message.reference:
-                    message_history_file.write(f"a reply\n")
-                else:
-                    message_history_file.write(f"not a reply\n")
-                message_history_file.write(f"{message.jump_url}\n")
-                for reaction in message.reactions:
-                    message_history_file.write(f"{reaction}\n")
-                message_history_file.write(f"\n")
-
-        message_history_file.close()
-
-        size = os.path.getsize("/tmp/message_history.txt")
-        if size == 0:
-            await ctx.send(f"No messages were found.")
-        elif size <= 4194304:
-            await ctx.send(file=discord.File("/tmp/message_history.txt"))
-        else:
-            await ctx.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
-
-        os.remove("/tmp/message_history.txt")
+        if await confirmation(self.bot, ctx):
+            await ctx.send('Stopping...')
+            exit(0)
