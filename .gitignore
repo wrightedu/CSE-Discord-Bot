@@ -40,4 +40,8 @@ token
 # Containers         #
 # ####################
 *.simg
-*.sif 
+*.sif
+
+# Virtual Env        #
+######################
+venv/
