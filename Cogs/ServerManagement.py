@@ -115,6 +115,7 @@ class ServerManagement(commands.Cog):
         # Build role menus
         await self.rolemenu(ctx)
 
+    #! BROKEN AS OF DISC.PY 2.0
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def destroyserver(self, ctx):
@@ -184,6 +185,7 @@ class ServerManagement(commands.Cog):
         for role in destroy_roles:
             await role.delete()
 
+    #! BROKEN AS OF DISC.PY 2.0
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def rolemenu(self, ctx):
@@ -270,6 +272,8 @@ class ServerManagement(commands.Cog):
                     emoji = None
 
                 # If role, make button style gray. If URL, make style URL
+
+                #? Button broken... send help
                 label = f'{text} - {long_name}' if str(long_name) != 'nan' else text
                 if not validators.url(role_link):
                     buttons.append(Button(style=ButtonStyle.gray, label=label, emoji=emoji))
@@ -295,6 +299,7 @@ class ServerManagement(commands.Cog):
         with open('role_menus.json', 'w') as f:
             json.dump(self.role_menus, f)
 
+    #! BROKEN AS OF DISC.PY 2.0
     @commands.Cog.listener()
     async def on_button_click(self, res):
         """Handles button clicks for role menus

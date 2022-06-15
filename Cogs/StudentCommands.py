@@ -97,7 +97,10 @@ class StudentCommands(commands.Cog):
 
         # Read in the langague data from the yaml file
         with open('helloworld.yml', 'r') as f:
-            language_data = yaml.load(f)
+
+            # The FullLoader parameter handles the conversion from YAML
+            # scalar values to Python the dictionary format
+            language_data = yaml.load(f, Loader=yaml.FullLoader)
 
         # clean input
         language = language.lower()
@@ -107,7 +110,7 @@ class StudentCommands(commands.Cog):
             languages = [i for i in language_data]
             languages.sort()
             languages = '\n'.join(languages)
-            await ctx.send(f'I know:\n{languages}')
+            await ctx.send(f'```I know:\n{languages}```')
             return
 
         # If invalid input, make it random
