@@ -96,9 +96,14 @@ class StudentCommands(commands.Cog):
         """
 
         # Read in the langague data from the yaml file
+        print("here0")
         with open('helloworld.yml', 'r') as f:
+            # stream = file('helloworld.yml', 'r')
+
+            #! This line is the issue
             language_data = yaml.load(f)
 
+        print("here1")
         # clean input
         language = language.lower()
 
@@ -110,6 +115,7 @@ class StudentCommands(commands.Cog):
             await ctx.send(f'I know:\n{languages}')
             return
 
+        print("here2")
         # If invalid input, make it random
         if language != 'random' and language not in language_data:
             language = 'random'
@@ -119,6 +125,7 @@ class StudentCommands(commands.Cog):
             languages = [i for i in language_data]
             language = random.choice(languages)
 
+        print("here3")
         # Build the message
         message = f'{language}\n```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
         await ctx.send(message)
