@@ -179,7 +179,7 @@ class AdminCommands(commands.Cog):
         channel = ctx.channel
       
         # gets 250 most recent messages posted less than 4 months ago
-        messages = await channel.history(limit=250, after=that_day, oldest_first=False).flatten()
+        messages = [message async for message in channel.history(limit=250, after=that_day, oldest_first=False)]
 
         for message in messages:
             if message.author.name == username_message.content and message.type is MessageType.default:
