@@ -26,7 +26,7 @@ class CogManagement(commands.Cog):
         """
 
         await ctx.send(f'Loading {cog_name}')
-        self.bot.load_extension(f'Cogs.{cog_name}')
+        await self.bot.load_extension(f'Cogs.{cog_name}')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -44,7 +44,7 @@ class CogManagement(commands.Cog):
         """
 
         await ctx.send(f'Reloading {cog_name}')
-        self.bot.reload_extension(f'Cogs.{cog_name}')
+        await self.bot.reload_extension(f'Cogs.{cog_name}')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -60,7 +60,7 @@ class CogManagement(commands.Cog):
         Outputs:
             Message to user informing them of what cog is being unloaded.
         """
-
+        
         if cog_name != 'CogManagement':
             await ctx.send(f'Unloading {cog_name}')
-            self.bot.unload_extension(f'Cogs.{cog_name}')
+            await self.bot.unload_extension(f'Cogs.{cog_name}')
