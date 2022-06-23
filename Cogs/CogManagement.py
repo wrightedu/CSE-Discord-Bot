@@ -1,8 +1,8 @@
 from discord.ext import commands
 from utils import *
+from discord import app_commands
 
-
-async def setup(bot):
+async def setup(bot:commands.Bot):
     await bot.add_cog(CogManagement(bot))
 
 
@@ -64,3 +64,38 @@ class CogManagement(commands.Cog):
         if cog_name != 'CogManagement':
             await ctx.send(f'Unloading {cog_name}')
             await self.bot.unload_extension(f'Cogs.{cog_name}')
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def sync(self, ctx):
+        """Syncs all slash commands
+        Syncs application commands to the bot's tree specific to a server.
+        """
+
+        # TODO: Are we handling multiple servers?
+        # syncs global tree to server/guild
+        await self.bot.tree.sync(guild=ctx.guild)
+
+    @app_commands.command(description="Sending a message")
+    @app_commands.default_permissions(administrator=True)
+    async def sendmessage_cogmanage(self, interaction:discord.Interaction):
+        """An example slash command
+        This command can only be executed by those with admin permissions.
+        
+        Outputs:
+            Message to user confirming execution.
+        """
+
+        return await interaction.response.send_message("Hiiiiiiii, CogManage")
+
+    @app_commands.command(description="Sending a message")
+    @app_commands.default_permissions(administrator=True)
+    async def sendmessage_cogmanage2(self, interaction:discord.Interaction):
+        """An example slash command
+        This command can only be executed by those with admin permissions.
+        
+        Outputs:
+            Message to user confirming execution.
+        """
+
+        return await interaction.response.send_message("Hiiiiiiii, CogManage2")
