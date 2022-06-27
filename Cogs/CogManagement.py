@@ -69,12 +69,17 @@ class CogManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def sync(self, ctx):
         """Syncs all slash commands
-        Syncs application commands to the bot's tree specific to a server.
+        Syncs application commands to the bot's global tree.
+        Copies to current server.
         """
 
-        # TODO: Are we handling multiple servers?
+        # TODO: Are we handling multiple servers? (currently "yes")
+        # TODO: This is a W.I.P
         # syncs global tree to server/guild
-        await self.bot.tree.sync(guild=ctx.guild)
+        await self.bot.tree.sync()
+        # the below needs to be run the first time a bot syncs to a server/guild
+        # no harm in running this everytime sync runs
+        self.bot.tree.copy_global_to(guild=ctx.guild)
 
     @app_commands.command(description="Sending a message")
     @app_commands.default_permissions(administrator=True)
@@ -99,3 +104,15 @@ class CogManagement(commands.Cog):
         """
 
         return await interaction.response.send_message("Hiiiiiiii, CogManage2")
+
+    @app_commands.command(description="Sending a message")
+    @app_commands.default_permissions(administrator=True)
+    async def tell_me_why(self, interaction:discord.Interaction):
+        """An example slash command
+        This command can only be executed by those with admin permissions.
+        
+        Outputs:
+            Message to user confirming execution.
+        """
+
+        return await interaction.response.send_message("AHHHHHHHHHHH")
