@@ -66,6 +66,7 @@ class ServerManagement(commands.Cog):
 
         # Print list of channels to build
         message = '__**CREATE FOLLOWING CATEGORIES**__\n'
+        role_names = roles_csvs['text'].to_list()
         for _, row in roles_csvs.iterrows():
             if type(row['create_channels']) != float:
                 message += f'{row["text"]}\n'
@@ -82,7 +83,11 @@ class ServerManagement(commands.Cog):
                 # If role doesn't already exist (due to cross-listing)
                 role_exists = any(role.name == row['role/link'] for role in ctx.guild.roles)
                 if not role_exists:
-                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    #TODO: re-evalate permissions?
+                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
+                            attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
+                            stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    
                     role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
                     role.mentionable = True
 
