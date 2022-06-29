@@ -20,7 +20,7 @@ class TestServerManagement(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def createClasses(self, ctx):
+    async def buildclasses(self, ctx):
         """Create class channels
         ETC
         """
@@ -39,19 +39,56 @@ class TestServerManagement(commands.Cog):
             await ctx.message.attachments[0].save(csv_filepath)
         
         # Load roles csv
-        roles_csvs = pd.read_csv(csv_filepath)
+        roles_df = pd.read_csv(csv_filepath)
 
-        # Build all channels
-        role_names = roles_csvs['text'].unique().tolist() # check if breaks
-        for name in role_names:
-            #TODO: re-evalate permissions?
-            permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
-                    attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
-                    stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-            role = await ctx.guild.create_role(name=name, permissions=permissions)
+        roles_df = roles_df.dropna(subset=['create_channels'])
+
+        #? TODO Build all channels
+        role_names=roles_df["role/link"].to_list()
+        class_channels = roles_df["create_channels"].to_list()
+        categories = roles_df["text"].to_list()
+        long_names = roles_df["long_name"].to_list()
+
+        # Print to user list of channels to build
+        message = '__**CREATE FOLLOWING CATEGORIES**__\n'
+        for category_name in categories:
+            message += f'{category_name}\n'
+        await ctx.send(message)
+
+        # Get confirmation before building channels
+        if not await confirmation(self.bot, ctx, 'build'):
+            return
+        
+        #TODO: re-evalate permissions?
+        permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
+                attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
+                stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+        
+
+        for i in range(len(role_names)):
+            # Create roles
+            role_name = role_names[i]
+            role = await ctx.guild.create_role(name=role_name, permissions=permissions)
             role.mentionable = True
+            
+            # Create category
+            category_name = categories[i]
+            category = await ctx.guild.create_category(category_name)
+            await category.set_permissions(ctx.guild.default_role, read_messages=False) # sets category to private
+            await category.set_permissions(role, read_messages=True) # allow role to see category
+            
+            # Create channels
+            channels = class_channels[i].split(",")
 
-    
-        # Just have a CS, CEG, EE array or something,
-        # if it has that in front of it, delete the role
-        # helps deal with persistent roles???
+            for channel in channels:
+                # Create text channel
+                if channel.startswith('#'):
+                    await category.create_text_channel(channel, topic=long_names[i])
+                # Create voice channel(s)
+                else:
+                    member_count, channel_name = channel.split('#')
+                    if member_count == 0:
+                        await category.create_voice_channel(channel_name)
+                    else:
+                        await category.create_voice_channel(channel_name, user_limit=int(member_count))
+
