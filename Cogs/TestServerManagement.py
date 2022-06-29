@@ -28,6 +28,7 @@ class TestServerManagement(commands.Cog):
         #destroy classes first here
         #check if built before first?
 
+        # Load roles csv
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         # If csv file attached, overwrite existing csv
@@ -92,3 +93,15 @@ class TestServerManagement(commands.Cog):
                     else:
                         await category.create_voice_channel(channel_name, user_limit=int(member_count))
 
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def destroyclasses(self, ctx):
+        """Destroy class channels
+        ETC
+        """
+
+# assuming they are built together and we can trust that, 
+# can delete roles and categories together, however,
+# when searching categories and roles, they will need to be searched separately
+# because the server/guild itself has different amounts to search through
