@@ -9,6 +9,8 @@ from discord.ext import commands
 from discord.utils import get
 # from discord_components import Button, ButtonStyle, InteractionType
 from utils import *
+from discord.ui import Button, View
+from discord import ButtonStyle
 
 async def setup(bot):
     await bot.add_cog(TestServerManagement(bot))
@@ -41,7 +43,10 @@ class TestServerManagement(commands.Cog):
                 missing_categories += f'{category_name}\n'
             else:
                 categories.append(category)
-        await ctx.send(missing_categories)
+
+        # only send if there are missing categories
+        if not len(categories) == len(category_names):
+            await ctx.send(missing_categories)
 
         return categories
 
@@ -68,7 +73,10 @@ class TestServerManagement(commands.Cog):
                 missing_roles += f'{role_name}\n'
             else:
                 roles.append(role)
-        await ctx.send(missing_roles)
+        
+        # only send if there are missing roles
+        if not len(roles) == len(role_names):
+            await ctx.send(missing_roles)
 
         return roles
 
@@ -146,7 +154,7 @@ class TestServerManagement(commands.Cog):
                         await category.create_voice_channel(channel_name)
                     else:
                         await category.create_voice_channel(channel_name, user_limit=int(member_count))
-        await ctx.send('All requested courses have been built!')
+        await ctx.send('***CATEGORIES AND ROLES HAVE BEEN BUILT***')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -203,8 +211,61 @@ class TestServerManagement(commands.Cog):
         for role in destroy_roles:
             await role.delete()
 
-        await ctx.send('All requested courses have been destroyed!')
-# assuming they are built together and we can trust that, 
-# can delete roles and categories together, however,
-# when searching categories and roles, they will need to be searched separately
-# because the server/guild itself has different amounts to search through
+        await ctx.send('***CATEGORIES AND ROLES HAVE BEEN DESTROYED***')
+
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def buildrolemenu(self, ctx):
+        """Creates role menus
+        #***EDIT????***
+        Read in a role csv from a cached file or attachment on command message
+        Try to figure out which channels to send each role button in
+        For those that can't be determined, ask for user input
+        Get confirmation before purging role selection channels
+        Create groupings of buttons to fit into a 5x5 grid, row major, left to right
+        Send button groups to appropriate channels
+        Save button group message ids to self.role_menus and file
+        """
+        csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
+
+        # If csv file attached, overwrite existing csv
+        if len(ctx.message.attachments) > 0:
+            try:
+                os.remove(csv_filepath)
+            except FileNotFoundError:
+                pass
+            await ctx.message.attachments[0].save(csv_filepath)
+
+        # Load roles csv
+        courses_df = pd.read_csv(csv_filepath)
+        role_names=courses_df["role/link"].to_list()
+        categories = courses_df["text"].to_list()
+
+        #* Create the course button and link it to the proper class role
+        for i in range(len(role_names)):
+            # Create buttons
+            role_name = role_names[i]
+
+
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def buildbutton(self, ctx):
+        """
+        Create buttons, Da
+        #? Return a button?
+        """
+
+        # Create label for button
+        label = "help me"
+        
+        # Create the button
+        test_but = Button(style=ButtonStyle.blurple, label=label)
+        
+        # Create a view to add the button to the message
+        this_view = View()
+        this_view.add_item(test_but)
+        
+        # Send the message
+        await ctx.send(view=this_view)
