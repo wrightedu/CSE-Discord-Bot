@@ -7,7 +7,7 @@ import pandas as pd
 import validators
 from discord.ext import commands
 # from discord_components import Button, ButtonStyle, InteractionType
-from utils import *
+from utils.utils import *
 
 
 async def setup(bot):

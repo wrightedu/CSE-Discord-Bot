@@ -8,9 +8,11 @@ import validators
 from discord.ext import commands
 from discord.utils import get
 # from discord_components import Button, ButtonStyle, InteractionType
-from utils import *
+from utils.utils import *
 from discord.ui import Button, View
 from discord import ButtonStyle
+
+from utils.buttons import Button
 
 async def setup(bot):
     await bot.add_cog(TestServerManagement(bot))
@@ -127,7 +129,6 @@ class TestServerManagement(commands.Cog):
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
         
-
         for i in range(len(role_names)):
             # Create roles
             role_name = role_names[i]
@@ -173,7 +174,6 @@ class TestServerManagement(commands.Cog):
             raise FileNotFoundError
 
         courses_df = courses_df.dropna(subset=['create_channels'])
-
 
         # List of names of categories to be destroyed, as determined by saved csv
         destroy_category_names = courses_df['text'].tolist()
@@ -257,15 +257,30 @@ class TestServerManagement(commands.Cog):
         #? Return a button?
         """
 
-        # Create label for button
-        label = "help me"
+        # # Create label for button
+        # label = "help me"
         
-        # Create the button
-        test_but = Button(style=ButtonStyle.blurple, label=label)
+        # # Create the button
+        # test_but = Button(style=ButtonStyle.gray, label=label)
         
-        # Create a view to add the button to the message
-        this_view = View()
-        this_view.add_item(test_but)
+        # # Create a view to add the button to the message
+        # this_view = View()
+        # this_view.add_item(test_but)
         
-        # Send the message
-        await ctx.send(view=this_view)
+        # # Send the message
+        # await ctx.send(view=this_view)
+
+        # await self.helloworld(ctx)
+
+        view=Button()
+        await ctx.send("This message has buttons!",view=view)
+
+    
+    @commands.Cog.listener()
+    async def on_button_clic(self, res):
+        #await interaction.response.edit_message(content=f"This is an edited button response!")
+        print("Hello world!")
+
+    @discord.ui.button(label="Button",style=discord.ButtonStyle.gray)
+    async def gray_button(self,button:discord.ui.Button,interaction:discord.Interaction):
+        await interaction.response.edit_message(content=f"This is an edited button response!")
