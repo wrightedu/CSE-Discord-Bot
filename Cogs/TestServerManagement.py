@@ -273,6 +273,12 @@ class TestServerManagement(commands.Cog):
         # await self.helloworld(ctx)
 
         view=Button()
+        #view.blurple_button()
+
+        quick_list = ["AHH", "dayn", "brain no work"]
+        view.list_test(quick_list)
+
+        # shows button to user
         await ctx.send("This message has buttons!",view=view)
 
     
