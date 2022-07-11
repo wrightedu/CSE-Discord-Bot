@@ -274,6 +274,10 @@ class TestServerManagement(commands.Cog):
 
         view=Button()
         #view.blurple_button()
+        for i in range(25):
+            this_button = discord.ui.Button(label="dontcry",style=discord.ButtonStyle.blurple)
+            this_button.callback = view.get_label
+            view.add_item(this_button)
 
         quick_list = ["AHH", "dayn", "brain no work"]
         view.list_test(quick_list)

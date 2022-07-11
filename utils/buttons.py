@@ -7,23 +7,22 @@ class Button(discord.ui.View):
     def __init__(self, *, timeout=180):
         super().__init__(timeout=timeout)
         
-    def get_label():
-        print("anything")
-        return "self.label"
+    async def get_label(self, interaction:discord.Interaction):
+        await interaction.response.send_message("banana?")
 
-    def list_test(self, list_name):
-        for x in self.children: # view elements, x is a button
-            button = x
-            button.label = "Label bro"
+    # def list_test(self, list_name):
+    #     for x in self.children: # view elements, x is a button
+    #         button = x
+    #         button.label = "Label"
     #     for element in list_name:
     #         print(element)
 
-    @discord.ui.button(label=get_label(),style=discord.ButtonStyle.blurple) # or .primary
-    async def blurple_button(self,interaction:discord.Interaction,button:discord.ui.Button):
-        button.style=discord.ButtonStyle.green
-        await interaction.response.edit_message(view=self)
-        print("hello")
-        print(self.label)
+    # @discord.ui.button(label="bananas",style=discord.ButtonStyle.blurple) # or .primary
+    # async def blurple_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+    #     button.style=discord.ButtonStyle.green
+    #     await interaction.response.edit_message(view=self)
+    #     print("hello")
+    #     print(self.label)
 
 
 # create button and add to view (build button method/command)
