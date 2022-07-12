@@ -12,7 +12,7 @@ from utils.utils import *
 from discord.ui import Button, View
 from discord import ButtonStyle
 
-from utils.buttons import Button
+from utils.rolebutton import RoleButton
 
 async def setup(bot):
     await bot.add_cog(TestServerManagement(bot))
@@ -213,84 +213,28 @@ class TestServerManagement(commands.Cog):
 
         await ctx.send('***CATEGORIES AND ROLES HAVE BEEN DESTROYED***')
 
-
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildrolemenu(self, ctx):
         """Creates role menus
-        #***EDIT????***
-        Read in a role csv from a cached file or attachment on command message
-        Try to figure out which channels to send each role button in
-        For those that can't be determined, ask for user input
-        Get confirmation before purging role selection channels
-        Create groupings of buttons to fit into a 5x5 grid, row major, left to right
-        Send button groups to appropriate channels
-        Save button group message ids to self.role_menus and file
+        Uses role_lists to generate a role menu consisting of RoleButtons
         """
+
+        # finds csv and extracts appropriate columns using a dataframe
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
-
-        # If csv file attached, overwrite existing csv
-        if len(ctx.message.attachments) > 0:
-            try:
-                os.remove(csv_filepath)
-            except FileNotFoundError:
-                pass
-            await ctx.message.attachments[0].save(csv_filepath)
-
-        # Load roles csv
         courses_df = pd.read_csv(csv_filepath)
+        short_names = courses_df["text"].to_list()
+        long_names = courses_df["long_name"].to_list()
         role_names=courses_df["role/link"].to_list()
-        categories = courses_df["text"].to_list()
 
-        #* Create the course button and link it to the proper class role
+        # adds RoleButtons to a view with custom attributes and sends it to chat
+        view = View() # a visual discord container for graphical components
         for i in range(len(role_names)):
-            # Create buttons
-            role_name = role_names[i]
-
-
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def buildbutton(self, ctx):
-        """
-        Create buttons, Da
-        #? Return a button?
-        """
-
-        # # Create label for button
-        # label = "help me"
-        
-        # # Create the button
-        # test_but = Button(style=ButtonStyle.gray, label=label)
-        
-        # # Create a view to add the button to the message
-        # this_view = View()
-        # this_view.add_item(test_but)
-        
-        # # Send the message
-        # await ctx.send(view=this_view)
-
-        # await self.helloworld(ctx)
-
-        view=Button()
-        #view.blurple_button()
-        for i in range(25):
-            this_button = discord.ui.Button(label="dontcry",style=discord.ButtonStyle.blurple)
-            this_button.callback = view.get_label
+            if i % 25 == 0 and i != 0: # limit of 25 components per view
+                await ctx.send(view=view)
+                view=View()
+            this_button = RoleButton(button_name=f"{short_names[i]} - {long_names[i]}", role_name=role_names[i])
+            this_button.callback = this_button.on_click
             view.add_item(this_button)
 
-        quick_list = ["AHH", "dayn", "brain no work"]
-        view.list_test(quick_list)
-
-        # shows button to user
-        await ctx.send("This message has buttons!",view=view)
-
-    
-    @commands.Cog.listener()
-    async def on_button_clic(self, res):
-        #await interaction.response.edit_message(content=f"This is an edited button response!")
-        print("Hello world!")
-
-    @discord.ui.button(label="Button",style=discord.ButtonStyle.gray)
-    async def gray_button(self,button:discord.ui.Button,interaction:discord.Interaction):
-        await interaction.response.edit_message(content=f"This is an edited button response!")
+        await ctx.send(view=view)
