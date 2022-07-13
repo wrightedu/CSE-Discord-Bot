@@ -14,5 +14,8 @@ class Listeners(commands.Cog):
     async def on_message(self, ctx):
         """Any time anyone sends a message in #i-made-a-pr, react with the poop emoji
         """
-        if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
-            await ctx.add_reaction("💩")
+
+        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
+        if ctx.channel.type == discord.TextChannel:
+            if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
+                await ctx.add_reaction("💩")

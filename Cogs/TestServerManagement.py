@@ -228,11 +228,12 @@ class TestServerManagement(commands.Cog):
         role_names=courses_df["role/link"].to_list()
 
         # adds RoleButtons to a view with custom attributes and sends it to chat
-        view = View() # a visual discord container for graphical components
+        # make sure to give the timeout None in order to keep the buttons working for all semester
+        view = View(timeout=None) # a visual discord container for graphical components
         for i in range(len(role_names)):
             if i % 25 == 0 and i != 0: # limit of 25 components per view
                 await ctx.send(view=view)
-                view=View()
+                view=View(timeout=None)
             this_button = RoleButton(button_name=f"{short_names[i]} - {long_names[i]}", role_name=role_names[i])
             this_button.callback = this_button.on_click
             view.add_item(this_button)

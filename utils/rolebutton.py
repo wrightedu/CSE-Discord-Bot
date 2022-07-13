@@ -14,7 +14,7 @@ class RoleButton(Button):
         role = get(interaction.guild.roles, name=self.role_name)
         if role in interaction.user.roles:
             await interaction.user.remove_roles(role)
-            await interaction.response.send_message(f"The {role.name} role has been removed.", ephemeral=True)
+            await interaction.response.send_message(f"The {role.name} role has been removed from you.", ephemeral=True)
         else:
             await interaction.user.add_roles(role)
-            await interaction.response.send_message(f"The {role.name} role has been added.", ephemeral=True)
+            await interaction.response.send_message(f"The {role.name} role has been given to you.", ephemeral=True)
