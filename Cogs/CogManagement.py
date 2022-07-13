@@ -27,6 +27,7 @@ class CogManagement(commands.Cog):
 
         await ctx.send(f'Loading {cog_name}')
         await self.bot.load_extension(f'Cogs.{cog_name}')
+        await ctx.send(f'Cog {cog_name} has been loaded')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -45,6 +46,7 @@ class CogManagement(commands.Cog):
 
         await ctx.send(f'Reloading {cog_name}')
         await self.bot.reload_extension(f'Cogs.{cog_name}')
+        await ctx.send(f'Cog {cog_name} has been reloaded')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -64,3 +66,4 @@ class CogManagement(commands.Cog):
         if cog_name != 'CogManagement':
             await ctx.send(f'Unloading {cog_name}')
             await self.bot.unload_extension(f'Cogs.{cog_name}')
+            await ctx.send(f'Cog {cog_name} has been unloaded')
