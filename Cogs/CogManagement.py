@@ -1,5 +1,6 @@
 from discord.ext import commands
 from utils import *
+from os.path import exists, abspath
 
 
 async def setup(bot):
@@ -22,12 +23,20 @@ class CogManagement(commands.Cog):
             cog_name (str): Name of the cog being loaded
 
         Outputs:
-            Message to user informing them of what cog is being loaded.
+            Message to user informing them of what cog is being loaded, and when the action is done.
         """
+        # Finds the absolute path to the cog that will be loaded
+        file = abspath('Cogs/' + cog_name + '.py')
 
-        await ctx.send(f'Loading {cog_name}')
-        await self.bot.load_extension(f'Cogs.{cog_name}')
-        await ctx.send(f'Cog {cog_name} has been loaded')
+        # If the file exists it loads the cog
+        if exists(file):
+            await ctx.send(f'Loading {cog_name}')
+            await self.bot.load_extension(f'Cogs.{cog_name}')
+            await ctx.send(f'Cog {cog_name} has been loaded')
+            await log(self.bot, f'{ctx.author} loaded the {cog_name} cog.')
+        else:
+            await ctx.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await log(self.bot, f'{ctx.author} attempted to reload the {cog_name} cog, but failed.')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -41,12 +50,21 @@ class CogManagement(commands.Cog):
             cog_name (str): Name of the cog that will be reloaded
 
         Outputs:
-            Message to user informing them of what cog is being restarted.
+            Message to user informing them of what cog is being restarted, and when the action is done.
         """
 
-        await ctx.send(f'Reloading {cog_name}')
-        await self.bot.reload_extension(f'Cogs.{cog_name}')
-        await ctx.send(f'Cog {cog_name} has been reloaded')
+        # Finds the absolute path to the cog that will be reloaded
+        file = abspath('Cogs/' + cog_name + '.py')
+
+        # If the file exists it reloads the cog
+        if exists(file):
+            await ctx.send(f'Reloading {cog_name}')
+            await self.bot.reload_extension(f'Cogs.{cog_name}')
+            await ctx.send(f'Cog {cog_name} has been reloaded')
+            await log(self.bot, f'{ctx.author} reloaded the {cog_name} cog.')
+        else:
+            await ctx.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await log(self.bot, f'{ctx.author} attempted to reload the {cog_name} cog, but failed.')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -60,10 +78,19 @@ class CogManagement(commands.Cog):
             cog_name (str): Name of the cog being unloaded
 
         Outputs:
-            Message to user informing them of what cog is being unloaded.
+            Message to user informing them of what cog is being unloaded, and when the action is done.
         """
-        
-        if cog_name != 'CogManagement':
-            await ctx.send(f'Unloading {cog_name}')
-            await self.bot.unload_extension(f'Cogs.{cog_name}')
-            await ctx.send(f'Cog {cog_name} has been unloaded')
+
+        # Finds the absolute path to the cog that will be unloaded
+        file = abspath('Cogs/' + cog_name + '.py')
+
+        # If the file exists it unloads the cog
+        if exists(file):
+            if cog_name != 'CogManagement':
+                await ctx.send(f'Unloading {cog_name}')
+                await self.bot.unload_extension(f'Cogs.{cog_name}')
+                await ctx.send(f'Cog {cog_name} has been unloaded')
+                await log(self.bot, f'{ctx.author} unloaded the {cog_name} cog.')
+        else:
+            await ctx.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await log(self.bot, f'{ctx.author} attempted to unload the {cog_name} cog, but failed.')
