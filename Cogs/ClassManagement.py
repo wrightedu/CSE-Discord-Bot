@@ -7,7 +7,6 @@ import pandas as pd
 import validators
 from discord.ext import commands
 from discord.utils import get
-# from discord_components import Button, ButtonStyle, InteractionType
 from utils.utils import *
 from discord.ui import Button, View
 from discord import ButtonStyle
@@ -15,10 +14,10 @@ from discord import ButtonStyle
 from utils.rolebutton import RoleButton
 
 async def setup(bot):
-    await bot.add_cog(TestServerManagement(bot))
+    await bot.add_cog(ClassManagement(bot))
 
 
-class TestServerManagement(commands.Cog):
+class ClassManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -86,11 +85,16 @@ class TestServerManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def buildcourses(self, ctx):
         """Create class channels
-        ETC
+
+        Try to destroy old class channels (calls on destroycourses)
+        Read in role csv from cached file or from attachment on discord message
+        Get confirmation from author
+        Create all categories, channels, and roles
+        Call command to create role menus
         """
 
         #destroy classes first here
-        #check if built before first?
+        await self.destroycourses(ctx)
 
         # Load roles csv
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
@@ -108,7 +112,6 @@ class TestServerManagement(commands.Cog):
 
         courses_df = courses_df.dropna(subset=['create_channels'])
 
-        #? TODO Build all channels
         role_names=courses_df["role/link"].to_list()
         class_channels = courses_df["create_channels"].to_list()
         categories = courses_df["text"].to_list()
@@ -124,7 +127,6 @@ class TestServerManagement(commands.Cog):
         if not await confirmation(self.bot, ctx, 'build'):
             return
         
-        #TODO: re-evalate permissions?
         permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
@@ -138,8 +140,8 @@ class TestServerManagement(commands.Cog):
             # Create category
             category_name = categories[i]
             category = await ctx.guild.create_category(category_name)
-            await category.set_permissions(ctx.guild.default_role, read_messages=False) # sets category to private
-            await category.set_permissions(role, read_messages=True) # allow role to see category
+            await category.set_permissions(ctx.guild.default_role, read_messages=False)      # sets category to private
+            await category.set_permissions(role, read_messages=True)        # allow role to see category
             
             # Create channels
             channels = class_channels[i].split(",")
@@ -161,7 +163,14 @@ class TestServerManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def destroycourses(self, ctx):
         """Destroy course channels
-        ETC
+
+        Try loading in cached classlist csv
+        Create list of all channels to be deleted, send to author
+        Get confirmation from author
+        Delete all listed categories and channels
+        Create list of all roles to be deleted, send to author
+        Get confirmation from author
+        Delete all listed roles
         """
 
         # Load roles csv
@@ -173,6 +182,7 @@ class TestServerManagement(commands.Cog):
         except FileNotFoundError:
             raise FileNotFoundError
 
+        # drop cross-listed courses (and other roles if on the file)
         courses_df = courses_df.dropna(subset=['create_channels'])
 
         # List of names of categories to be destroyed, as determined by saved csv
@@ -217,7 +227,10 @@ class TestServerManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def buildrolemenu(self, ctx):
         """Creates role menus
-        Uses role_lists to generate a role menu consisting of RoleButtons
+
+        find csv and extracts columns needed through a panda dataframe
+        create the buttons and put them in a view
+        aka the role menu, and send to user
         """
 
         # finds csv and extracts appropriate columns using a dataframe
@@ -229,9 +242,9 @@ class TestServerManagement(commands.Cog):
 
         # adds RoleButtons to a view with custom attributes and sends it to chat
         # make sure to give the timeout None in order to keep the buttons working for all semester
-        view = View(timeout=None) # a visual discord container for graphical components
+        view = View(timeout=None)           # a visual discord container for graphical components
         for i in range(len(role_names)):
-            if i % 25 == 0 and i != 0: # limit of 25 components per view
+            if i % 25 == 0 and i != 0:          # limit of 25 components per view
                 await ctx.send(view=view)
                 view=View(timeout=None)
             this_button = RoleButton(button_name=f"{short_names[i]} - {long_names[i]}", role_name=role_names[i])
@@ -239,3 +252,5 @@ class TestServerManagement(commands.Cog):
             view.add_item(this_button)
 
         await ctx.send(view=view)
+
+
