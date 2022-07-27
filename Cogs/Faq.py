@@ -1,4 +1,5 @@
 from pathlib import Path
+import pandas as pd
 
 from discord.ext import commands
 from utils import *
@@ -14,7 +15,6 @@ async def setup(bot):
             for channel_name in f:
                 channel_name = channel_name.strip()
                 channel_names.append(channel_name)
-        print(channel_names)
     # initialize cog with no file
     else:
         print("Channels file for faq command does not exist.")
@@ -40,7 +40,15 @@ class Faq(commands.Cog):
 
             # If there is a ? in the content reply "That looks interesting" and break out of the loop
             if '?' in message.content:
-                await message.reply("Your question has been noted. Thank you for helping us test the bot!")
+                faq_path = f"dummy-questions.csv"
+                df = pd.read_csv(faq_path)
+                questions = df["questions"].to_list()
+
+                if message.content in questions:
+                    answer = df.loc[df['questions'] == message.content,"answers"].values[0]
+
+                await message.reply(f"Your question is as follows: '{message.content}'")
+                await message.reply(answer)
                 # better response and @Wischgoll for advice
     
     @commands.command()
