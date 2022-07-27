@@ -1,10 +1,6 @@
 from discord.ext import commands
-<<<<<<< HEAD
-from utils.utils import *
-=======
 from utils import *
 from discord import app_commands
->>>>>>> development
 
 async def setup(bot:commands.Bot):
     await bot.add_cog(CogManagement(bot))

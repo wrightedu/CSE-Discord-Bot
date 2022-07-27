@@ -5,13 +5,8 @@ import re
 
 import discord
 from discord.ext import commands
-<<<<<<< HEAD
-from discord import MessageType
-from utils.utils import *
-=======
 from discord import MessageType, app_commands
 from utils import *
->>>>>>> development
 
 
 async def setup(bot:commands.Bot):
