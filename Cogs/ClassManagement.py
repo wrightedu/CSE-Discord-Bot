@@ -10,8 +10,10 @@ from discord.utils import get
 from utils.utils import *
 from discord.ui import Button, View
 from discord import ButtonStyle
-
 from utils.rolebutton import RoleButton
+
+from utils.utils import *
+from discord import app_commands
 
 async def setup(bot):
     await bot.add_cog(ClassManagement(bot))
@@ -127,6 +129,7 @@ class ClassManagement(commands.Cog):
         if not await confirmation(self.bot, ctx, 'build'):
             return
         
+        #TODO: for future, re-evalate what permissions are needed?
         permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
@@ -223,6 +226,7 @@ class ClassManagement(commands.Cog):
 
         await ctx.send('***CATEGORIES AND ROLES HAVE BEEN DESTROYED***')
 
+    #TODO: Have the role menus built into their proper channels
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildrolemenu(self, ctx):
@@ -253,4 +257,32 @@ class ClassManagement(commands.Cog):
 
         await ctx.send(view=view)
 
+    @app_commands.command(description="add a role and have a button for it")
+    @app_commands.default_permissions(administrator=True)
+    async def createrolebutton(self, interaction:discord.Interaction, role:str, button:str):
+        """Creates role menus
 
+        take in user input for what button and role to create
+        create the role given (if it doesn't already exist)
+        create the button and put it in a view
+        aka the role menu, and send to user
+        """
+
+        # create the permissions for the role
+        permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
+                attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
+                stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+
+        # create the role
+        #TODO: check to see if the role already exists
+        the_role = await interaction.guild.create_role(name=role, permissions=permissions)
+        the_role.mentionable = True
+        
+        # create the button
+        view = View(timeout=None)       # keeps buttons from disappearing
+        this_button = RoleButton(button_name=button, role_name=role)
+        this_button.callback = this_button.on_click
+        view.add_item(this_button)
+
+        # send to user
+        await interaction.response.send_message(view=view)
