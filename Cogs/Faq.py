@@ -28,27 +28,28 @@ class Faq(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        """Responds to messages with `?` in them
+        Listens to messages in faq enabled channels.
+        If a `?` is present, responds with the users original question.
+        Responds with the sample question and appropriate answer if a keyword is detected as well.
         """
-        Listens to every message, responds if there is a '?' and the channel has been FAQ enabled
-        """
-        # If the author is a bot return
         if message.author.bot:
             return
 
-        # Checks if the channel is a requested faq channel
         if message.channel.name in self.channel_names:
-
-            # If there is a ? in the content reply "That looks interesting" and break out of the loop
             if '?' in message.content:
-                faq_path = f"dummy-questions.csv"
+                faq_path = f"sample-FAQ.csv"
                 df = pd.read_csv(faq_path)
-                questions = df["questions"].to_list()
-
-                if message.content in questions:
-                    answer = df.loc[df['questions'] == message.content,"answers"].values[0]
+                keywords = df["keywords"].to_list()
+                message.content = message.content.replace("?", "") # may need to strip whitespace
 
                 await message.reply(f"Your question is as follows: '{message.content}'")
-                await message.reply(answer)
+
+                if message.content in keywords:
+                    question = df.loc[df['keywords'] == message.content,"questions"].values[0]
+                    answer = df.loc[df['keywords'] == message.content,"answers"].values[0]
+                    await message.reply(question)
+                    await message.reply(answer)
                 # better response and @Wischgoll for advice
     
     @commands.command()

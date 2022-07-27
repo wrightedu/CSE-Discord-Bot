@@ -52,15 +52,19 @@ In the graduate programs, you can replace up to two (2) grades entirely by retak
 
 
 ####What is the minimum number of credit hours I need to register as a graduate student?
+
 In order to be considered a full-time student at the graduate level, you need to register for at least six (6) credit hours. A half-time student only needs to register for three (3) credit hours. Additional information can be found here: https://www.wright.edu/raiderconnect/financial-aid/eligibility
 
 
 ####I am an international student and will be arriving late for the semester. What do I need to do?
+
 This could be an issue if you will be arriving late for classes more than a week. Depending on the policy the instructors of your classes apply, you could run into problems there. So we stronly discourage late arrivals if at all possible. As an international student, you will have to fill out a form for late arrival with UCIE: https://www.wright.edu/international-education/international-students/forms
 
 ####What are the language requirements for students whose native is not English?
+
 If your native language is not English and you do not have a degree from a regionally accredited U.S. college or university, you must have a minimum score on one of the following exams: a score of 79/120 on the Test of English as a Foreign Language (T.O.E.F.L.), a band 6 or higher through the International English Language Testing System (IELTS), or a  score of 57 or higher on the Pearson PTE. If you have graduated from a school in a country where English is the official language for higher education, you will not be required to demonstrate English proficiency.
 
 ####What are the current tuition and fees at Wright State?
+
 You can find the most current information on tuition and fees on Wright State's web site: https://www.wright.edu/raiderconnect/accounts-and-bills/tuition-and-fees
 
