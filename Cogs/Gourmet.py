@@ -3,6 +3,7 @@ import sys
 from time import sleep
 import re
 import random
+import copy
 
 from discord.ui import View, Button
 from discord.ext import commands
@@ -16,23 +17,37 @@ async def setup(bot):
 class Gourmet(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # count = 0
         self.normal_restaurant = []
         self.vegan_restaurant = []
+        try:
+            with open('assets/restaurants.txt') as f:
+                for line in f:
+                    line = line.strip()
+                    if not self.normal_restaurant:
+                        self.normal_restaurant = line.split(', ')
+                    else:
+                        self.vegan_restaurant = line.split(', ')
+        except FileNotFoundError:
+            print('Error: assets/restaurants.txt was not found on local machine.')
+
 
     # Menu that extends from a View
     class GourmetMenu(View):
         def __init__(self, *, cog, timeout=180):
             super().__init__(timeout=timeout)
-            self.cog = cog
-            random.shuffle(cog.normal_restaurant)
-            random.shuffle(cog.vegan_restaurant)
+            # self.cog = cog
+            self.normal_restaurant = copy.deepcopy(cog.normal_restaurant)
+            self.vegan_restaurant = copy.deepcopy(cog.vegan_restaurant)
+            random.shuffle(self.normal_restaurant)
+            random.shuffle(self.vegan_restaurant)
 
 
         # Returns a random restaurant
         @discord.ui.button(label="Random",style=discord.ButtonStyle.blurple,emoji='\U0001F3B1')
         async def random(self,interaction:discord.Interaction,button:discord.ui.Button):
-            if not len(self.cog.normal_restaurant) == 0:
-                await interaction.response.send_message(self.cog.normal_restaurant.pop())
+            if not len(self.normal_restaurant) == 0:
+                await interaction.response.send_message(self.normal_restaurant.pop())
             else:
                 await interaction.response.send_message('You have run out of restaurants. You are going to arbys.')
         
@@ -50,11 +65,11 @@ class Gourmet(commands.Cog):
 
             # Turning the message to lowercase and appending it
             msg.content = msg.content.casefold()
-            for rest in self.cog.normal_restaurant:
+            for rest in self.normal_restaurant:
                 if msg.content == rest.casefold():
                     await interaction.message.reply(f'Error: {msg.content} already is in the restaurant list.')
                     return
-            self.cog.normal_restaurant.append(msg.content)
+            self.normal_restaurant.append(msg.content)
 
         # Removes a restaurant from a list
         @discord.ui.button(label="Remove Restaurant",style=discord.ButtonStyle.red)
@@ -72,37 +87,22 @@ class Gourmet(commands.Cog):
             msg.content = msg.content.casefold()
 
             # If the restaurant is not in the list it responds with an error
-            for rest in self.cog.normal_restaurant:
+            for rest in self.normal_restaurant:
                 if msg.content == rest.casefold():
-                    self.cog.normal_restaurant.remove(rest)
+                    self.normal_restaurant.remove(rest)
                     return
             await interaction.message.reply(content=f'Error: {msg.content} is not in the list.')
         
         # Returns a random vegan restaurant
         @discord.ui.button(label="Vegan",style=discord.ButtonStyle.blurple,emoji='\U0001F96C')
         async def vegan(self,interaction:discord.Interaction,button:discord.ui.Button):
-            if not len(self.cog.vegan_restaurant) == 0:
-                await interaction.response.send_message(self.cog.vegan_restaurant.pop())
+            if not len(self.vegan_restaurant) == 0:
+                await interaction.response.send_message(self.vegan_restaurant.pop())
             else:
                 await interaction.response.send_message('You have run out of restaurants. You are going to arbys.')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def feedme(self, ctx):
-        self.normal_restaurant = []
-        self.vegan_restaurant = []
-        try:
-            # Populating normal and vegan restaurants
-            # Plans to change this in the future
-            with open('assets/restaurants.txt', 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if not self.normal_restaurant:
-                        self.normal_restaurant = line.split(sep=', ')
-                    else:
-                        self.vegan_restaurant = line.split(sep=', ')
-        except FileNotFoundError:
-            await ctx.send('Error: assets/restaurants.txt does not exist.')
-            await log(self.bot, f'{ctx.author} tried running /feedMe but failed. The restaurants.txt file did not exist on their local machine.')
         await ctx.send(view=self.GourmetMenu(cog=self))
         await log(self.bot, f'{ctx.author} ran /feedMe in `#{ctx.channel}`')
