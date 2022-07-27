@@ -12,7 +12,7 @@ from discord.ui import Button, View
 from discord import ButtonStyle
 from utils.rolebutton import RoleButton
 
-from utils import *
+from utils.utils import *
 from discord import app_commands
 
 async def setup(bot):
@@ -297,47 +297,32 @@ class ClassManagement(commands.Cog):
         await ctx.send(view=view)
 
 
-    # @app_commands.command(description="add another role")
-    # @app_commands.default_permissions(administrator=True)
-    # async def createrolebutton(self, ctx, interaction:discord.Interaction):
-    #     """An example slash command
-    #     This command can only be executed by those with admin permissions.
+    @app_commands.command(description="add another role")
+    @app_commands.default_permissions(administrator=True)
+    async def createrolebutton(self, interaction:discord.Interaction, role:str, button:str):
+        """Creates role menus
+
+        take in user input for what button and role to create
+        create the role given (if it doesn't already exist)
+        create the button and put it in a view
+        aka the role menu, and send to user
+        """
+
+        # create the permissions for the role
+        permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
+                attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
+                stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+
+        # create the role
+        #TODO: check to see if the role already exists
+        the_role = await interaction.guild.create_role(name=role, permissions=permissions)
+        the_role.mentionable = True
         
-    #     Outputs:
-    #         Message to user confirming execution.
-    #     """
+        # create the button
+        view = View(timeout=None)       # keeps buttons from disappearing
+        this_button = RoleButton(button_name=button, role_name=role)
+        this_button.callback = this_button.on_click
+        view.add_item(this_button)
 
-    #     """Creates role menus
-
-    #     take in user input for what button and role to create
-    #     create the role given (if it doesn't already exist)
-    #     create the button and put it in a view
-    #     aka the role menu, and send to user
-    #     """
-
-    #     permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
-    #             attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
-    #             stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
-
-    #     # get user input for what the role should be
-    #     # await ctx.send(f'What role would you like to create?')
-    #     role = "rolling"
-        
-    #     # create the role
-    #     #TODO: check to see if the role already exists
-    #     the_role = await ctx.guild.create_role(name=role.content, permissions=permissions)
-    #     the_role.mentionable = True
-
-    #     # ask name for the button
-    #     await ctx.send(f'What should the button be called?')
-    #     button = "role - rolling"
-    #     view = View(timeout=None)       # keeps buttons from disappearing
-
-    #     # create button
-    #     this_button = RoleButton(button_name=button.content, role_name=role.content)
-    #     this_button.callback = this_button.on_click
-    #     view.add_item(this_button)
-
-    #     # send to user
-    #     return await ctx.send(view=view)
-    #     #return await interaction.response.send_message("Hiiiiiiii, CogManage")
+        # send to user
+        await interaction.response.send_message(view=view)

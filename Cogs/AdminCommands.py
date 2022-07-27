@@ -3,10 +3,9 @@ import sys
 from time import sleep
 import re
 
-import discord
 from discord.ext import commands
 from discord import MessageType, app_commands
-from utils import *
+from utils.utils import *
 
 
 async def setup(bot:commands.Bot):
