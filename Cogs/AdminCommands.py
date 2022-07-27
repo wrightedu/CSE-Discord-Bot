@@ -4,13 +4,12 @@ from time import sleep
 import re
 
 from discord.ext import commands
-from discord import MessageType
+from discord import MessageType, app_commands
 from utils.utils import *
 
 
-async def setup(bot):
+async def setup(bot:commands.Bot):
     await bot.add_cog(AdminCommands(bot))
-
 
 class AdminCommands(commands.Cog):
     def __init__(self, bot):
@@ -172,7 +171,6 @@ class AdminCommands(commands.Cog):
             await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
             if not await confirmation(self.bot, ctx, confirm_string="yes"):
                 return
-
         that_day = months_ago(4)
         
         history_file = open("/tmp/history.txt", "w")
@@ -318,3 +316,13 @@ class AdminCommands(commands.Cog):
         if await confirmation(self.bot, ctx):
             await ctx.send('Stopping...')
             exit(0)
+
+    @app_commands.command(description="Sending a message")
+    async def sendmessage_admincom(self, interaction:discord.Interaction):
+        """An example slash command
+        This command can be executed by anyone.
+        
+        Outputs:
+            Message to user confirming execution.
+        """
+        return await interaction.response.send_message("Hiiiiiiii, AdminCom")
