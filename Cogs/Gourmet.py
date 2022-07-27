@@ -47,9 +47,9 @@ class Gourmet(commands.Cog):
         @discord.ui.button(label="Random",style=discord.ButtonStyle.blurple,emoji='\U0001F3B1')
         async def random(self,interaction:discord.Interaction,button:discord.ui.Button):
             if not len(self.normal_restaurant) == 0:
-                await interaction.response.send_message(self.normal_restaurant.pop())
+                await interaction.response.edit_message(content='**' + self.normal_restaurant.pop() + '**', view=self)
             else:
-                await interaction.response.send_message('You have run out of restaurants. You are going to arbys.')
+                await interaction.response.edit_message(content='**__You have run out of restaurants. You are going to arbys.__**', view=self)
         
         # Adds a restaurant to a list
         @discord.ui.button(label="Add Restaurant",style=discord.ButtonStyle.green)
@@ -58,7 +58,7 @@ class Gourmet(commands.Cog):
             # This must be here because of the user response
             # If the user response is before this it would show "interaction failed"
             # The interaction has not really failed however it hasnt happened quick enough.
-            await interaction.response.send_message(f'Enter a restaurant to add to the list.')
+            await interaction.response.edit_message(content='**__Enter a restaurant to add to the list.__**', view=self)
 
             # Waiting for the user's response (with interactions!)
             msg = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
@@ -67,7 +67,7 @@ class Gourmet(commands.Cog):
             msg.content = msg.content.casefold()
             for rest in self.normal_restaurant:
                 if msg.content == rest.casefold():
-                    await interaction.message.reply(f'Error: {msg.content} already is in the restaurant list.')
+                    await interaction.message.edit(content=f'**__Error: {msg.content} already is in the restaurant list.__**', view=self)
                     return
             self.normal_restaurant.append(msg.content)
 
@@ -78,7 +78,7 @@ class Gourmet(commands.Cog):
             # This must be here because of the user response
             # If the user response is before this it would show "interaction failed"
             # The interaction has not really failed however it hasnt happened quick enough.
-            await interaction.response.send_message(content=f'Enter a restaurant to remove from the list.')
+            await interaction.response.edit_message(content=f'**__Enter a restaurant to remove from the list.__**', view=self)
 
             # Waiting for the user's response (with interactons!)
             msg = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
@@ -91,15 +91,15 @@ class Gourmet(commands.Cog):
                 if msg.content == rest.casefold():
                     self.normal_restaurant.remove(rest)
                     return
-            await interaction.message.reply(content=f'Error: {msg.content} is not in the list.')
+            await interaction.message.edit(content=f'**__Error: {msg.content} is not in the list.__**', view=self)
         
         # Returns a random vegan restaurant
         @discord.ui.button(label="Vegan",style=discord.ButtonStyle.blurple,emoji='\U0001F96C')
         async def vegan(self,interaction:discord.Interaction,button:discord.ui.Button):
             if not len(self.vegan_restaurant) == 0:
-                await interaction.response.send_message(self.vegan_restaurant.pop())
+                await interaction.response.edit_message(content='**' + self.vegan_restaurant.pop() + '**', view=self)
             else:
-                await interaction.response.send_message('You have run out of restaurants. You are going to arbys.')
+                await interaction.response.edit_message(content='**__You have run out of restaurants. You are going to arbys.__**', view=self)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
