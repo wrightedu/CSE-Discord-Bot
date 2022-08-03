@@ -116,12 +116,12 @@ class ClassManagement(commands.Cog):
 
         role_names=courses_df["role/link"].to_list()
         class_channels = courses_df["create_channels"].to_list()
-        categories = courses_df["text"].to_list()
+        category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
 
         # Print to user list of channels to build
         message = '__**CREATE FOLLOWING CATEGORIES**__\n'
-        for category_name in categories:
+        for category_name in category_names:
             message += f'{category_name}\n'
         await ctx.send(message)
 
@@ -141,7 +141,7 @@ class ClassManagement(commands.Cog):
             role.mentionable = True
             
             # Create category
-            category_name = categories[i]
+            category_name = category_names[i]
             category = await ctx.guild.create_category(category_name)
             await category.set_permissions(ctx.guild.default_role, read_messages=False)      # sets category to private
             await category.set_permissions(role, read_messages=True)        # allow role to see category
@@ -189,8 +189,8 @@ class ClassManagement(commands.Cog):
         courses_df = courses_df.dropna(subset=['create_channels'])
 
         # List of names of categories to be destroyed, as determined by saved csv
-        destroy_category_names = courses_df['text'].tolist()
-        destroy_categories = await self.get_category(ctx, destroy_category_names)
+        category_names = courses_df['text'].tolist()
+        categories = await self.get_category(ctx, category_names)
 
         # List of names of role to be destroyed, as determined by saved csv
         destroy_role_names = courses_df['role/link'].tolist()
@@ -198,8 +198,8 @@ class ClassManagement(commands.Cog):
         
 
         message = '__**DESTROY FOLLOWING CATEGORIES**__\n'
-        if len(destroy_categories):
-            for category in destroy_categories:
+        if len(categories):
+            for category in categories:
                 message += f'{category.name}\n'
         else:
             message += f'NO CATEGORIES FOUND\n'
@@ -216,7 +216,7 @@ class ClassManagement(commands.Cog):
             return
         
         # Destroy categories and all subchannels
-        for category in destroy_categories:
+        for category in categories:
             for channel in category.channels:
                 await channel.delete()
             await category.delete()
@@ -229,33 +229,46 @@ class ClassManagement(commands.Cog):
     #TODO: Have the role menus built into their proper channels
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def buildrolemenu(self, ctx):
+    async def buildrolemenu(self, ctx, prefix=''):
         """Creates role menus
+
+        Args:
+            prefix (str): extracts courses of a major from the csv and sends their buttons to the proper channel
 
         find csv and extracts columns needed through a panda dataframe
         create the buttons and put them in a view
-        aka the role menu, and send to user
+        aka the role menu, and send them to the proper channel
         """
 
+        # check for prefix (base case)
+        #TODO logging for
+        if prefix == '':
+            await ctx.send("no prefix")
+            return
+        
         # finds csv and extracts appropriate columns using a dataframe
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
         courses_df = pd.read_csv(csv_filepath)
-        short_names = courses_df["text"].to_list()
+        category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
         role_names=courses_df["role/link"].to_list()
 
         # adds RoleButtons to a view with custom attributes and sends it to chat
         # make sure to give the timeout None in order to keep the buttons working for all semester
+        channel_name = f'{prefix.lower()}-class-selection'
+        channel = await get_channel_named(ctx.guild, channel_name)
         view = View(timeout=None)           # a visual discord container for graphical components
         for i in range(len(role_names)):
-            if i % 25 == 0 and i != 0:          # limit of 25 components per view
-                await ctx.send(view=view)
-                view=View(timeout=None)
-            this_button = RoleButton(button_name=f"{short_names[i]} - {long_names[i]}", role_name=role_names[i])
-            this_button.callback = this_button.on_click
-            view.add_item(this_button)
+            if re.match(prefix, category_names[i]):         # make sure prefix matches
+                if len(view.children) % 25 == 0 and len(view.children) != 0:          # limit of 25 components per view
+                    await channel.send(view=view)
+                    view=View(timeout=None)
+                this_button = RoleButton(button_name=f"{category_names[i]} - {long_names[i]}", role_name=role_names[i])
+                this_button.callback = this_button.on_click
+                view.add_item(this_button)
 
-        await ctx.send(view=view)
+        await channel.send(view=view)
+        #TODO if children== 0, send message saying it's empty
 
     @app_commands.command(description="add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
@@ -285,4 +298,5 @@ class ClassManagement(commands.Cog):
         view.add_item(this_button)
 
         # send to user
-        await interaction.response.send_message(view=view)
+        # await interaction.response.send_message(view=view)
+        await interaction.channel.send(view=view)
