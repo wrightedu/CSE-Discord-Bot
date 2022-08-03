@@ -241,9 +241,9 @@ class ClassManagement(commands.Cog):
         """
 
         # check for prefix (base case)
-        #TODO logging for
         if prefix == '':
-            await ctx.send("no prefix")
+            await log(self.bot, f'{ctx.author} attempted running `buildrolemenu`, however a prefix was not entered')
+            await ctx.send('Please add a prefix for what courses you need buttons for. Please try again.')
             return
         
         # finds csv and extracts appropriate columns using a dataframe
@@ -266,13 +266,14 @@ class ClassManagement(commands.Cog):
                 this_button = RoleButton(button_name=f"{category_names[i]} - {long_names[i]}", role_name=role_names[i])
                 this_button.callback = this_button.on_click
                 view.add_item(this_button)
-
+        if not len(view.children):
+            await ctx.send('No buttons were built. Please check your prefix')
+            return
         await channel.send(view=view)
-        #TODO if children== 0, send message saying it's empty
 
     @app_commands.command(description="add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
-    async def createrolebutton(self, interaction:discord.Interaction, role:str, button:str):
+    async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str):
         """Creates role menus
 
         take in user input for what button and role to create
@@ -287,16 +288,17 @@ class ClassManagement(commands.Cog):
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
 
         # create the role
-        #TODO: check to see if the role already exists
-        the_role = await interaction.guild.create_role(name=role, permissions=permissions)
-        the_role.mentionable = True
-        
+        if not get(interaction.guild.roles, name=role_name):
+            role = await interaction.guild.create_role(name=role_name, permissions=permissions)
+            role.mentionable = True
+
         # create the button
         view = View(timeout=None)       # keeps buttons from disappearing
-        this_button = RoleButton(button_name=button, role_name=role)
+        this_button = RoleButton(button_name=button_name, role_name=role_name)
         this_button.callback = this_button.on_click
         view.add_item(this_button)
 
         # send to user
         # await interaction.response.send_message(view=view)
+        #TODO Ask matt if it is ok if the interaction fails
         await interaction.channel.send(view=view)
