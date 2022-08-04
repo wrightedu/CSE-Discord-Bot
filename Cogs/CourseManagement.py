@@ -86,16 +86,16 @@ class ClassManagement(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildcourses(self, ctx):
-        """Create class channels
+        """Create course channels
 
-        Try to destroy old class channels (calls on destroycourses)
+        Try to destroy old course channels (calls on destroycourses)
         Read in role csv from cached file or from attachment on discord message
         Get confirmation from author
         Create all categories, channels, and roles
         Call command to create role menus
         """
 
-        #destroy classes first here
+        # destroy courses first here
         await self.destroycourses(ctx)
 
         # Load roles csv
@@ -115,7 +115,7 @@ class ClassManagement(commands.Cog):
         courses_df = courses_df.dropna(subset=['create_channels'])
 
         role_names=courses_df["role/link"].to_list()
-        class_channels = courses_df["create_channels"].to_list()
+        course_channels = courses_df["create_channels"].to_list()
         category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
 
@@ -147,7 +147,7 @@ class ClassManagement(commands.Cog):
             await category.set_permissions(role, read_messages=True)        # allow role to see category
             
             # Create channels
-            channels = class_channels[i].split(",")
+            channels = course_channels[i].split(",")
 
             for channel in channels:
                 # Create text channel
@@ -251,7 +251,7 @@ class ClassManagement(commands.Cog):
         courses_df = pd.read_csv(csv_filepath)
         category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
-        role_names=courses_df["role/link"].to_list()
+        role_names = courses_df["role/link"].to_list()
 
         # adds RoleButtons to a view with custom attributes and sends it to chat
         # make sure to give the timeout None in order to keep the buttons working for all semester
@@ -262,7 +262,7 @@ class ClassManagement(commands.Cog):
             if re.match(prefix, category_names[i]):         # make sure prefix matches
                 if len(view.children) % 25 == 0 and len(view.children) != 0:          # limit of 25 components per view
                     await channel.send(view=view)
-                    view=View(timeout=None)
+                    view = View(timeout=None)
                 this_button = RoleButton(button_name=f"{category_names[i]} - {long_names[i]}", role_name=role_names[i])
                 this_button.callback = this_button.on_click
                 view.add_item(this_button)
@@ -299,6 +299,4 @@ class ClassManagement(commands.Cog):
         view.add_item(this_button)
 
         # send to user
-        # await interaction.response.send_message(view=view)
-        #TODO Ask matt if it is ok if the interaction fails
         await interaction.channel.send(view=view)
