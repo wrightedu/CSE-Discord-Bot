@@ -4,7 +4,6 @@ from os.path import exists
 from pathlib import Path
 from random import randint
 
-from discord import app_commands
 import discord
 from discord.ext import commands
 from utils import *
