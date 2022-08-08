@@ -1,15 +1,11 @@
-import json
 import os
 import re
 
-import emoji as discord_emoji
 import pandas as pd
-import validators
 from discord.ext import commands
 from discord.utils import get
 from utils.utils import *
-from discord.ui import Button, View
-from discord import ButtonStyle
+from discord.ui import View
 from utils.rolebutton import RoleButton
 
 from utils.utils import *
