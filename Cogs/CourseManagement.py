@@ -24,14 +24,14 @@ class ClassManagement(commands.Cog):
         self.bot = bot
 
     async def get_category(self, ctx, category_names):
-        """ Looks through all categories and verifies if the list of category names is on the server
+        """Verifies categories to be destroyed
+        Looks through all categories and verifies if the list of category names is on the server
 
         Args:
             category_names (List[str]): a list of strings of the category names to delete
 
         Outputs:
             categories (List[categories]): a list of the verified categories.
-        
         """
 
         # Get list of all categories (category objects) to be destroyed and print
@@ -54,14 +54,14 @@ class ClassManagement(commands.Cog):
         return categories
 
     async def get_roles(self, ctx, role_names):
-        """ Looks through all roles and verifies if the list of role names is on the server
+        """Verifies roles to be destroyed
+        Looks through all roles and verifies if the list of role names is on the server
 
         Args:
             role_names (List[str]): a list of strings of the role names to delete
 
         Outputs:
             roles (List[roles]): a list of the verified roles.
-
         """
 
         # Get list of all categories (category objects) to be destroyed and print
@@ -87,18 +87,16 @@ class ClassManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def buildcourses(self, ctx):
         """Create course channels
-
         Try to destroy old course channels (calls on destroycourses)
         Read in role csv from cached file or from attachment on discord message
+        Extract columns needed through a panda dataframe
         Get confirmation from author
         Create all categories, channels, and roles
-        Call command to create role menus
         """
 
         # destroy courses first here
         await self.destroycourses(ctx)
 
-        # Load roles csv
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         # If csv file attached, overwrite existing csv
@@ -109,11 +107,10 @@ class ClassManagement(commands.Cog):
                 pass
             await ctx.message.attachments[0].save(csv_filepath)
         
-        # Load roles csv
         courses_df = pd.read_csv(csv_filepath)
-
         courses_df = courses_df.dropna(subset=['create_channels'])
 
+        # extracts appropriate columns using a dataframe
         role_names=courses_df["role/link"].to_list()
         course_channels = courses_df["create_channels"].to_list()
         category_names = courses_df["text"].to_list()
@@ -129,7 +126,6 @@ class ClassManagement(commands.Cog):
         if not await confirmation(self.bot, ctx, 'build'):
             return
         
-        #TODO: for future, re-evalate what permissions are needed?
         permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
@@ -166,20 +162,13 @@ class ClassManagement(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def destroycourses(self, ctx):
         """Destroy course channels
-
         Try loading in cached classlist csv
-        Create list of all channels to be deleted, send to author
+        Create list of all categories and roles to be deleted, send to author
         Get confirmation from author
-        Delete all listed categories and channels
-        Create list of all roles to be deleted, send to author
-        Get confirmation from author
-        Delete all listed roles
+        Delete all listed categories and roles
         """
 
-        # Load roles csv
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
-
-        # If the role_lists directory doesn't exist raise a FileNotFoundError back to the buildserver command
         try:
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
@@ -196,7 +185,6 @@ class ClassManagement(commands.Cog):
         destroy_role_names = courses_df['role/link'].tolist()
         destroy_roles = await self.get_roles(ctx, destroy_role_names)
         
-
         message = '__**DESTROY FOLLOWING CATEGORIES**__\n'
         if len(categories):
             for category in categories:
@@ -226,40 +214,41 @@ class ClassManagement(commands.Cog):
 
         await ctx.send('***CATEGORIES AND ROLES HAVE BEEN DESTROYED***')
 
-    #TODO: Have the role menus built into their proper channels
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def buildrolemenu(self, ctx, prefix=''):
         """Creates role menus
+        Find csv and extracts columns needed through a panda dataframe
+        Create the buttons and put them in a view
+        Send the role menu consisting of the view(s) to the proper channel
 
         Args:
-            prefix (str): extracts courses of a major from the csv and sends their buttons to the proper channel
-
-        find csv and extracts columns needed through a panda dataframe
-        create the buttons and put them in a view
-        aka the role menu, and send them to the proper channel
+            prefix (str): used to extract courses of a major from the csv and send their buttons to the proper channel
         """
 
-        # check for prefix (base case)
+        # check for prefix
         if prefix == '':
             await log(self.bot, f'{ctx.author} attempted running `buildrolemenu`, however a prefix was not entered')
             await ctx.send('Please add a prefix for what courses you need buttons for. Please try again.')
             return
         
-        # finds csv and extracts appropriate columns using a dataframe
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
-        courses_df = pd.read_csv(csv_filepath)
+        try:
+            courses_df = pd.read_csv(csv_filepath)
+        except FileNotFoundError:
+            raise FileNotFoundError
+
+        # extracts appropriate columns using a dataframe
         category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
         role_names = courses_df["role/link"].to_list()
 
-        # adds RoleButtons to a view with custom attributes and sends it to chat
-        # make sure to give the timeout None in order to keep the buttons working for all semester
+        # adds RoleButtons to a view with custom attributes and sends it to the appropriate channel
         channel_name = f'{prefix.lower()}-class-selection'
         channel = await get_channel_named(ctx.guild, channel_name)
-        view = View(timeout=None)           # a visual discord container for graphical components
+        view = View(timeout=None)
         for i in range(len(role_names)):
-            if re.match(prefix, category_names[i]):         # make sure prefix matches
+            if re.match(prefix, category_names[i]):         # ensure prefix matches the course name (CEG, CS, EE)
                 if len(view.children) % 25 == 0 and len(view.children) != 0:          # limit of 25 components per view
                     await channel.send(view=view)
                     view = View(timeout=None)
@@ -271,29 +260,27 @@ class ClassManagement(commands.Cog):
             return
         await channel.send(view=view)
 
-    @app_commands.command(description="add a role and have a button for it")
+    @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
     async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str):
         """Creates role menus
-
-        take in user input for what button and role to create
-        create the role given (if it doesn't already exist)
-        create the button and put it in a view
-        aka the role menu, and send to user
+        Take in user input for what button and role to create
+        Create the role given (if it doesn't already exist)
+        Create the button and put it in a view
+        Send the role menu consisting of the view to the user
         """
 
-        # create the permissions for the role
         permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
 
-        # create the role
+        # create the role if it does not exist
         if not get(interaction.guild.roles, name=role_name):
             role = await interaction.guild.create_role(name=role_name, permissions=permissions)
             role.mentionable = True
 
         # create the button
-        view = View(timeout=None)       # keeps buttons from disappearing
+        view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
         this_button.callback = this_button.on_click
         view.add_item(this_button)
