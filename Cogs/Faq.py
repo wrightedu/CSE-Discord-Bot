@@ -29,10 +29,11 @@ class Faq(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         """Responds to messages with `?` in them
-        Listens to messages in faq enabled channels.
-        If a `?` is present, responds with the users original question.
+        Listens to messages in faq-enabled channels.
+        If a `?` is present, responds with the user's original question.
         Responds with the sample question and appropriate answer if a keyword is detected as well.
         """
+
         if message.author.bot:
             return
 
@@ -41,7 +42,7 @@ class Faq(commands.Cog):
                 faq_path = f"sample-FAQ.csv"
                 df = pd.read_csv(faq_path)
                 keywords = df["keywords"].to_list()
-                message.content = message.content.replace("?", "") # may need to strip whitespace
+                message.content = message.content.replace("?", "")
 
                 await message.reply(f"Your question is as follows: '{message.content}'")
 
@@ -50,13 +51,13 @@ class Faq(commands.Cog):
                     answer = df.loc[df['keywords'] == message.content,"answers"].values[0]
                     await message.reply(question)
                     await message.reply(answer)
-                # better response and @Wischgoll for advice
     
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def faq(self, ctx):
-        """
-        Allows/disallows the faq machine learning feature for a specific channel
+        """Enables or disables bot monitoring of a channel
+        Adds or removes channel in which command is run to a list
+        Overwrites channels file with contents of list for persistent use
         """
         # If the channel is in the list remove it and return
         if ctx.channel.name in self.channel_names:
