@@ -2,7 +2,7 @@ from pathlib import Path
 import pandas as pd
 
 from discord.ext import commands
-from utils import *
+from utils.utils import *
 
 async def setup(bot):
     channels_path = r"assets/FAQ/channels.txt"

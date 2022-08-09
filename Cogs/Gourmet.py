@@ -8,7 +8,7 @@ import copy
 from discord.ui import View, Button
 from discord.ext import commands
 from discord import MessageType
-from utils import *
+from utils.utils import *
 
 
 async def setup(bot):
