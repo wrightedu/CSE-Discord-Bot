@@ -1,5 +1,5 @@
 from discord.ext import commands
-from utils import *
+from utils.utils import *
 from discord import app_commands
 
 async def setup(bot:commands.Bot):
