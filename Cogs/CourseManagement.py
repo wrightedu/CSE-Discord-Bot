@@ -11,6 +11,7 @@ from utils.rolebutton import RoleButton
 from utils.utils import *
 from discord import app_commands
 
+
 async def setup(bot):
     await bot.add_cog(ClassManagement(bot))
 

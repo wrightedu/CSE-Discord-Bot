@@ -4,12 +4,11 @@ from os.path import exists
 from pathlib import Path
 from random import randint
 
-from discord import app_commands
-import discord
 from discord.ext import commands
 from utils.utils import *
 
 from diceParser import parse
+
 
 async def setup(bot:commands.Bot):
     await bot.add_cog(StudentCommands(bot))
