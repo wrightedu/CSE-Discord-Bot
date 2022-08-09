@@ -39,7 +39,7 @@ class Faq(commands.Cog):
 
         if message.channel.name in self.channel_names:
             if '?' in message.content:
-                faq_path = f"sample-FAQ.csv"
+                faq_path = r"assets/FAQ/sample-FAQ.csv"
                 df = pd.read_csv(faq_path)
                 keywords = df["keywords"].to_list()
                 message.content = message.content.replace("?", "")
