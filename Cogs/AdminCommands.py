@@ -11,6 +11,7 @@ from utils.utils import *
 async def setup(bot:commands.Bot):
     await bot.add_cog(AdminCommands(bot))
 
+
 class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
