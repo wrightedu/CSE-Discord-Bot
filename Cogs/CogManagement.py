@@ -1,5 +1,5 @@
 from discord.ext import commands
-from utils import *
+from utils.utils import *
 
 async def setup(bot:commands.Bot):
     await bot.add_cog(CogManagement(bot))
