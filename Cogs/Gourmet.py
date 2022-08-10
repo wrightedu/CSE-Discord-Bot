@@ -94,7 +94,7 @@ class Gourmet(commands.Cog):
             await interaction.message.edit(content=f'**__Error: {msg.content} is not in the list.__**', view=self)
         
         @discord.ui.button(label="Vegan", style=discord.ButtonStyle.blurple, emoji='\U0001F96C')
-        async def vegan(self,interaction:discord.Interaction,button:discord.ui.Button):
+        async def vegan(self, interaction:discord.Interaction, button:discord.ui.Button):
             """Returns a random vegan restaurant"""
 
             if not len(self.vegan_restaurant) == 0:
