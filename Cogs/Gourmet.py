@@ -37,7 +37,6 @@ class Gourmet(commands.Cog):
             random.shuffle(self.normal_restaurant)
             random.shuffle(self.vegan_restaurant)
 
-
         @discord.ui.button(label="Random", style=discord.ButtonStyle.blurple, emoji='\U0001F3B1')
         async def random(self, interaction:discord.Interaction, button:discord.ui.Button):
             """Returns a random restaurant"""
