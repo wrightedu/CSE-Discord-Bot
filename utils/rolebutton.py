@@ -8,14 +8,15 @@ class RoleButton(Button):
         super().__init__(label=button_name)
         self.role_name = role_name
 
-    """Gives role to or removes it from user when a role button is clicked
-    Gets the role from the server using its name
-    Removes the role from the user if they already have it
-    Gives the role to the user if they don't already have it
-    """
     async def on_click(self, interaction:discord.Interaction):
-        # an interaction.response is necessary for a callback
+        """Gives role to or removes it from user when a role button is clicked
+        Gets the role from the server using its name
+        Removes the role from the user if they already have it
+        Gives the role to the user if they don't already have it
+        """
+        
         role = get(interaction.guild.roles, name=self.role_name)
+        # an interaction.response is necessary for a callback
         if role in interaction.user.roles:
             await interaction.user.remove_roles(role)
             await interaction.response.send_message(f"The {role.name} role has been removed from you.", ephemeral=True)
