@@ -11,11 +11,11 @@ from utils.rolebutton import RoleButton
 from utils.utils import *
 
 
-async def setup(bot):
-    await bot.add_cog(ClassManagement(bot))
+async def setup(bot:commands.Bot):
+    await bot.add_cog(CourseManagement(bot))
 
 
-class ClassManagement(commands.Cog):
+class CourseManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
