@@ -2,7 +2,9 @@ from pathlib import Path
 import pandas as pd
 
 from discord.ext import commands
-from utils import *
+
+from utils.utils import *
+
 
 async def setup(bot):
     channels_path = r"assets/FAQ/channels.txt"
@@ -20,6 +22,7 @@ async def setup(bot):
         print("Channels file for faq command does not exist.")
     
     await bot.add_cog(Faq(bot, channel_names))
+
 
 class Faq(commands.Cog):
     def __init__(self, bot, channel_names):

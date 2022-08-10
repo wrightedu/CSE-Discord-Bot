@@ -1,18 +1,15 @@
-import os
-import sys
-from time import sleep
-import re
 import random
 import copy
 
-from discord.ui import View, Button
+from discord.ui import View
 from discord.ext import commands
-from discord import MessageType
-from utils import *
+
+from utils.utils import *
 
 
 async def setup(bot):
     await bot.add_cog(Gourmet(bot))
+    
 
 class Gourmet(commands.Cog):
     def __init__(self, bot):
