@@ -3,12 +3,16 @@ from discord.ui import Button
 from discord.utils import get
 
 class RoleButton(Button):
-    """Inherits from discord.ui.Button
-    """
+    """Inherits from discord.ui.Button"""
     def __init__(self, button_name="", role_name=""):
         super().__init__(label=button_name)
         self.role_name = role_name
 
+    """Gives role to or removes it from user when a role button is clicked
+    Gets the role from the server using its name
+    Removes the role from the user if they already have it
+    Gives the role to the user if they don't already have it
+    """
     async def on_click(self, interaction:discord.Interaction):
         # an interaction.response is necessary for a callback
         role = get(interaction.guild.roles, name=self.role_name)

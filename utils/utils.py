@@ -10,6 +10,7 @@ async def confirmation(bot, ctx, confirm_string='confirm'):
     Send message to user informing what confirmation code is. Ensure the next message received is by the author
     of the origional command. If so, ensure said message is the proper confirmation code. If this is the case,
     execute action and return true. If not, inform user that the action failed and return false.
+    
     Args:
         bot (discord.ext.commands.bot.Bot): The bot object
         confirm_string (str): The string that must be sent by user to confirm action. Automatically set to 'confirm'.
