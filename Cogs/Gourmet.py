@@ -47,7 +47,6 @@ class Gourmet(commands.Cog):
             else:
                 await interaction.response.edit_message(content='**__You have run out of restaurants. You are going to arbys.__**', view=self)
         
-        # Adds a restaurant to a list
         @discord.ui.button(label="Add Restaurant", style=discord.ButtonStyle.green)
         async def add(self, interaction:discord.Interaction, button:discord.ui.Button):
             """Adds a restaurant
@@ -70,7 +69,6 @@ class Gourmet(commands.Cog):
                     return
             self.normal_restaurant.append(msg.content)
 
-        # Removes a restaurant from a list
         @discord.ui.button(label="Remove Restaurant", style=discord.ButtonStyle.red)
         async def remove(self, interaction:discord.Interaction, button:discord.ui.Button):
             """Removes a restaurant
@@ -98,7 +96,7 @@ class Gourmet(commands.Cog):
         @discord.ui.button(label="Vegan", style=discord.ButtonStyle.blurple, emoji='\U0001F96C')
         async def vegan(self,interaction:discord.Interaction,button:discord.ui.Button):
             """Returns a random vegan restaurant"""
-            
+
             if not len(self.vegan_restaurant) == 0:
                 await interaction.response.edit_message(content='**' + self.vegan_restaurant.pop() + '**', view=self)
             else:
