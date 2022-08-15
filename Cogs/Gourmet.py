@@ -17,7 +17,6 @@ async def setup(bot):
 class Gourmet(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # count = 0
         self.normal_restaurant = []
         self.vegan_restaurant = []
         try:
