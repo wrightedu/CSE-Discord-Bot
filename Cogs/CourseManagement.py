@@ -172,7 +172,7 @@ class CourseManagement(commands.Cog):
 
         # drop cross-listed courses (and other roles if on the file)
         courses_df = courses_df.dropna(subset=['create_channels'])
-
+        
         # List of names of categories to be destroyed, as determined by saved csv
         category_names = courses_df['text'].tolist()
         categories = await self.get_category(ctx, category_names)
@@ -188,14 +188,17 @@ class CourseManagement(commands.Cog):
         else:
             message += f'NO CATEGORIES FOUND\n'
         
-        message += '__**DESTROY FOLLOWING ROLES**__\n'
+        await ctx.send(message)
+        
+        message = '__**DESTROY FOLLOWING ROLES**__\n'
         if len(destroy_roles):
             for role in destroy_roles:
-                message += f'{role.mention}\n'
+                message += f'{role.name}\n'
         else:
             message += f'NO ROLES FOUND\n'
-        
+
         await ctx.send(message)
+
         if not await confirmation(self.bot, ctx, 'destroy'):
             return
         
