@@ -90,9 +90,6 @@ class CourseManagement(commands.Cog):
         Create all categories, channels, and roles
         """
 
-        # destroy courses first here
-        await self.destroycourses(ctx)
-
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         # If csv file attached, overwrite existing csv
@@ -104,10 +101,17 @@ class CourseManagement(commands.Cog):
             await ctx.message.attachments[0].save(csv_filepath)
         
         courses_df = pd.read_csv(csv_filepath)
+
+        # iterates through dataframe checking if a category exists
+        # if it does, drop the row from the dataframe
+        for i in range(len(courses_df)):
+            if get(ctx.guild.categories, name=courses_df.loc[i, "text"]):
+                courses_df.drop(index=i, axis=0, inplace=True)
+        
         courses_df = courses_df.dropna(subset=['create_channels'])
 
         # extracts appropriate columns using a dataframe
-        role_names=courses_df["role/link"].to_list()
+        role_names = courses_df["role/link"].to_list()
         course_channels = courses_df["create_channels"].to_list()
         category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
