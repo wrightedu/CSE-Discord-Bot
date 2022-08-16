@@ -7,7 +7,7 @@ from discord.ext import commands
 # from discord_components import DiscordComponents
 from dotenv import load_dotenv
 
-from utils import *
+from utils.utils import *
 
 intents = discord.Intents(messages=True, guilds=True, members=True, voice_states=True, message_content=True)
 

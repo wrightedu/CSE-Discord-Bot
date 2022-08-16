@@ -7,7 +7,7 @@ import pandas as pd
 import validators
 from discord.ext import commands
 # from discord_components import Button, ButtonStyle, InteractionType
-from utils import *
+from utils.utils import *
 
 
 async def setup(bot):
@@ -66,6 +66,7 @@ class ServerManagement(commands.Cog):
 
         # Print list of channels to build
         message = '__**CREATE FOLLOWING CATEGORIES**__\n'
+        role_names = roles_csvs['text'].to_list()
         for _, row in roles_csvs.iterrows():
             if type(row['create_channels']) != float:
                 message += f'{row["text"]}\n'
@@ -82,7 +83,11 @@ class ServerManagement(commands.Cog):
                 # If role doesn't already exist (due to cross-listing)
                 role_exists = any(role.name == row['role/link'] for role in ctx.guild.roles)
                 if not role_exists:
-                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    #TODO: re-evalate permissions?
+                    permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
+                            attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
+                            stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
+                    
                     role = await ctx.guild.create_role(name=row['role/link'], permissions=permissions)
                     role.mentionable = True
 
@@ -345,41 +350,3 @@ class ServerManagement(commands.Cog):
                 else:
                     await member.add_roles(role)
                     await res.respond(type=InteractionType.ChannelMessageWithSource, content=f'Gave you the {role.name} role!')
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        """
-        Listens to every message, responds if there is a '?' and the channel has been FAQ enabled
-        """
-        # If the author is a bot return
-        if message.author.bot:
-            return
-
-        # Checks if the channel is a requested faq channel
-        if message.channel in self.faq_channels:
-
-            # If there is a ? in the content reply "That looks interesting" and break out of the loop
-            if '?' in message.content:
-                await message.reply("That looks interesting")
-    
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def faq(self, ctx):
-        """
-        Allows/disallows the faq machine learning feature for a specific channel
-        """
-        # If the channel is in the list remove it and return
-        if ctx.channel in self.faq_channels:
-            self.faq_channels.remove(ctx.channel)
-            await ctx.reply("FAQ has been disabled for this channel!")
-
-            # Logging
-            await log(self.bot, f'{ctx.author} has disabled FAQ for the {ctx.channel} channel')
-            return
-        
-        # If the channel is not in the list add it to the end
-        await ctx.reply("FAQ has been enabled for this channel!")
-        self.faq_channels.append(ctx.channel)
-
-        # Logging
-        await log(self.bot, f'{ctx.author} has enabled FAQ for the {ctx.channel} channel')

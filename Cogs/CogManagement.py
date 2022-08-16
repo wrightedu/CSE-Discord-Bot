@@ -1,9 +1,11 @@
-from discord.ext import commands
-from utils import *
 from os.path import exists, abspath
 
+from discord.ext import commands
 
-async def setup(bot):
+from utils.utils import *
+
+
+async def setup(bot:commands.Bot):
     await bot.add_cog(CogManagement(bot))
 
 
@@ -94,3 +96,14 @@ class CogManagement(commands.Cog):
         else:
             await ctx.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{ctx.author} attempted to unload the {cog_name} cog, but failed.')
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def sync(self, ctx):
+        """Syncs all slash commands
+        Syncs application commands to the bot's global tree.
+        Copies to current server.
+        """
+
+        await self.bot.tree.sync()      # syncs global tree to server/guild
+        self.bot.tree.copy_global_to(guild=ctx.guild)       # needs to be run the first time a bot syncs to a server
