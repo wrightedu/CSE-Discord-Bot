@@ -122,6 +122,9 @@ class CourseManagement(commands.Cog):
             message += f'{category_name}\n'
         await ctx.send(message)
 
+        if not len(category_names):
+            await ctx.send("NO CATEGORIES TO BUILD")
+
         # Get confirmation before building channels
         if not await confirmation(self.bot, ctx, 'build'):
             return
