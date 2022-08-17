@@ -4,20 +4,39 @@ from os.path import exists
 from pathlib import Path
 from random import randint
 
-import discord
 from discord.ext import commands
-from utils import *
 
+from utils.utils import *
 from diceParser import parse
 
 
-def setup(bot):
-    bot.add_cog(StudentCommands(bot))
+async def setup(bot:commands.Bot):
+    await bot.add_cog(StudentCommands(bot))
 
 
 class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    async def attendance(self, ctx):
+        """Sends a list of all members in the same voice channel as the command author
+        If the command author is in a voice channel with at least one other member,
+        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
+        """
+
+        # Gets users in the same voice chat as the requester and lists their @'s.
+        try:
+            channel = ctx.message.author.voice.channel
+            members = channel.members
+            members.remove(ctx.author)
+            if members:
+                attendees = "\n".join([member.mention for member in members])
+                await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
+            else:
+                await ctx.message.channel.send("There are no users in your voice channel.")
+        except AttributeError:
+            await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
@@ -26,6 +45,7 @@ class StudentCommands(commands.Cog):
         Loop through all images in the directory containing pictures and place them in a list of images.
         If no number was input by user, select a random image from the list and send it in chat. If the user
         did input a number, use it as the index for the picture list and send the appropriate picture in chat.
+        The number 404 is a special case.
 
         Args:
             number (int): ID number of the picture. Can be used to find specific corgi pictures from the existing list
@@ -42,13 +62,21 @@ class StudentCommands(commands.Cog):
         # Get images from directory
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
 
+        # If 404, send cute error
+        if number == 404:
+            await ctx.send(file=discord.File('assets/Corgi404Error.png'))
+            return
+
         # Generates a random number if no number is given
-        if number < 0 or number > (len(images) - 1):
+        elif number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
+
         image = images[number]
 
         # Send image
         await ctx.send(f'Corgi #{number}:', file=discord.File(image))
+
+        # put in the log channel that the corgme command was run
         await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
 
     @commands.command()
@@ -68,7 +96,10 @@ class StudentCommands(commands.Cog):
 
         # Read in the langague data from the yaml file
         with open('helloworld.yml', 'r') as f:
-            language_data = yaml.load(f)
+
+            # The FullLoader parameter handles the conversion from YAML
+            # scalar values to Python the dictionary format
+            language_data = yaml.load(f, Loader=yaml.FullLoader)
 
         # clean input
         language = language.lower()
@@ -78,7 +109,7 @@ class StudentCommands(commands.Cog):
             languages = [i for i in language_data]
             languages.sort()
             languages = '\n'.join(languages)
-            await ctx.send(f'I know:\n{languages}')
+            await ctx.send(f'```I know:\n{languages}```')
             return
 
         # If invalid input, make it random
@@ -94,6 +125,19 @@ class StudentCommands(commands.Cog):
         message = f'{language}\n```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
         await ctx.send(message)
         await log(self.bot, f'{ctx.author} ran /helloworld with language {language} in #{ctx.channel}')
+
+    @commands.command()
+    async def ping(self, ctx):
+        """Sends the Discord WebSocket protocol latency
+        Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
+
+        Outputs:
+            Sends a message containing the Discord WebSocket protocol latency
+        """
+
+        latency = round(self.bot.latency * 1000)
+        await ctx.send(f'{latency} ms')
+        await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
 
     @commands.command()
     async def poll(self, ctx, question, *options: str):
@@ -187,36 +231,3 @@ class StudentCommands(commands.Cog):
         """
 
         await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
-
-    @commands.command()
-    async def ping(self, ctx):
-        """Sends the Discord WebSocket protocol latency
-        Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
-
-        Outputs:
-            Sends a message containing the Discord WebSocket protocol latency
-        """
-
-        latency = round(self.bot.latency * 1000)
-        await ctx.send(f'{latency} ms')
-        await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
-
-    @commands.command()
-    async def attendance(self, ctx):
-        """Sends a list of all members in the same voice channel as the command author
-        If the command author is in a voice channel with at least one other member,
-        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
-        """
-
-        # Gets users in the same voice chat as the requester and lists their @'s.
-        try:
-            channel = ctx.message.author.voice.channel
-            members = channel.members
-            members.remove(ctx.author)
-            if members:
-                attendees = "\n".join([member.mention for member in members])
-                await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
-            else:
-                await ctx.message.channel.send("There are no users in your voice channel.")
-        except AttributeError:
-            await ctx.message.channel.send(f"You must be in a voice channel to use this command.")

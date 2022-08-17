@@ -17,7 +17,7 @@ log
 *.sql
 *.sqlite
 *.swp
-
+status.txt
 
 # OS generated files #
 ######################
@@ -40,4 +40,8 @@ token
 # Containers         #
 # ####################
 *.simg
-*.sif 
+*.sif
+
+# Virtual Env        #
+######################
+venv/

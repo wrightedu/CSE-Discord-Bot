@@ -1,9 +1,10 @@
 from discord.ext import commands
-from utils import *
+
+from utils.utils import *
 
 
-def setup(bot):
-    bot.add_cog(Listeners(bot))
+async def setup(bot:commands.Bot):
+    await bot.add_cog(Listeners(bot))
 
 
 class Listeners(commands.Cog):
@@ -12,7 +13,9 @@ class Listeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        """Any time anyone sends a message in #i-made-a-pr, react with the poop emoji
-        """
-        if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
-            await ctx.add_reaction("💩")
+        """Any time anyone sends a message in #i-made-a-pr, react with the poop emoji"""
+
+        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
+        if type(ctx.channel) == discord.TextChannel:
+            if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
+                await ctx.add_reaction("💩")

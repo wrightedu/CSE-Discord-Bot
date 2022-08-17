@@ -24,7 +24,7 @@
 "CEG 6230",,"CEG 4230","Introduction to Robotics",
 "CEG 6322",,"CEG 6322","VLSI Design","#ceg6322,0#Student Voice,2#TA Voice"
 "CEG 6324",,"CEG 4324","Digital Integrated Circuit Design with PLDs and FPGAs",
-"CEG 6330",,"CEG 6330","Microprocessor-Based Embedded Systems",
+"CEG 6330",,"CEG 4330","Microprocessor-Based Embedded Systems",
 "CEG 6420",,"CEG 4420","Host Computer Security",
 "CEG 6422",,"CEG 4422","Secure Computing Practices",
 "CEG 6424",,"CEG 6424","Security Attacks & Defenses","#ceg6424,0#Student Voice,2#TA Voice"
@@ -32,6 +32,7 @@
 "CEG 7370",,"CEG 7370","Distributed Computing","#ceg7370,0#Student Voice,2#TA Voice"
 "CEG 7380",,"CEG 7380","Cloud Computing","#ceg7380,0#Student Voice,2#TA Voice"
 "CEG 7450",,"CEG 7450","Advanced Computer Networks","#ceg7450,0#Student Voice,2#TA Voice"
+"CEG 7470",,"CEG 7470","Advanced Wireless Networks","#ceg7470,0#Student Voice,2#TA Voice"
 "CEG 7580",,"CEG 7580","Digital Image Processing","#ceg7580,0#Student Voice,2#TA Voice"
 "CS 1000",,"CS 1000","Technology and Society","#cs1000,0#Student Voice,2#TA Voice"
 "CS 1010",,"CS 1010","Introduction to Computers and Office Productivity Software","#cs1010,0#Student Voice,2#TA Voice"
@@ -53,14 +54,12 @@
 "CS 3700",,"CS 3700","Introduction to Databases & Modeling","#cs3700,0#Student Voice,2#TA Voice"
 "CS 4270",,"CS 4270","Optimization Techniques","#cs4270,0#Student Voice,2#TA Voice"
 "CS 4280",,"CS 4280","Combinatorics and Graph Theory","#cs4280,0#Student Voice,2#TA Voice"
-"CS 4370",,"CS 4370","Parallel Programming for Many-Core GPUs","#cs4370,0#Student Voice,2#TA Voice"
 "CS 4700",,"CS 4700","Database Management Systems","#cs4700,0#Student Voice,2#TA Voice"
 "CS 4850",,"CS 4850","Foundations of Artificial Intelligence","#cs4850,0#Student Voice,2#TA Voice"
 "CS 4900",,"CS 4900","Quantum Computing","#cs4900,0#Student Voice,2#TA Voice"
 "CS 5160",,"CS 5160","Computer Science Fundamentals","#cs5160,0#Student Voice,2#TA Voice"
 "CS 6270",,"CS 4270","Optimization Techniques",
 "CS 6280",,"CS 4280","Combinatorics and Graph Theory",
-"CS 6370",,"CS 4370","Parallel Programming for Many-Core GPUs",
 "CS 6700",,"CS 4700","Database Management Systems",
 "CS 6850",,"CS 4850","Foundations of Artificial Intelligence",
 "CS 6900",,"CS 4900","Quantum Computing",
