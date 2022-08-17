@@ -17,6 +17,6 @@ class Listeners(commands.Cog):
         """
 
         # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
-        if ctx.channel.type == discord.TextChannel:
+        if type(ctx.channel) == discord.TextChannel:
             if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
                 await ctx.add_reaction("💩")
