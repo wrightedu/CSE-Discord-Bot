@@ -1,8 +1,8 @@
+from validators import url
+
 import discord
 from discord.ui import Button
 from discord.utils import get
-
-from validators import url
 
 class RoleButton(Button):
     """Inherits from discord.ui.Button"""
