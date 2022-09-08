@@ -4,9 +4,11 @@ from discord.utils import get
 
 class RoleButton(Button):
     """Inherits from discord.ui.Button"""
-    def __init__(self, button_name="", role_name=""):
+    def __init__(self, button_name="", role_name="", emoji=""):
         super().__init__(label=button_name)
         self.role_name = role_name
+        if emoji:
+            super().emoji=emoji
 
     async def on_click(self, interaction:discord.Interaction):
         """Gives role to or removes it from user when a role button is clicked
