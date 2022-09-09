@@ -20,11 +20,11 @@ CEG 4980,,CEG 4980,Team Projects I,"#ceg4980,0#Student Voice,2#TA Voice"
 CEG 4981,,CEG 4981,Team Projects II,"#ceg4981,0#Student Voice,2#TA Voice"
 CEG 5310,,CEG 3310,Computer Organization,
 CEG 5320,,CEG 3320,Digital System Design,
-CEG 5350,,CEG 4350,Operating System Internals and Design ,
+CEG 5350,,CEG 4350,Operating System Internals and Design,
 CEG 6110,,CEG 4110,Introduction to Software Engineering,
-CEG 6322,,CEG 6322,VLSI Design,"#ceg6322,0#Student Voice,2#TA Voice"
+CEG 6322,,CEG 4322,VLSI Design,
 CEG 6324,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
-CEG 6330,,CEG 6330,Microprocessor-Based Embedded Systems,
+CEG 6330,,CEG 4330,Microprocessor-Based Embedded Systems,
 CEG 6420,,CEG 4420,Host Computer Security,
 CEG 6422,,CEG 4422,Secure Computing Practices,
 CEG 6424,,CEG 4424,Security Attacks & Defenses,
@@ -45,6 +45,7 @@ CS 1180,,CS 1180,Computer Science I,"#cs1180,0#Student Voice,2#TA Voice"
 CS 1181,,CS 1181,Computer Science II,"#cs1181,0#Student Voice,2#TA Voice"
 CS 2200,,CS 2200,Discrete Structures and Their Algorithms,"#cs2200,0#Student Voice,2#TA Voice"
 CS 2800,,CS 2800,Web Development I,"#cs2800,0#Student Voice,2#TA Voice"
+CS 2900,,CS 2900,Independent Study,"#cs2900,0#Student Voice,2#TA Voice"
 CS 3100,,CS 3100,Data Structures and Algorithms,"#cs3100,0#Student Voice,2#TA Voice"
 CS 3170,,CS 3170,Mobile Application Development,"#cs3170,0#Student Voice,2#TA Voice"
 CS 3180,,CS 3180,Comparative Languages,"#cs3180,0#Student Voice,2#TA Voice"
@@ -81,7 +82,7 @@ CS 7900 (Al Appls for Smart Cities),,CS 7900 (Al Appls for Smart Cities),Al Appl
 EE 1000,,EE 1000,Introduction to Electrical Engineering,"#ee1000,0#Student Voice,2#TA Voice"
 EE 2000,,EE 2000,Digital Design with HDL,"#ee2000,0#Student Voice,2#TA Voice"
 EE 2010,,EE 2010,Analog Circuit Theory,"#ee2010,0#Student Voice,2#TA Voice"
-EE 2011,,EE 2011,Analog Circuit Techniques,"#ee2011,0#Student Voice,2#TA Voice"
+EE 2011,,EE 2010,Analog Circuit Techniques,
 EE 3210,,EE 3210,Continuous Linear Systems,"#ee3210,0#Student Voice,2#TA Voice"
 EE 3260,,EE 3260,Random Signals and Noise,"#ee3260,0#Student Voice,2#TA Voice"
 EE 3310,,EE 3310,Electronic Devices and Circuits,"#ee3310,0#Student Voice,2#TA Voice"
@@ -96,11 +97,8 @@ EE 4540,,CEG 4322,Very Large Scale Integrated Circuit Design,
 EE 4600,,EE 4600,Autonomous UAV Flight Control,"#ee4600,0#Student Voice,2#TA Voice"
 EE 4620,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
 EE 4750,,EE 4750,Introduction to Radar Systems,"#ee4750,0#Student Voice,2#TA Voice"
-EE 4810,,EE 4810,Full-Time Curricular Practical Training in Electrical Engineering,"#ee4810,0#Student Voice,2#TA Voice"
-EE 4820,,EE 4820,Part-Time Curricular Practical Training in Electrical Engineering,"#ee4820,0#Student Voice,2#TA Voice"
-EE 4830,,EE 4830,Internship in Electrical Engineering,"#ee4830,0#Student Voice,2#TA Voice"
-EE 4910,,EE 4910,Electrical Engineering Senior Design Project I,"#ee4910,0#Student Voice,2#TA Voice"
-EE 4920,,EE 4920,Electrical Engineering Senior Design Project II,"#ee4920,0#Student Voice,2#TA Voice"
+EE 4910,,CEG 4980,Electrical Engineering Senior Design Project I,
+EE 4920,,CEG 4981,Electrical Engineering Senior Design Project II,
 EE 6000,,EE 4000,Discrete Linear Systems,
 EE 6100,,EE 4100,Nano-Fabrication of Integrated Solid State Devices,
 EE 6120,,EE 4120,Industrial Controls and Automation,
@@ -113,7 +111,7 @@ EE 6620,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
 EE 6750,,EE 4750,Introduction to Radar Systems,
 EE 7010,,EE 7010,Linear Systems,"#ee7010,0#Student Voice,2#TA Voice"
 EE 7020,,EE 7020,Modern Control I,"#ee7020,0#Student Voice,2#TA Voice"
-EE 7150,,EE 7150,Digital Image Processing,"#ee7150,0#Student Voice,2#TA Voice"
+EE 7150,,CEG 7580,Digital Image Processing,
 EE 7350,,EE 7350,Wireless Communication Techniques,"#ee7350,0#Student Voice,2#TA Voice"
 EE 7410,,EE 7410,Power Electronics I,"#ee7410,0#Student Voice,2#TA Voice"
 EE 7530,,CEG 7030,VLSI Design Synthesis and Optimization,
