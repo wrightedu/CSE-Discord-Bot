@@ -1,5 +1,6 @@
 import os
 import re
+from typing_extensions import Required
 import pandas as pd
 
 from discord.ext import commands
@@ -268,6 +269,7 @@ class CourseManagement(commands.Cog):
 
     @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
+    # @app_commands.command.get_parameter('emoji').required(False)
     async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str):
         """Creates role menus
         Take in user input for what button and role to create
@@ -296,28 +298,3 @@ class CourseManagement(commands.Cog):
 
         # send to user
         await interaction.channel.send(view=view)
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def test(self, ctx, emoji):
-        """Creates role menus
-        Find csv and extracts columns needed through a panda dataframe
-        Create the buttons and put them in a view
-        Send the role menu consisting of the view(s) to the proper channel
-
-        Args:
-            prefix (str): used to extract courses of a major from the csv and send their buttons to the proper channel
-        """
-
-        # check for prefix
-        # await ctx.send("do you want an emoji?")
-        # emoji = (await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)).content
-        print(emoji)
-
-
-        view = View(timeout=None)
-        this_button = RoleButton(button_name="test", role_name="test", emoji=emoji)
-        this_button.callback = this_button.on_click
-        view.add_item(this_button)
-
-        await ctx.send(view=view)
