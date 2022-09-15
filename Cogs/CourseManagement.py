@@ -278,6 +278,10 @@ class CourseManagement(commands.Cog):
         Send the role menu consisting of the view to the user
         """
 
+        command = await self.bot.tree.fetch_command(1004468238282920042)
+        print(command.options[2].required)
+
+
         permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)

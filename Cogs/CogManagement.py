@@ -105,5 +105,21 @@ class CogManagement(commands.Cog):
         Copies to current server.
         """
 
-        await self.bot.tree.sync()      # syncs global tree to server/guild
+        # (((await self.bot.tree.sync())[0].options)[2]).required = False
+        await self.bot.tree.sync()      # syncs global tree to server/guilds
         self.bot.tree.copy_global_to(guild=ctx.guild)       # needs to be run the first time a bot syncs to a server
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def optional(self, ctx):
+
+        # This fetches the appropriate command based off of the command ID
+        command = await self.bot.tree.fetch_command(1004468238282920042)
+        # Command is an AppCommand
+        # Options grabs the parameters in a list
+        # Options[2] is the emoji parameter
+        # Required should turn off the requirement but it reverts back afterwards
+        # print(command.get_parameter('emoji'))
+        print(command.options[2].required)
+        command.options[2].required = False
+        print(command.options[2].required)
