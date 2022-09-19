@@ -5,6 +5,7 @@ from pathlib import Path
 from random import randint
 
 from discord.ext import commands
+from discord import app_commands
 
 from utils.utils import *
 from diceParser import parse
@@ -37,6 +38,16 @@ class StudentCommands(commands.Cog):
                 await ctx.message.channel.send("There are no users in your voice channel.")
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
+
+    @app_commands.command(description="Sends a check in message and the username")
+    async def checkin(self, interaction:discord.Interaction):
+        """An example slash command
+        This command can be executed by anyone.
+        
+        Outputs:
+            Message to user confirming execution.
+        """
+        return await interaction.response.send_message(f"{interaction.user.display_name} checked in!")
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
