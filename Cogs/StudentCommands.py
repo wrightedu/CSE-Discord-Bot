@@ -9,6 +9,7 @@ from discord import app_commands
 
 from utils.utils import *
 from diceParser import parse
+from utils.checkinmenu import checkinmenu
 
 
 async def setup(bot:commands.Bot):
@@ -40,14 +41,15 @@ class StudentCommands(commands.Cog):
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
 
     @app_commands.command(description="Sends a check in message and the username")
-    async def checkin(self, interaction:discord.Interaction):
-        """An example slash command
+    async def checkin(self, interaction:discord.Interaction, message:str):
+        """A check in function for checking into the office and for productivity tracking.
         This command can be executed by anyone.
         
         Outputs:
-            Message to user confirming execution.
+            Prints user message and user display name.
         """
-        return await interaction.response.send_message(f"{interaction.user.display_name} checked in!")
+        timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
+        return await interaction.response.send_message(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`", view=checkinmenu())
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
