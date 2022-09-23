@@ -288,7 +288,10 @@ class CourseManagement(commands.Cog):
         # create the button
         view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
-        this_button.callback = this_button.on_click
+
+        # If there is not a url give it a callback otherwise continue
+        if not this_button.url:
+            this_button.callback = this_button.on_click
         view.add_item(this_button)
 
         # send to user
