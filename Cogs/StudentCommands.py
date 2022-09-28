@@ -46,10 +46,10 @@ class StudentCommands(commands.Cog):
         This command can be executed by anyone.
         
         Outputs:
-            Prints user message and user display name.
+            Prints user message and user display name with a time stamp.
         """
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-        return await interaction.response.send_message(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`", view=checkinmenu())
+        await interaction.response.send_message(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`", view=checkinmenu(), ephemeral=True)
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):
