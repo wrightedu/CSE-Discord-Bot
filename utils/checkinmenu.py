@@ -12,13 +12,12 @@ class checkinmenu(View):
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         await interaction.response.send_message(content=f"{interaction.user.display_name} checked out @{timestamp}")
     #Help button that displays a message that the user needs help with a task.
-    @discord.ui.button(label="HELP!", style=discord.ButtonStyle.red,  emoji='\U0001F6D2')
+    @discord.ui.button(label="HELP!", style=discord.ButtonStyle.red)
     async def HELP(self, interaction:discord.Interaction, button:discord.ui.Button):
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         await interaction.response.send_message(content=f"{interaction.user.display_name} sent out an SOS @{timestamp}")
     #Pomodoro button (IN PROGRESS).
-    @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple, emoji='\U0001F6D2')
+    @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple)
     async def Pomodoro(self, interaction:discord.Interaction, button:discord.ui.Button):
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         await interaction.response.send_message(content=f"I'm too lazy to figure out how to do this yet")
-    
