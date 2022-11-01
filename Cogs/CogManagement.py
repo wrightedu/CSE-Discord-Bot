@@ -33,12 +33,12 @@ class CogManagement(commands.Cog):
 
         # If the file exists it loads the cog
         if exists(file):
-            await interaction.channel.send(f'Loading {cog_name}')
+            await interaction.response.send_message(f'Loading {cog_name}')
             await self.bot.load_extension(f'Cogs.{cog_name}')
             await interaction.channel.send(f'Cog {cog_name} has been loaded')
             await log(self.bot, f'{interaction.user} loaded the {cog_name} cog.')
         else:
-            await interaction.channel.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
     @app_commands.command(description="Reload a specific cog")
@@ -61,12 +61,12 @@ class CogManagement(commands.Cog):
 
         # If the file exists it reloads the cog
         if exists(file):
-            await interaction.channel.send(f'Reloading {cog_name}')
+            await interaction.response.send_message(f'Reloading {cog_name}')
             await self.bot.reload_extension(f'Cogs.{cog_name}')
             await interaction.channel.send(f'Cog {cog_name} has been reloaded')
             await log(self.bot, f'{interaction.user} reloaded the {cog_name} cog.')
         else:
-            await interaction.channel.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
     @app_commands.command(description="Unload a specific cog")
@@ -90,12 +90,12 @@ class CogManagement(commands.Cog):
         # If the file exists it unloads the cog
         if exists(file):
             if cog_name != 'CogManagement':
-                await interaction.channel.send(f'Unloading {cog_name}')
+                await interaction.response.send_message(f'Unloading {cog_name}')
                 await self.bot.unload_extension(f'Cogs.{cog_name}')
                 await interaction.channel.send(f'Cog {cog_name} has been unloaded')
                 await log(self.bot, f'{interaction.user} unloaded the {cog_name} cog.')
         else:
-            await interaction.channel.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to unload the {cog_name} cog, but failed.')
 
     @commands.command()
