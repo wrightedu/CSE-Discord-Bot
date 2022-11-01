@@ -25,4 +25,3 @@ class checkinmenu(View):
     async def Pomodoro(self, interaction:discord.Interaction, button:discord.ui.Button):
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         await interaction.response.send_message(content=f"I'm too lazy to figure out how to do this yet")
-    
