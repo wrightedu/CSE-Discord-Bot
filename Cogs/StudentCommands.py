@@ -5,6 +5,7 @@ from pathlib import Path
 from random import randint
 
 from discord.ext import commands
+from discord import app_commands
 
 from utils.utils import *
 from diceParser import parse
@@ -18,6 +19,7 @@ class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # going to be removed, not slash commanding it
     @commands.command()
     async def attendance(self, ctx):
         """Sends a list of all members in the same voice channel as the command author
@@ -38,7 +40,9 @@ class StudentCommands(commands.Cog):
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
 
-    @commands.command(aliases=['corgmi'])
+    @commands.command(aliases=['corgmi']) #TODO: Remove?
+    #@app_commands.command(description="Get a cute picture of some corgis!") 
+    #TODO: make ^ into issue, explain optional parameter issue
     async def corgme(self, ctx, number=-1):
         """Sends a picture of a corgi
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
@@ -81,6 +85,7 @@ class StudentCommands(commands.Cog):
 
     @commands.command()
     async def helloworld(self, ctx, language='random'):
+        #TODO: make ^ into issue, explain optional parameter issue
         """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
         Take in user input for a programming language. If input is ls, list all the languages that the command
         can give code for. If input is not listed in the keys for output or is 'random', pick a random language
@@ -126,8 +131,8 @@ class StudentCommands(commands.Cog):
         await ctx.send(message)
         await log(self.bot, f'{ctx.author} ran /helloworld with language {language} in #{ctx.channel}')
 
-    @commands.command()
-    async def ping(self, ctx):
+    @app_commands.command(description="Sends message containing Discord WebSocket protocol latency")
+    async def ping(self, interaction:discord.Interaction):
         """Sends the Discord WebSocket protocol latency
         Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
 
@@ -136,9 +141,10 @@ class StudentCommands(commands.Cog):
         """
 
         latency = round(self.bot.latency * 1000)
-        await ctx.send(f'{latency} ms')
-        await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
+        await interaction.response.send_message(f'{latency} ms')
+        await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
 
+    # @app_commands.command(description="Create a poll users can vote on")
     @commands.command()
     async def poll(self, ctx, question, *options: str):
         """Create a poll that users can vote on
@@ -186,6 +192,7 @@ class StudentCommands(commands.Cog):
         for option in options:
             await log(self.bot, f'{option}', False)
 
+    #@app_commands.command("Rolls dice") #TODO: better description
     @commands.command()
     async def roll(self, ctx, *options):
         """Rolls dice based on input
@@ -221,6 +228,17 @@ class StudentCommands(commands.Cog):
             await ctx.send('Too large of an input')
             await log(self.bot, f'{ctx.author} unsuccessfully ran /roll in #{ctx.channel}, errored because input was too large')
 
+    # not implementing slash command for this command since it currently is not developed
+    # @app_commands.command(description="TBD planned support command")
+    # async def support(self, interaction:discord.Interaction):
+        # """A planned support command
+        # Informs user that the command is not yet available.
+
+        # Outputs:
+        #     error message explaining that the command is not yet available.
+        # """
+        # await interaction.response.send_message(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
+    
     @commands.command()
     async def support(self, ctx):
         """A planned support command
