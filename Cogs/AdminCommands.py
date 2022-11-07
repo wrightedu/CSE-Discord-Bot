@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 from time import sleep
@@ -51,54 +52,63 @@ class AdminCommands(commands.Cog):
                 int(channel_id)
             except ValueError:
                 await interaction.channel.send("The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s).")
                 return
 
             # ensures the channels exist
             channel = self.bot.get_channel(int(channel_id))
             if (channel == None):
                 await interaction.channel.send(f"Channel with id '{channel_id}' could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s).")
                 return
             channels.append(channel)
 
         # sends the message to the specified channels
         for channel in channels:
             await channel.send(message.content)
+        
+        # logs appropriately
+        await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to the {channels} channels")
 
 
-    # @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
-    # @app_commands.default_permissions(administrator=True)
-    # async def clear(self, interaction:discord.Interaction, amount:str):
-    #     """Clears a specific number of messages from a guild
-    #     Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
-    #     clear a very large number of messages from the server. If the amount is blank, tell user how to more
-    #     properly use the command. Otherwise, send message confirming how many messages are being cleared and log it.
-    #     Purge the appropriate number of messages from the channel.
+    @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
+    @app_commands.default_permissions(administrator=True)
+    async def clear(self, interaction:discord.Interaction, amount:str):
+        """Clears a specific number of messages from a guild
+        Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
+        clear a very large number of messages from the server. If the amount is blank, tell user how to more
+        properly use the command. Otherwise, send message confirming how many messages are being cleared and log it.
+        Purge the appropriate number of messages from the channel.
 
-    #     Args:
-    #         amount (str): Number of messages to be removed
+        Args:
+            amount (str): Number of messages to be removed
 
-    #     Outputs:
-    #         States the amount of messages being cleared or, if invalid input, help on how to use the command
-    #     """
+        Outputs:
+            States the amount of messages being cleared or, if invalid input, help on how to use the command
+        """
 
-    #     if amount == 'all':
-    #         if not await confirmation(self.bot, ctx):
-    #             return
-    #         await ctx.send(f'Clearing all messages from this channel')
-    #         await log(self.bot, f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
-    #         amount = 999999999999999999999999999999999999999999
-    #     elif amount == '':
-    #         await ctx.send(f'No args passed. Use `-clear AMOUNT` to clear AMOUNT messages. Use `-clear all` to clear all messages from this channel')
-    #         await log(self.bot, f'{ctx.author} attempted to clear messages from #{ctx.channel}, but it failed because parameter "amount" was not passed')
-    #         return
-    #     else:
-    #         amount = int(amount)
-    #         if amount >= 10 and not await confirmation(self.bot, ctx):
-    #             return
-    #         await ctx.send(f'Clearing {amount} messages from this channel')
-    #         await log(self.bot, f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
-    #     sleep(1)
-    #     await ctx.channel.purge(limit=int(float(amount)) + 2)
+        if amount == 'all':
+            if not await confirmation(self.bot, interaction):
+                return
+            await interaction.channel.send(f'Clearing all messages from this channel')
+            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+            amount = 999999999999999999999999999999999999999999
+
+        else:
+            try:
+                amount = int(amount)
+            except ValueError:
+                await interaction.response.send_message("The `amount` parameter can only take either `all` or a number.")
+                await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
+                return
+
+            if amount >= 10 and not await confirmation(self.bot, interaction): # deletes 3 fewer messages if going into confirmation for some reason
+                return
+            await interaction.channel.send(f'Clearing {amount} messages from this channel')
+            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+
+        sleep(1)
+        await interaction.channel.purge(limit=int(float(amount)) + 1)
 
     # @commands.command(help='`-clear AMOUNT` to clear AMOUNT messages\n`-clear all` to clear all messages from this channel')
     # @commands.has_permissions(administrator=True)
