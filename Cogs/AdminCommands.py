@@ -52,23 +52,25 @@ class AdminCommands(commands.Cog):
                 int(channel_id)
             except ValueError:
                 await interaction.channel.send("The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
-                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s).")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s)")
                 return
 
             # ensures the channels exist
             channel = self.bot.get_channel(int(channel_id))
             if (channel == None):
                 await interaction.channel.send(f"Channel with id '{channel_id}' could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
-                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s).")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s)")
                 return
             channels.append(channel)
 
+        log_str = ""
         # sends the message to the specified channels
         for channel in channels:
             await channel.send(message.content)
+            log_str = log_str + f"#{channel.name} "
         
         # logs appropriately
-        await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to the {channels} channels")
+        await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to {log_str}")
 
 
     @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
