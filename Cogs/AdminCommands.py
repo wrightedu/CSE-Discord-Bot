@@ -5,6 +5,7 @@ import re
 
 from discord.ext import commands
 from discord import MessageType
+from discord import app_commands
 
 from utils.utils import *
 
@@ -17,40 +18,82 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['announcement'], help="-announce MSG to several #channels")
-    @commands.has_permissions(administrator=True)
-    async def announce(self, ctx, *, message=''):
-        '''
+    @app_commands.command(description="-announce MSG to several #channels")
+    @app_commands.default_permissions(administrator=True)
+    async def announce(self, interaction:discord.Interaction, channel_mentions:str, message:str):
+        """
         Uses the bot to announce something instead of having an admin to do so
 
         Args:
+            channel_mentions: the channels to which the announcement is sent
             message: The announcement to have the bot to tell the students
 
         Outputs:
             The announcement to the respective News channel in the CSE server
             Logs that the specific user used the announcement command
-        '''
+        """
 
         # Error message if there's no announcement.
-        if message == '':
-            await ctx.send(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
-            return
+        # if message == '':
+        #     await interaction.response.send_message(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
+        #     return
 
         # creates channel name to get the channels to print the announcement
-        channel_name = None
+        # channel_name = None
         
-        # asking for a/multiple channel(s) to send the announcement
-        await ctx.send(f'Please enter channel(s) to send this announcement: ')
-        msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+        # # asking for a/multiple channel(s) to send the announcement
+        # await ctx.send(f'Please enter channel(s) to send this announcement: ')
+        # msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
 
         # if there are no channels return out of the command
-        if not msg.channel_mentions:
-            return
+        # if not channel_names.channel_mentions:
+        #     return
 
         # logs appropriately and sends the message to the specified channel
-        await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
-        for channel_name in msg.channel_mentions:
-            await channel_name.send(message)
+        await log(self.bot, f"{interaction.user} has executed the announcement command in the {interaction.channel}")
+        channel_ids = channel_mentions.split()
+        print(f"channel_ids: {channel_ids}")
+        for channel_id in channel_ids:
+            channel_id = channel_id.replace('<#', '')
+            channel_id = channel_id.replace('>', '')
+            channel = self.bot.get_channel(int(channel_id))
+            await channel.send(message)
+
+    # @commands.command(aliases=['announcement'], help="-announce MSG to several #channels")
+    # @commands.has_permissions(administrator=True)
+    # async def announce(self, ctx, *, message=''):
+    #     '''
+    #     Uses the bot to announce something instead of having an admin to do so
+
+    #     Args:
+    #         message: The announcement to have the bot to tell the students
+
+    #     Outputs:
+    #         The announcement to the respective News channel in the CSE server
+    #         Logs that the specific user used the announcement command
+    #     '''
+
+    #     # Error message if there's no announcement.
+    #     if message == '':
+    #         await ctx.send(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
+    #         return
+
+    #     # creates channel name to get the channels to print the announcement
+    #     channel_name = None
+        
+    #     # asking for a/multiple channel(s) to send the announcement
+    #     await ctx.send(f'Please enter channel(s) to send this announcement: ')
+    #     msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+
+    #     # if there are no channels return out of the command
+    #     if not msg.channel_mentions:
+    #         return
+
+    #     # logs appropriately and sends the message to the specified channel
+    #     await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
+    #     for channel_name in msg.channel_mentions:
+    #         print(channel_name)
+    #         await channel_name.send(message)
 
     @commands.command(help='`-clear AMOUNT` to clear AMOUNT messages\n`-clear all` to clear all messages from this channel')
     @commands.has_permissions(administrator=True)
