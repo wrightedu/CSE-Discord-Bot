@@ -205,7 +205,8 @@ class StudentCommands(commands.Cog):
             description += '\n {} {}'.format(reactions[i], option)
         embed = discord.Embed(title=question, description=''.join(description))
 
-        react_message = await interaction.channel.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
+        react_message = await interaction.original_message()
         for reaction in reactions[:len(options)]:
             await react_message.add_reaction(reaction)
 
