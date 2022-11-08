@@ -40,10 +40,11 @@ class StudentCommands(commands.Cog):
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
 
-    @commands.command(aliases=['corgmi']) #TODO: Remove?
-    #@app_commands.command(description="Get a cute picture of some corgis!") 
+    # @commands.command(aliases=['corgmi']) #TODO: Remove?
+    @app_commands.command(description="Get a cute picture of some corgis!") 
+    async def corgme(self, interaction:discord.Interaction, number:int =-1):
     #TODO: make ^ into issue, explain optional parameter issue
-    async def corgme(self, ctx, number=-1):
+    # async def corgme(self, ctx, number=-1):
         """Sends a picture of a corgi
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
         Loop through all images in the directory containing pictures and place them in a list of images.
@@ -61,14 +62,14 @@ class StudentCommands(commands.Cog):
         # Check if corgis dir exists
         if not exists('dogs/corgis'):
             await log(self.bot, 'Corgis directory not found, downloading 100 images')
-            await download_corgis(self.bot, ctx, 100)
+            await download_corgis(self.bot, interaction, 100)
 
         # Get images from directory
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
 
         # If 404, send cute error
         if number == 404:
-            await ctx.send(file=discord.File('assets/Corgi404Error.png'))
+            await interaction.response.send_message(file=discord.File('assets/Corgi404Error.png'))
             return
 
         # Generates a random number if no number is given
@@ -78,10 +79,10 @@ class StudentCommands(commands.Cog):
         image = images[number]
 
         # Send image
-        await ctx.send(f'Corgi #{number}:', file=discord.File(image))
+        await interaction.response.send_message(f'Corgi #{number}:', file=discord.File(image))
 
         # put in the log channel that the corgme command was run
-        await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
+        await log(self.bot, f'{interaction.user} ran /corgme in #{interaction.channel}')
 
     # @commands.command()
     # async def helloworld(self, ctx, language='random'):
