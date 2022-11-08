@@ -169,6 +169,7 @@ class StudentCommands(commands.Cog):
         """
 
         # make a list of options, always have 2, the rest are optional, add if exist
+        # TODO: Try if can use locals() and start at 3rd item and run thru like list
         options = [option1, option2]
         if (option3 != 'None'):
             options.append(option3)
@@ -206,7 +207,7 @@ class StudentCommands(commands.Cog):
         embed = discord.Embed(title=question, description=''.join(description))
 
         await interaction.response.send_message(embed=embed)
-        react_message = await interaction.original_message()
+        react_message = await interaction.original_message() # store original message to add reactions to
         for reaction in reactions[:len(options)]:
             await react_message.add_reaction(reaction)
 
@@ -216,10 +217,11 @@ class StudentCommands(commands.Cog):
         for option in options:
             await log(self.bot, f'{option}', False)
 
-    # @app_commands.command("Rolls dice based on input") #TODO: better description?
-    @commands.command()
-    async def roll(self, ctx, *options):
-    # async def roll(self, interaction:discord.Interaction, options:str):
+    @app_commands.command(description="Rolls dice based on input") 
+    #TODO: better description?
+    # @commands.command()
+    # async def roll(self, ctx, *options):
+    async def roll(self, interaction:discord.Interaction, roll:str, mod:str = 'None'):
         """Rolls dice based on input
         Check to see if the input is an appropriate size and quantity. Call imported dice parse module and store in
         'output'. 'output'[0] is the raw roll, and 'output'[1] is the roll with all modifiers included. If the length
@@ -235,7 +237,9 @@ class StudentCommands(commands.Cog):
             Result of dice rolled and pruned, or otherwise specified
         """
 
-        options = options.split(' ')
+        options=[roll]
+        if (mod != 'None'):
+            options.append(mod)
 
         # Credit goes to Alan Fleming for the module that powers this command
         # https://github.com/AlanCFleming/DiceParser
@@ -244,16 +248,16 @@ class StudentCommands(commands.Cog):
             try:
                 output = parse(dice)
                 if len(output[0]) > 100:
-                    await ctx.send(output[1]) # interaction.response.send_message
+                    await interaction.response.send_message(output[1]) # interaction.response.send_message
                 else:
-                    await ctx.send(f'{output[0]}\n{output[1]}')
-                await log(self.bot, f'{ctx.author} successfully ran /roll in #{ctx.channel}')
+                    await interaction.response.send_message(f'{output[0]}\n{output[1]}')
+                await log(self.bot, f'{interaction.user} successfully ran /roll in #{interaction.channel}')
             except Exception:
-                await ctx.send('Invalid input')
-                await log(self.bot, f'{ctx.author} unsuccessfully ran /roll in #{ctx.channel}, errored because input was invalid')
+                await interaction.response.send_message('Invalid input')
+                await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was invalid')
         else:
-            await ctx.send('Too large of an input')
-            await log(self.bot, f'{ctx.author} unsuccessfully ran /roll in #{ctx.channel}, errored because input was too large')
+            await interaction.response.send_message('Too large of an input')
+            await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was too large')
 
     # not implementing slash command for this command since it currently is not developed
     # @app_commands.command(description="TBD planned support command")
