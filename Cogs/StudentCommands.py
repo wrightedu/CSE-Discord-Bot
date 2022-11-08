@@ -218,7 +218,6 @@ class StudentCommands(commands.Cog):
             await log(self.bot, f'{option}', False)
 
     @app_commands.command(description="Rolls dice based on input") 
-    #TODO: better description?
     # @commands.command()
     # async def roll(self, ctx, *options):
     async def roll(self, interaction:discord.Interaction, roll:str, mod:str = 'None'):
@@ -237,6 +236,7 @@ class StudentCommands(commands.Cog):
             Result of dice rolled and pruned, or otherwise specified
         """
 
+        # add the roll and if there's a mod to a list
         options=[roll]
         if (mod != 'None'):
             options.append(mod)
