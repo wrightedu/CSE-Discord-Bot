@@ -19,7 +19,7 @@ class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # going to be removed, not slash commanding it
+    # going to be removed, not turning into a slash command
     @commands.command()
     async def attendance(self, ctx):
         """Sends a list of all members in the same voice channel as the command author
@@ -40,11 +40,8 @@ class StudentCommands(commands.Cog):
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
 
-    # @commands.command(aliases=['corgmi']) #TODO: Remove?
     @app_commands.command(description="Get a cute picture of some corgis!") 
     async def corgme(self, interaction:discord.Interaction, number:int =-1):
-    #TODO: make ^ into issue, explain optional parameter issue
-    # async def corgme(self, ctx, number=-1):
         """Sends a picture of a corgi
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
         Loop through all images in the directory containing pictures and place them in a list of images.
@@ -69,7 +66,7 @@ class StudentCommands(commands.Cog):
 
         # If 404, send cute error
         if number == 404:
-            await interaction.response.send_message(file=discord.File('assets/Corgi404Error.png'))
+            await interaction.response.send_message(f'Corgi #{number}:', file=discord.File('assets/Corgi404Error.png'))
             return
 
         # Generates a random number if no number is given
@@ -84,11 +81,9 @@ class StudentCommands(commands.Cog):
         # put in the log channel that the corgme command was run
         await log(self.bot, f'{interaction.user} ran /corgme in #{interaction.channel}')
 
-    # @commands.command()
-    # async def helloworld(self, ctx, language='random'):
+
     @app_commands.command(description='Displays the code needed to print "hello world" to the console')
     async def helloworld(self, interaction:discord.Interaction, language: str ='random'):
-        #TODO: make ^ into issue, explain optional parameter issue
         """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
         Take in user input for a programming language. If input is ls, list all the languages that the command
         can give code for. If input is not listed in the keys for output or is 'random', pick a random language
@@ -148,9 +143,6 @@ class StudentCommands(commands.Cog):
         await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
 
     @app_commands.command(description="Create a poll users can vote on, put spaces between options, quotes around multiple word options")
-    #@commands.command()
-    #async def poll(self, ctx, question, *options: str):
-    # async def poll(self, interaction:discord.Interaction, question:str, options: str):
     async def poll(self, interaction:discord.Interaction, question:str, option1: str, option2: str, option3: str = 'None', option4: str = 'None', 
     option5: str = 'None', option6: str = 'None', option7: str = 'None', option8: str = 'None', option9: str = 'None', option10: str = 'None'):
         """Create a poll that users can vote on
@@ -170,7 +162,6 @@ class StudentCommands(commands.Cog):
         """
 
         # make a list of options, always have 2, the rest are optional, add if exist
-        # TODO: Try if can use locals() and start at 3rd item and run thru like list
         options = [option1, option2]
         if (option3 != 'None'):
             options.append(option3)
@@ -188,8 +179,6 @@ class StudentCommands(commands.Cog):
             options.append(option9)
         if (option10 != 'None'):
             options.append(option10)
-        # Delete sender's messctxe
-        # await interaction.channel.purge(limit=1)
 
         # Need between 2 and 10 options for a poll
         if not (1 < len(options) <= 10):
@@ -219,9 +208,7 @@ class StudentCommands(commands.Cog):
             await log(self.bot, f'{option}', False)
 
     @app_commands.command(description="Rolls dice based on input") 
-    # @commands.command()
-    # async def roll(self, ctx, *options):
-    async def roll(self, interaction:discord.Interaction, roll:str, mod:str = 'None'):
+    async def roll(self, interaction:discord.Interaction, roll:str):
         """Rolls dice based on input
         Check to see if the input is an appropriate size and quantity. Call imported dice parse module and store in
         'output'. 'output'[0] is the raw roll, and 'output'[1] is the roll with all modifiers included. If the length
@@ -237,10 +224,8 @@ class StudentCommands(commands.Cog):
             Result of dice rolled and pruned, or otherwise specified
         """
 
-        # add the roll and if there's a mod to a list
+        # make the roll into a list
         options=[roll]
-        if (mod != 'None'):
-            options.append(mod)
 
         # Credit goes to Alan Fleming for the module that powers this command
         # https://github.com/AlanCFleming/DiceParser
