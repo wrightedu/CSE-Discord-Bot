@@ -37,7 +37,6 @@ class checkinmenu(View):
     async def done_on_click(self, interaction:discord.Interaction):
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         for child in self.pomodoro.children:
-            print(child)
             child.disabled = True
         await interaction.response.edit_message(view=self)
         await interaction.channel.send(content=f"{interaction.user.display_name} finished task @{timestamp}")
