@@ -23,8 +23,6 @@ async def confirmation(bot, interaction:discord.Interaction, confirm_string='con
         (bool): Whether or not the confirmation succeeded
     """
 
-    interaction.response.defer()
-
     # Ask for confirmation
     await interaction.channel.send(f'Enter `{confirm_string}` to confirm action')
 

@@ -78,9 +78,8 @@ class AdminCommands(commands.Cog):
     async def clear(self, interaction:discord.Interaction, amount:str):
         """Clears a specific number of messages from a guild
         Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
-        clear a very large number of messages from the server. If the amount is blank, tell user how to more
-        properly use the command. Otherwise, send message confirming how many messages are being cleared and log it.
-        Purge the appropriate number of messages from the channel.
+        clear a very large number of messages from the server. Otherwise, send message confirming how many
+        messages are being cleared and log it. Purge the appropriate number of messages from the channel.
 
         Args:
             amount (str): Number of messages to be removed
@@ -89,6 +88,7 @@ class AdminCommands(commands.Cog):
             States the amount of messages being cleared or, if invalid input, help on how to use the command
         """
 
+        await interaction.response.send_message(f'Invoked `/clear`...')
         if amount == 'all':
             if not await confirmation(self.bot, interaction):
                 return
@@ -100,53 +100,66 @@ class AdminCommands(commands.Cog):
             try:
                 amount = int(amount)
             except ValueError:
-                await interaction.response.send_message("The `amount` parameter can only take either `all` or a number.")
+                await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
                 await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
                 return
 
-            if amount >= 10 and not await confirmation(self.bot, interaction): # deletes 3 fewer messages if going into confirmation for some reason
+            if amount < 10:
+                await interaction.channel.send(f'Clearing {amount} messages from this channel')
+                await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+                sleep(1)
+                await interaction.channel.purge(limit=int(float(amount)) + 2)
                 return
-            # print(amount)
+            elif amount >= 10 and not await confirmation(self.bot, interaction):
+                return
             await interaction.channel.send(f'Clearing {amount} messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
 
         sleep(1)
-        await interaction.channel.purge(limit=int(float(amount)) + 1)
+        await interaction.channel.purge(limit=int(float(amount)) + 5)
 
-    # @commands.command(help='`-clear AMOUNT` to clear AMOUNT messages\n`-clear all` to clear all messages from this channel')
+
+    # @app_commands.command(description="removes a specified role from each member of a guild.")
+    # @app_commands.default_permissions(administrator=True)
+    # async def clearrole(self, interaction:discord.Interaction, *, role_id):
+
+    # @commands.command()
     # @commands.has_permissions(administrator=True)
-    # async def clear(self, ctx, amount=''):
-    #     """Clears a specific number of messages from a guild
-    #     Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
-    #     clear a very large number of messages from the server. If the amount is blank, tell user how to more
-    #     properly use the command. Otherwise, send message confirming how many messages are being cleared and log it.
-    #     Purge the appropriate number of messages from the channel.
+    # async def clearrole(self, ctx, *, role_id):
+    #     """Remove a role from each member of a guild.
+    #     Remove the extra characters from the ID number of the guild. Search through every member of a guild to see if
+    #     they have the role that matches the ID in question. If the member has the role, remove it from their roles. Send
+    #     message in chat confirming that the role has been removed, and the number of users it has been removed from.
 
     #     Args:
-    #         amount (str): Number of messages to be removed
+    #         role_id (str): ID of the role being removed
 
     #     Outputs:
-    #         States the amount of messages being cleared or, if invalid input, help on how to use the command
+    #         Message to chat regarding what role was removed and how many users were stripped of it
     #     """
 
-    #     if amount == 'all':
-    #         if not await confirmation(self.bot, ctx):
-    #             return
-    #         await ctx.send(f'Clearing all messages from this channel')
-    #         await log(self.bot, f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
-    #         amount = 999999999999999999999999999999999999999999
-    #     elif amount == '':
-    #         await ctx.send(f'No args passed. Use `-clear AMOUNT` to clear AMOUNT messages. Use `-clear all` to clear all messages from this channel')
-    #         await log(self.bot, f'{ctx.author} attempted to clear messages from #{ctx.channel}, but it failed because parameter "amount" was not passed')
-    #         return
+    #     guild = ctx.guild
+    #     role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
+
+    #     cleared_members = []
+
+    #     await log(self.bot, f'{ctx.author} is clearing {role} from all members:')
+    #     # for member in role.get_all_members():
+    #     async for member in ctx.guild.fetch_members():
+    #         if role in member.roles:
+    #             await member.remove_roles(role)
+    #             name = member.nick if member.nick is not None else member.name
+    #             await log(self.bot, name, False)
+    #             cleared_members.append(name)
+
+    #     if len(cleared_members) > 10:
+    #         await ctx.send(f'Cleared @{role} from {len(cleared_members)} members')
+    #     elif len(cleared_members) == 0:
+    #         await ctx.send(f'No members have the role @{role}')
     #     else:
-    #         amount = int(amount)
-    #         if amount >= 10 and not await confirmation(self.bot, ctx):
-    #             return
-    #         await ctx.send(f'Clearing {amount} messages from this channel')
-    #         await log(self.bot, f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
-    #     sleep(1)
-    #     await ctx.channel.purge(limit=int(float(amount)) + 2)
+    #         await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
+
+
 
     @commands.command()
     @commands.has_permissions(administrator=True)
