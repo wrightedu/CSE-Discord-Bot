@@ -106,6 +106,7 @@ class AdminCommands(commands.Cog):
 
             if amount >= 10 and not await confirmation(self.bot, interaction): # deletes 3 fewer messages if going into confirmation for some reason
                 return
+            # print(amount)
             await interaction.channel.send(f'Clearing {amount} messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
 
