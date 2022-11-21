@@ -1,6 +1,7 @@
 from os.path import exists, abspath
 
 from discord.ext import commands
+from discord import app_commands
 
 from utils.utils import *
 
@@ -13,9 +14,9 @@ class CogManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def load(self, ctx, cog_name):
+    @app_commands.command(description="Load a specific cog")
+    @app_commands.default_permissions(administrator=True)
+    async def load(self, interaction:discord.Interaction, cog_name:str):
         """Load a specific cog
         Take in the name of a cog from a user. Send a message confirming the action, and call load_extension
         command from Discord.ext, passing in cog_name. If the cog is ServerManagment, call load_server_managment
@@ -32,17 +33,17 @@ class CogManagement(commands.Cog):
 
         # If the file exists it loads the cog
         if exists(file):
-            await ctx.send(f'Loading {cog_name}')
+            await interaction.response.send_message(f'Loading {cog_name}')
             await self.bot.load_extension(f'Cogs.{cog_name}')
-            await ctx.send(f'Cog {cog_name} has been loaded')
-            await log(self.bot, f'{ctx.author} loaded the {cog_name} cog.')
+            await interaction.channel.send(f'Cog {cog_name} has been loaded')
+            await log(self.bot, f'{interaction.user} loaded the {cog_name} cog.')
         else:
-            await ctx.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
-            await log(self.bot, f'{ctx.author} attempted to reload the {cog_name} cog, but failed.')
+            await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def reload(self, ctx, cog_name):
+    @app_commands.command(description="Reload a specific cog")
+    @app_commands.default_permissions(administrator=True)
+    async def reload(self, interaction:discord.Interaction, cog_name:str):
         """Reload a specific cog
         Take in the name of single cog from a user and reload it. Output a message confirming reload action
         and use reload extension method on the cog. If reloading server managment, call load_server_managment
@@ -60,17 +61,17 @@ class CogManagement(commands.Cog):
 
         # If the file exists it reloads the cog
         if exists(file):
-            await ctx.send(f'Reloading {cog_name}')
+            await interaction.response.send_message(f'Reloading {cog_name}')
             await self.bot.reload_extension(f'Cogs.{cog_name}')
-            await ctx.send(f'Cog {cog_name} has been reloaded')
-            await log(self.bot, f'{ctx.author} reloaded the {cog_name} cog.')
+            await interaction.channel.send(f'Cog {cog_name} has been reloaded')
+            await log(self.bot, f'{interaction.user} reloaded the {cog_name} cog.')
         else:
-            await ctx.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
-            await log(self.bot, f'{ctx.author} attempted to reload the {cog_name} cog, but failed.')
+            await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def unload(self, ctx, cog_name):
+    @app_commands.command(description="Unload a specific cog")
+    @app_commands.default_permissions(administrator=True)
+    async def unload(self, interaction:discord.Interaction, cog_name:str):
         """Unload a specific cog
         Take in the name of a cog from a user. If the user is not trying to unload the CogManagment cog,
         send a message confirming the action. Call unload_extension command from Discord.ext, passing in
@@ -89,13 +90,13 @@ class CogManagement(commands.Cog):
         # If the file exists it unloads the cog
         if exists(file):
             if cog_name != 'CogManagement':
-                await ctx.send(f'Unloading {cog_name}')
+                await interaction.response.send_message(f'Unloading {cog_name}')
                 await self.bot.unload_extension(f'Cogs.{cog_name}')
-                await ctx.send(f'Cog {cog_name} has been unloaded')
-                await log(self.bot, f'{ctx.author} unloaded the {cog_name} cog.')
+                await interaction.channel.send(f'Cog {cog_name} has been unloaded')
+                await log(self.bot, f'{interaction.user} unloaded the {cog_name} cog.')
         else:
-            await ctx.send(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
-            await log(self.bot, f'{ctx.author} attempted to unload the {cog_name} cog, but failed.')
+            await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+            await log(self.bot, f'{interaction.user} attempted to unload the {cog_name} cog, but failed.')
 
     @commands.command()
     @commands.has_permissions(administrator=True)
