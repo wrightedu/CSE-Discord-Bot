@@ -331,9 +331,9 @@ class AdminCommands(commands.Cog):
         await ctx.reply(embed=embed)
 
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def restart(self, ctx):
+    @app_commands.command(description="restart the discord bot")
+    @app_commands.default_permissions(administrator=True)
+    async def restart(self, interaction:discord.Interaction):
         """Restart the discord bot
         Send message to user confirming restart, then restarts the bot
 
@@ -341,13 +341,14 @@ class AdminCommands(commands.Cog):
             Message to chat confirming that the bot is restarting.
         """
 
-        if await confirmation(self.bot, ctx):
-            await ctx.send('Restarting...')
+        await interaction.response.send_message("Invoked `/restart`...")
+        if await confirmation(self.bot, interaction):
+            await interaction.channel.send('Restarting...')
             os.execv(sys.argv[0], sys.argv)
 
-    @commands.command(aliases=['shutdown', 'poweroff', 'exit'])
-    @commands.has_permissions(administrator=True)
-    async def stop(self, ctx):
+    @app_commands.command(description="shutdown the discord bot")
+    @app_commands.default_permissions(administrator=True)
+    async def stop(self, interaction:discord.Interaction):
         """Shutdown the discord bot
         Send message to user confirming shutdown. Exit program.
 
@@ -355,6 +356,7 @@ class AdminCommands(commands.Cog):
             Message to user that discord bot is being shut down
         """
 
-        if await confirmation(self.bot, ctx):
-            await ctx.send('Stopping...')
-            await ctx.bot.close()
+        await interaction.response.send_message("Invoked `/stop`...")
+        if await confirmation(self.bot, interaction):
+            await interaction.channel.send('Stopping...')
+            await self.bot.close()
