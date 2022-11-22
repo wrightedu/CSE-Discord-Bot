@@ -38,40 +38,36 @@ class AdminCommands(commands.Cog):
         message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user)
 
         # logs appropriately
-        await log(self.bot, f"{interaction.user} has executed the announcement command in the {interaction.channel}")
+        await log(self.bot, f"{interaction.user} has executed the announcement command in #{interaction.channel}")
 
         # gets the channel ids from the mentions
-        channel_ids = channel_mentions.split()
+        channel_mentions_list = channel_mentions.split()
         channels = []
-        for channel_id in channel_ids:
-            channel_id = channel_id.replace('<#', '')
-            channel_id = channel_id.replace('>', '')
-
+        channel_names = []
+        for channel_mention in channel_mentions_list:
             # ensures the channel mentions can be converted to integers
             try:
-                int(channel_id)
+                int(channel_mention[2:-1])
             except ValueError:
                 await interaction.channel.send("The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
-                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s)")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)")
                 return
 
             # ensures the channels exist
-            channel = self.bot.get_channel(int(channel_id))
+            channel = discord.utils.get(interaction.guild.text_channels, id=int(channel_mention[2:-1]))
             if (channel == None):
-                await interaction.channel.send(f"Channel with id '{channel_id}' could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
-                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed of invalid channel mention(s)")
+                await interaction.channel.send(f"The '{channel_mention}' channel could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)")
                 return
             channels.append(channel)
+            channel_names.append(f"#{channel.name}")
 
-        log_str = ""
         # sends the message to the specified channels
         for channel in channels:
             await channel.send(message.content)
-            log_str = log_str + f"#{channel.name} "
         
         # logs appropriately
-        await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to {log_str}")
-
+        await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to {', '.join(channel_names)}")
 
     @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
     @app_commands.default_permissions(administrator=True)
@@ -119,71 +115,42 @@ class AdminCommands(commands.Cog):
         await interaction.channel.purge(limit=int(float(amount)) + 5)
 
 
-    # @app_commands.command(description="removes a specified role from each member of a guild.")
-    # @app_commands.default_permissions(administrator=True)
-    # async def clearrole(self, interaction:discord.Interaction, *, role_id):
-
-    # @commands.command()
-    # @commands.has_permissions(administrator=True)
-    # async def clearrole(self, ctx, *, role_id):
-    #     """Remove a role from each member of a guild.
-    #     Remove the extra characters from the ID number of the guild. Search through every member of a guild to see if
-    #     they have the role that matches the ID in question. If the member has the role, remove it from their roles. Send
-    #     message in chat confirming that the role has been removed, and the number of users it has been removed from.
-
-    #     Args:
-    #         role_id (str): ID of the role being removed
-
-    #     Outputs:
-    #         Message to chat regarding what role was removed and how many users were stripped of it
-    #     """
-
-    #     guild = ctx.guild
-    #     role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
-
-    #     cleared_members = []
-
-    #     await log(self.bot, f'{ctx.author} is clearing {role} from all members:')
-    #     # for member in role.get_all_members():
-    #     async for member in ctx.guild.fetch_members():
-    #         if role in member.roles:
-    #             await member.remove_roles(role)
-    #             name = member.nick if member.nick is not None else member.name
-    #             await log(self.bot, name, False)
-    #             cleared_members.append(name)
-
-    #     if len(cleared_members) > 10:
-    #         await ctx.send(f'Cleared @{role} from {len(cleared_members)} members')
-    #     elif len(cleared_members) == 0:
-    #         await ctx.send(f'No members have the role @{role}')
-    #     else:
-    #         await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
-
-
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def clearrole(self, ctx, *, role_id):
+    @app_commands.command(description="removes a specified role from each member of a guild.")
+    @app_commands.default_permissions(administrator=True)
+    async def clearrole(self, interaction:discord.Interaction, role_mention:str):
         """Remove a role from each member of a guild.
-        Remove the extra characters from the ID number of the guild. Search through every member of a guild to see if
-        they have the role that matches the ID in question. If the member has the role, remove it from their roles. Send
-        message in chat confirming that the role has been removed, and the number of users it has been removed from.
+        Remove the extra characters from the ID number of the guild obtained from the role_mention. Search through every
+        member of a guild to see if they have the role that matches the ID in question. If the member has the role,
+        remove it from their roles. Send message in chat confirming that the role has been removed, and the number of
+        users it has been removed from.
 
         Args:
-            role_id (str): ID of the role being removed
+            role_mention (str): mention of role being removed
 
         Outputs:
             Message to chat regarding what role was removed and how many users were stripped of it
         """
 
-        guild = ctx.guild
-        role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
+        guild = interaction.guild
+
+        try:
+            int(role_mention[3:-1])
+        except ValueError:
+            await interaction.channel.send("The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
+            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because of an invalid role mention")
+            return
+
+        role = discord.utils.get(guild.roles, id=int(role_mention[3:-1]))
+        if role == None:
+            await interaction.channel.send(f"The '{role_mention}' role could not be found. The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
+            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because it could not be found")
+            return
 
         cleared_members = []
 
-        await log(self.bot, f'{ctx.author} is clearing {role} from all members:')
-        # for member in role.get_all_members():
-        async for member in ctx.guild.fetch_members():
+        await log(self.bot, f"{interaction.user} is clearing the '@{role.name}' role from all members:")
+
+        async for member in guild.fetch_members():
             if role in member.roles:
                 await member.remove_roles(role)
                 name = member.nick if member.nick is not None else member.name
@@ -191,11 +158,11 @@ class AdminCommands(commands.Cog):
                 cleared_members.append(name)
 
         if len(cleared_members) > 10:
-            await ctx.send(f'Cleared @{role} from {len(cleared_members)} members')
+            await interaction.channel.send(f'Cleared {role.mention} from {len(cleared_members)} members')
         elif len(cleared_members) == 0:
-            await ctx.send(f'No members have the role @{role}')
+            await interaction.channel.send(f'No members have the role {role.mention}')
         else:
-            await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
+            await interaction.channel.send(f'Cleared {role.mention} from {", ".join(cleared_members)}')
     
     @commands.command()
     @commands.has_permissions(administrator=True)
