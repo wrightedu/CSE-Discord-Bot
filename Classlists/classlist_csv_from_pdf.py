@@ -25,6 +25,7 @@ if __name__ == '__main__':
     # Find sections that contain class names
     class_rows = []
     for section in sections:
+        # If the select column has nothing in it
         match = re.search(r'^\d{5}\s', section)
         # Select Column: Select the box in front of the CRN then choose Register or Add to Worksheet. You may see the following in place of the box. A blank means already registered, C means a
         # closed class, NR means not available for registration and SR means a student restriction (i.e. time ticket has not started, holds, or academic standing restrictions).
@@ -46,6 +47,7 @@ if __name__ == '__main__':
                 else:
                     class_name += word.strip() + ' '
             class_name = class_name.strip().replace('\n', ' ')
+        # If the select row has nothing in it set everything back one
         else:
             class_department = row.split(' ')[1]
             class_number = row.split(' ')[2]
@@ -125,10 +127,3 @@ if __name__ == '__main__':
 
     # Save to classlist
     df.to_csv('classlist.csv', index=False)
-
-    # # Add other roles
-    # with open('classlist.csv', 'a') as f:
-    #     f.write('"Career Services", "career_services", "Career Services",,\n')
-    #     f.write('"ACM", "acm", "ACM", "Association for Computing Machinery",\n')
-    #     f.write('"IEEE", "ieee", "IEEE", "Institute of Electrical and Electronics Engineers",\n')
-    #     f.write('"Collegiate Esports Club", "esports_club", "https://discord.gg/smmV38d",,\n')
