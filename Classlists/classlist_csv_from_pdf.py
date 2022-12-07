@@ -5,7 +5,8 @@ import re
 
 if __name__ == '__main__':
     text = parser.from_file('Look_Up_Classes.pdf')['content']
-    # print(text)
+    # In order to get the PDF you must zoom out to 20% while printing the page
+    # This ensures the all the data is on one line and it can be parsed correctly
 
     # Split text into groups separated by new lines
     # In the PDF, this manifests as different blocks of columns
@@ -20,36 +21,29 @@ if __name__ == '__main__':
     # 60 60 0 20 3 17 0 0 0 Kayleigh Elizabeth
     # Duncan (P)
     # ---
-    sections = text.split(r"^\b\d{5}\b|^[C]\b|^[NR]\b|^[SR]\b/m")
-    # print(sections[0])
-
+    sections = text.split('\n\n')
     # Find sections that contain class names
     class_rows = []
     for section in sections:
-        match = re.search(r"^\b\d{5}\b", section)
-        if match:
-            print(section)
-            class_rows.append(section)
+        match = re.search(r'^\d{5}\s', section)
         # Select Column: Select the box in front of the CRN then choose Register or Add to Worksheet. You may see the following in place of the box. A blank means already registered, C means a
         # closed class, NR means not available for registration and SR means a student restriction (i.e. time ticket has not started, holds, or academic standing restrictions).
-        if section.startswith('C ') or section.startswith('NR ') or section.startswith('SR '):
-            print(section)
+        if section.startswith('C ') or section.startswith('NR ') or section.startswith('SR ') or match:
             class_rows.append(section)
+
 
     # Get list of classes (number, name)
     classes = []
     for row in class_rows:
-        # print(row)
         if row.startswith('C ') or row.startswith('NR ') or row.startswith('SR '):
             class_department = row.split(' ')[2]
             class_number = row.split(' ')[3]
             class_name = ''
             for word in row.split(' ')[7:]:
-
+                
                 if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR'} or word[0].isdigit():
                     break
                 else:
-                    # print(word)
                     class_name += word.strip() + ' '
             class_name = class_name.strip().replace('\n', ' ')
         else:
