@@ -69,6 +69,7 @@ class AdminCommands(commands.Cog):
         # logs appropriately
         await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to {', '.join(channel_names)}")
 
+
     @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
     @app_commands.default_permissions(administrator=True)
     async def clear(self, interaction:discord.Interaction, amount:str):
@@ -164,6 +165,7 @@ class AdminCommands(commands.Cog):
         else:
             await interaction.channel.send(f'Cleared {role.mention} from {", ".join(cleared_members)}')
     
+
     @app_commands.command(description="downloads a given number of corgi pictures")
     @app_commands.default_permissions(administrator=True)
     async def downloadcorgis(self, interaction:discord.Interaction, amount:int):
@@ -181,6 +183,7 @@ class AdminCommands(commands.Cog):
 
         await download_corgis(self.bot, interaction, amount)
     
+
     @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
     @app_commands.default_permissions(administrator=True)
     async def history(self, interaction:discord.Interaction, username:str):
@@ -198,9 +201,6 @@ class AdminCommands(commands.Cog):
         await interaction.response.send_message(f'Invoked `/history`...')
 
         guild = interaction.guild
-
-        # await ctx.send(f"Please enter a user's discord username.")
-        # username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
 
         member_found = False
         for member in guild.members:
@@ -243,6 +243,7 @@ class AdminCommands(commands.Cog):
 
         os.remove("/tmp/history.txt")
 
+
     @app_commands.command(description="set status of discord bot")
     @app_commands.default_permissions(administrator=True)
     async def status(self, interaction:discord.Interaction, status:str):
@@ -269,6 +270,7 @@ class AdminCommands(commands.Cog):
                 await self.bot.change_presence(activity=discord.Game(status))
                 await log(self.bot, f'{interaction.user} changed the custom status to "Playing {status}"')
                 await f.write(status) # write the new status to the file
+    
     
     @app_commands.command(description="outputs various stats of the server")
     @app_commands.default_permissions(administrator=True)
