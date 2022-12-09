@@ -36,7 +36,7 @@ async def confirmation(bot, interaction:discord.Interaction, confirm_string='con
         return False
 
 
-async def download_corgis(bot, ctx, amount):
+async def download_corgis(bot, interaction, amount):
     """Download Corgi Pictures
     Send message to user informing them how many corgis will be downloaded. Use the downloader to download
     a specified amount of corgies into 'dogs' with a functioning adult filter. Log the event.
@@ -52,13 +52,13 @@ async def download_corgis(bot, ctx, amount):
         Who sent command and the amount of pictures downloaded.
     """
 
-    await ctx.send(f'Downloading {amount} images')
+    await interaction.response.send_message(f'Downloading {amount} images')
     downloader.download('corgis',
                         limit=amount,
                         output_dir='dogs',
                         adult_filter_off=False,
                         force_replace=False)
-    await log(bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
+    await log(bot, f'{interaction.user} ran /downloadcorgis {amount} in #{interaction.channel}')
 
 
 async def dm(member, content):

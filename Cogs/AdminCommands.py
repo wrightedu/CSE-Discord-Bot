@@ -164,9 +164,9 @@ class AdminCommands(commands.Cog):
         else:
             await interaction.channel.send(f'Cleared {role.mention} from {", ".join(cleared_members)}')
     
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def downloadcorgis(self, ctx, amount):
+    @app_commands.command(description="downloads a given number of corgi pictures")
+    @app_commands.default_permissions(administrator=True)
+    async def downloadcorgis(self, interaction:discord.Interaction, amount:int):
         """Downloads a given number of corgi pictures.
         Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
         Call the download_corgies method from utils.py. Log the user and number of images downloaded.
@@ -176,53 +176,51 @@ class AdminCommands(commands.Cog):
 
         Outputs:
             Message to log stating the user that executed the command and how many images were downloaded
-            Message to user if the input was invalid. States that 100 corgis are downloaded.
+            Message to user stating numer of images downloaded
         """
 
-        try:
-            amount = int(amount)
-        except Exception:
-            amount = 100
-            await ctx.send(f'Invalid parameter, downloading {amount} images')
-        await download_corgis(self.bot, ctx, amount)
-        await log(self.bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
+        await download_corgis(self.bot, interaction, amount)
     
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def history(self, ctx):
+    @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
+    @app_commands.default_permissions(administrator=True)
+    async def history(self, interaction:discord.Interaction, username:str):
         """Outputs all messages from a specified user after a specified date with some metadata to a file
         Prompts user for username and date. Outputs messages authored by that username and sent after that date
         to a file. Outputs file to discord channel if it is less that 4 MB.
 
+        Args:
+            username (str): username of the desired user
         Outputs:
             A file to chat including all messages from a user after a date, whether those messages are a reply,
             a link to those messages, and all reactions to those messages.
         """
 
-        guild = ctx.guild
+        await interaction.response.send_message(f'Invoked `/history`...')
 
-        await ctx.send(f"Please enter a user's discord username.")
-        username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
+        guild = interaction.guild
+
+        # await ctx.send(f"Please enter a user's discord username.")
+        # username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
 
         member_found = False
         for member in guild.members:
-            if member.name == username_message.content:
+            if member.name == username:
                 member_found = True
                 break
 
         if not member_found:
-            await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
-            if not await confirmation(self.bot, ctx, confirm_string="yes"):
+            await interaction.channel.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
+            if not await confirmation(self.bot, interaction, confirm_string="yes"):
                 return
         that_day = months_ago(4)
         
         history_file = open("/tmp/history.txt", "w")
-        channel = ctx.channel
+        channel = interaction.channel
         # gets 250 most recent messages posted less than 4 months ago
         messages = [message async for message in channel.history(limit=250, after=that_day, oldest_first=False)]
 
         for message in messages:
-            if message.author.name == username_message.content and message.type is MessageType.default:
+            if message.author.name == username and message.type is MessageType.default:
                 history_file.write(f"{message.content}\n")
                 if message.reference:
                     history_file.write(f"a reply\n")
@@ -237,17 +235,17 @@ class AdminCommands(commands.Cog):
 
         size = os.path.getsize("/tmp/history.txt")
         if size == 0:
-            await ctx.send(f"No messages were found.")
+            await interaction.channel.send(f"No messages were found.")
         elif size <= 4194304:
-            await ctx.send(file=discord.File("/tmp/history.txt"))
+            await interaction.channel.send(file=discord.File("/tmp/history.txt"))
         else:
-            await ctx.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
+            await interaction.channel.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
 
         os.remove("/tmp/history.txt")
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def status(self, ctx, *, status):
+    @app_commands.command(description="set status of discord bot")
+    @app_commands.default_permissions(administrator=True)
+    async def status(self, interaction:discord.Interaction, status:str):
         """Set status of discord bot
         Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
         removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
@@ -257,22 +255,24 @@ class AdminCommands(commands.Cog):
             status (str): Text to be displayed
         """
 
+        await interaction.response.send_message(f'Invoked `/status`...')
+
         # open a file to store the status in
         async with aiofiles.open('status.txt', mode='w') as f:
         
             status = status.strip()
             if status.lower() == 'none':
                 await self.bot.change_presence(activity=None)
-                await log(self.bot, f'{ctx.author} disabled the custom status')
+                await log(self.bot, f'{interaction.user} disabled the custom status')
                 await f.write('Raider Up!') # Default status for when the bot restarts
             elif len(status) <= 128:
                 await self.bot.change_presence(activity=discord.Game(status))
-                await log(self.bot, f'{ctx.author} changed the custom status to "Playing {status}"')
+                await log(self.bot, f'{interaction.user} changed the custom status to "Playing {status}"')
                 await f.write(status) # write the new status to the file
     
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def stats(self, ctx):
+    @app_commands.command(description="outputs various stats of the server")
+    @app_commands.default_permissions(administrator=True)
+    async def stats(self, interaction:discord.Interaction):
         """Outputs various stats of the server
         Send message with server stats to user
 
@@ -281,7 +281,7 @@ class AdminCommands(commands.Cog):
             and people with top ten roles.
         """
 
-        guild = ctx.guild
+        guild = interaction.guild
 
         embed = discord.Embed(
             title="Server Stats",
@@ -291,7 +291,7 @@ class AdminCommands(commands.Cog):
         total_text_channels = len(guild.text_channels)
         total_voice_channels = len(guild.voice_channels)
         total_channels = total_text_channels + total_voice_channels 
-        total_users = len(ctx.guild.members)
+        total_users = len(interaction.guild.members)
 
         num_roles = 0
         for role in guild.roles:
@@ -328,7 +328,7 @@ class AdminCommands(commands.Cog):
                 break
             embed.add_field(name=value[0], value=value[1])
 
-        await ctx.reply(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
 
     @app_commands.command(description="restart the discord bot")
