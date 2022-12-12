@@ -273,6 +273,8 @@ class CourseManagement(commands.Cog):
     async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str):
         """Creates role menus
         Take in user input for what button and role to create
+        Check the role given to see if it is a URL
+        If the role is a URL dont give the button a callback
         Create the role given (if it doesn't already exist)
         Create the button and put it in a view
         Send the role menu consisting of the view to the user
@@ -297,7 +299,10 @@ class CourseManagement(commands.Cog):
         this_button = RoleButton(button_name=button_name, role_name=role_name)
         if emoji[0] == '<':
             this_button.emoji = emoji
-        this_button.callback = this_button.on_click
+
+        # If there is not a url give it a callback otherwise continue
+        if not this_button.url:
+            this_button.callback = this_button.on_click
         view.add_item(this_button)
 
         # send to user
