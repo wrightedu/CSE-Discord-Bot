@@ -90,7 +90,7 @@ class CourseManagement(commands.Cog):
         Create all categories, channels, and roles
         """
 
-        await interaction.response.send_message("Please send CSV if you intend to use one.")
+        await interaction.response.send_message("Please send CSV if you intend to use one. If you do not intend to use one, the cached CSV will be used.")
         csv_filepath = f'role_lists/roles_{interaction.guild.id}.csv'
 
         csv = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
