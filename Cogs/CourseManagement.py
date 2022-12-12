@@ -90,9 +90,6 @@ class CourseManagement(commands.Cog):
         Create all categories, channels, and roles
         """
 
-        # destroy courses first here
-        await self.destroycourses(ctx)
-
         csv_filepath = f'role_lists/roles_{ctx.guild.id}.csv'
 
         # If csv file attached, overwrite existing csv
@@ -104,10 +101,17 @@ class CourseManagement(commands.Cog):
             await ctx.message.attachments[0].save(csv_filepath)
         
         courses_df = pd.read_csv(csv_filepath)
+
+        # iterates through dataframe checking if a category exists
+        # if it does, drop the row from the dataframe
+        for i in range(len(courses_df)):
+            if get(ctx.guild.categories, name=courses_df.loc[i, "text"]):
+                courses_df.drop(index=i, axis=0, inplace=True)
+        
         courses_df = courses_df.dropna(subset=['create_channels'])
 
         # extracts appropriate columns using a dataframe
-        role_names=courses_df["role/link"].to_list()
+        role_names = courses_df["role/link"].to_list()
         course_channels = courses_df["create_channels"].to_list()
         category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
@@ -117,6 +121,9 @@ class CourseManagement(commands.Cog):
         for category_name in category_names:
             message += f'{category_name}\n'
         await ctx.send(message)
+
+        if not len(category_names):
+            await ctx.send("NO CATEGORIES TO BUILD")
 
         # Get confirmation before building channels
         if not await confirmation(self.bot, ctx, 'build'):
@@ -172,7 +179,7 @@ class CourseManagement(commands.Cog):
 
         # drop cross-listed courses (and other roles if on the file)
         courses_df = courses_df.dropna(subset=['create_channels'])
-
+        
         # List of names of categories to be destroyed, as determined by saved csv
         category_names = courses_df['text'].tolist()
         categories = await self.get_category(ctx, category_names)
@@ -188,14 +195,17 @@ class CourseManagement(commands.Cog):
         else:
             message += f'NO CATEGORIES FOUND\n'
         
-        message += '__**DESTROY FOLLOWING ROLES**__\n'
+        await ctx.send(message)
+        
+        message = '__**DESTROY FOLLOWING ROLES**__\n'
         if len(destroy_roles):
             for role in destroy_roles:
-                message += f'{role.mention}\n'
+                message += f'{role.name}\n'
         else:
             message += f'NO ROLES FOUND\n'
-        
+
         await ctx.send(message)
+
         if not await confirmation(self.bot, ctx, 'destroy'):
             return
         
@@ -261,6 +271,8 @@ class CourseManagement(commands.Cog):
     async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str):
         """Creates role menus
         Take in user input for what button and role to create
+        Check the role given to see if it is a URL
+        If the role is a URL dont give the button a callback
         Create the role given (if it doesn't already exist)
         Create the button and put it in a view
         Send the role menu consisting of the view to the user
@@ -278,7 +290,10 @@ class CourseManagement(commands.Cog):
         # create the button
         view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
-        this_button.callback = this_button.on_click
+
+        # If there is not a url give it a callback otherwise continue
+        if not this_button.url:
+            this_button.callback = this_button.on_click
         view.add_item(this_button)
 
         # send to user

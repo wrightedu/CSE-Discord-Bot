@@ -316,4 +316,4 @@ class AdminCommands(commands.Cog):
 
         if await confirmation(self.bot, ctx):
             await ctx.send('Stopping...')
-            exit(0)
+            await ctx.bot.close()
