@@ -5,6 +5,7 @@ from pathlib import Path
 from random import randint
 
 from discord.ext import commands
+from discord import app_commands
 
 from utils.utils import *
 from diceParser import parse
@@ -18,6 +19,7 @@ class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # going to be removed, not turning into a slash command
     @commands.command()
     async def attendance(self, ctx):
         """Sends a list of all members in the same voice channel as the command author
@@ -38,8 +40,8 @@ class StudentCommands(commands.Cog):
         except AttributeError:
             await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
 
-    @commands.command(aliases=['corgmi'])
-    async def corgme(self, ctx, number=-1):
+    @app_commands.command(description="Get a cute picture of some corgis!") 
+    async def corgme(self, interaction:discord.Interaction, number:int =-1):
         """Sends a picture of a corgi
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
         Loop through all images in the directory containing pictures and place them in a list of images.
@@ -57,14 +59,14 @@ class StudentCommands(commands.Cog):
         # Check if corgis dir exists
         if not exists('dogs/corgis'):
             await log(self.bot, 'Corgis directory not found, downloading 100 images')
-            await download_corgis(self.bot, ctx, 100)
+            await download_corgis(self.bot, interaction, 100)
 
         # Get images from directory
         images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
 
         # If 404, send cute error
         if number == 404:
-            await ctx.send(file=discord.File('assets/Corgi404Error.png'))
+            await interaction.response.send_message(f'Corgi #{number}:', file=discord.File('assets/Corgi404Error.png'))
             return
 
         # Generates a random number if no number is given
@@ -74,13 +76,14 @@ class StudentCommands(commands.Cog):
         image = images[number]
 
         # Send image
-        await ctx.send(f'Corgi #{number}:', file=discord.File(image))
+        await interaction.response.send_message(f'Corgi #{number}:', file=discord.File(image))
 
         # put in the log channel that the corgme command was run
-        await log(self.bot, f'{ctx.author} ran /corgme in #{ctx.channel}')
+        await log(self.bot, f'{interaction.user} ran /corgme in #{interaction.channel}')
 
-    @commands.command()
-    async def helloworld(self, ctx, language='random'):
+
+    @app_commands.command(description='Displays the code needed to print "hello world" to the console')
+    async def helloworld(self, interaction:discord.Interaction, language: str ='random'):
         """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
         Take in user input for a programming language. If input is ls, list all the languages that the command
         can give code for. If input is not listed in the keys for output or is 'random', pick a random language
@@ -109,7 +112,7 @@ class StudentCommands(commands.Cog):
             languages = [i for i in language_data]
             languages.sort()
             languages = '\n'.join(languages)
-            await ctx.send(f'```I know:\n{languages}```')
+            await interaction.response.send_message(f'```I know:\n{languages}```')
             return
 
         # If invalid input, make it random
@@ -123,11 +126,11 @@ class StudentCommands(commands.Cog):
 
         # Build the message
         message = f'{language}\n```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
-        await ctx.send(message)
-        await log(self.bot, f'{ctx.author} ran /helloworld with language {language} in #{ctx.channel}')
+        await interaction.response.send_message(message)
+        await log(self.bot, f'{interaction.user} ran /helloworld with language {language} in #{interaction.channel}')
 
-    @commands.command()
-    async def ping(self, ctx):
+    @app_commands.command(description="Sends message containing Discord WebSocket protocol latency")
+    async def ping(self, interaction:discord.Interaction):
         """Sends the Discord WebSocket protocol latency
         Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
 
@@ -136,11 +139,12 @@ class StudentCommands(commands.Cog):
         """
 
         latency = round(self.bot.latency * 1000)
-        await ctx.send(f'{latency} ms')
-        await log(self.bot, f'{ctx.author} pinged from #{ctx.channel}, response took {latency} ms')
+        await interaction.response.send_message(f'{latency} ms')
+        await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
 
-    @commands.command()
-    async def poll(self, ctx, question, *options: str):
+    @app_commands.command(description="Create a poll users can vote on, put spaces between options, quotes around multiple word options")
+    async def poll(self, interaction:discord.Interaction, question:str, option1: str, option2: str, option3: str = 'None', option4: str = 'None', 
+    option5: str = 'None', option6: str = 'None', option7: str = 'None', option8: str = 'None', option9: str = 'None', option10: str = 'None'):
         """Create a poll that users can vote on
         Delete user message to call command. Prompt user to enter correct number of messages if command is called
         impoperly. Determine what the most approptiate reactions for voting will be for the poll. Create a list
@@ -149,20 +153,36 @@ class StudentCommands(commands.Cog):
         Log the creation of the poll.
 
         Args:
-            question (str): A question that the poll taker is asking. Should be encapsulated by a set of quotation marks.
-            options (tuple (str)): A set of options for users to choose. Each option should be encapsulated by a set of quotation marks.
+            question (str): A question that the poll taker is asking. 
+            options (tuple (str)): A set of options for users to choose. Put a space between each option
                 May have multiple entries
 
         Outputs:
             Message stating the question of the poll with answers bound to numeric emojis. Reacts to the message with those emojis
         """
 
-        # Delete sender's message
-        await ctx.channel.purge(limit=1)
+        # make a list of options, always have 2, the rest are optional, add if exist
+        options = [option1, option2]
+        if (option3 != 'None'):
+            options.append(option3)
+        if (option4 != 'None'):
+            options.append(option4)
+        if (option5 != 'None'):
+            options.append(option5)
+        if (option6 != 'None'):
+            options.append(option6)
+        if (option7 != 'None'):
+            options.append(option7)
+        if (option8 != 'None'):
+            options.append(option8)
+        if (option9 != 'None'):
+            options.append(option9)
+        if (option10 != 'None'):
+            options.append(option10)
 
         # Need between 2 and 10 options for a poll
         if not (1 < len(options) <= 10):
-            await ctx.send('Enter between 2 and 10 answers')
+            await interaction.response.send_message('Enter between 2 and 10 answers')
             return
 
         # Define reactions
@@ -176,18 +196,19 @@ class StudentCommands(commands.Cog):
             description += '\n {} {}'.format(reactions[i], option)
         embed = discord.Embed(title=question, description=''.join(description))
 
-        react_message = await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
+        react_message = await interaction.original_response() # store original message to add reactions to
         for reaction in reactions[:len(options)]:
             await react_message.add_reaction(reaction)
 
         # Logging
-        await log(self.bot, f'{ctx.author} started a poll in #{ctx.channel}:')
+        await log(self.bot, f'{interaction.user} started a poll in #{interaction.channel}:')
         await log(self.bot, question, False)
         for option in options:
             await log(self.bot, f'{option}', False)
 
-    @commands.command()
-    async def roll(self, ctx, *options):
+    @app_commands.command(description="Rolls dice based on input") 
+    async def roll(self, interaction:discord.Interaction, roll:str):
         """Rolls dice based on input
         Check to see if the input is an appropriate size and quantity. Call imported dice parse module and store in
         'output'. 'output'[0] is the raw roll, and 'output'[1] is the roll with all modifiers included. If the length
@@ -203,6 +224,9 @@ class StudentCommands(commands.Cog):
             Result of dice rolled and pruned, or otherwise specified
         """
 
+        # make the roll into a list
+        options=[roll]
+
         # Credit goes to Alan Fleming for the module that powers this command
         # https://github.com/AlanCFleming/DiceParser
         dice = ' '.join(options)
@@ -210,17 +234,28 @@ class StudentCommands(commands.Cog):
             try:
                 output = parse(dice)
                 if len(output[0]) > 100:
-                    await ctx.send(output[1])
+                    await interaction.response.send_message(output[1]) # interaction.response.send_message
                 else:
-                    await ctx.send(f'{output[0]}\n{output[1]}')
-                await log(self.bot, f'{ctx.author} successfully ran /roll in #{ctx.channel}')
+                    await interaction.response.send_message(f'{output[0]}\n{output[1]}')
+                await log(self.bot, f'{interaction.user} successfully ran /roll in #{interaction.channel}')
             except Exception:
-                await ctx.send('Invalid input')
-                await log(self.bot, f'{ctx.author} unsuccessfully ran /roll in #{ctx.channel}, errored because input was invalid')
+                await interaction.response.send_message('Invalid input')
+                await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was invalid')
         else:
-            await ctx.send('Too large of an input')
-            await log(self.bot, f'{ctx.author} unsuccessfully ran /roll in #{ctx.channel}, errored because input was too large')
+            await interaction.response.send_message('Too large of an input')
+            await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was too large')
 
+    # not implementing slash command for this command since it currently is not developed
+    # @app_commands.command(description="TBD planned support command")
+    # async def support(self, interaction:discord.Interaction):
+        # """A planned support command
+        # Informs user that the command is not yet available.
+
+        # Outputs:
+        #     error message explaining that the command is not yet available.
+        # """
+        # await interaction.response.send_message(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
+    
     @commands.command()
     async def support(self, ctx):
         """A planned support command
