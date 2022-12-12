@@ -197,7 +197,7 @@ class StudentCommands(commands.Cog):
         embed = discord.Embed(title=question, description=''.join(description))
 
         await interaction.response.send_message(embed=embed)
-        react_message = await interaction.original_message() # store original message to add reactions to
+        react_message = await interaction.original_response() # store original message to add reactions to
         for reaction in reactions[:len(options)]:
             await react_message.add_reaction(reaction)
 
