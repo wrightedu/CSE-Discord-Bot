@@ -275,6 +275,8 @@ class CourseManagement(commands.Cog):
     async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str):
         """Creates role menus
         Take in user input for what button and role to create
+        Check the role given to see if it is a URL
+        If the role is a URL dont give the button a callback
         Create the role given (if it doesn't already exist)
         Create the button and put it in a view
         Send the role menu consisting of the view to the user

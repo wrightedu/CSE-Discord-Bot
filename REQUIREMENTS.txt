@@ -4,3 +4,4 @@ discord.py @ git+https://github.com/Rapptz/discord.py@903e2e64e9182b8d3330ef565a
 pandas>=1.4.2
 python-dotenv>=0.20.0
 PyYAML>=6.0
+validators>=0.20.0
