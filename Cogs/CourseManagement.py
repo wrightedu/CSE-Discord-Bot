@@ -178,6 +178,7 @@ class CourseManagement(commands.Cog):
         try:
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
+            await interaction.followup.send("File not found")
             raise FileNotFoundError
 
         # drop cross-listed courses (and other roles if on the file)
@@ -210,6 +211,7 @@ class CourseManagement(commands.Cog):
         await interaction.channel.send(message)
 
         if not await confirmation(self.bot, interaction, 'destroy'):
+            await interaction.followup.send("Confirmation denied")
             return
         
         # Destroy categories and all subchannels
@@ -247,6 +249,7 @@ class CourseManagement(commands.Cog):
         try:
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
+            await interaction.followup.send("File not found")
             raise FileNotFoundError
 
         # extracts appropriate columns using a dataframe
@@ -268,6 +271,7 @@ class CourseManagement(commands.Cog):
                 view.add_item(this_button)
         if not len(view.children):
             await interaction.channel.send('No buttons were built. Please check your prefix')
+            await interaction.followup.send("No buttons were built")
             return
         await channel.send(view=view)
         await interaction.followup.send("Role buttons have been built")

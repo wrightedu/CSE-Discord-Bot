@@ -88,6 +88,7 @@ class AdminCommands(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         if amount == 'all':
             if not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirmed")
                 return
             await interaction.channel.send(f'Clearing all messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
@@ -99,6 +100,7 @@ class AdminCommands(commands.Cog):
             except ValueError:
                 await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
                 await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
+                await interaction.followup.send("`amount` parameter is invalid")
                 return
 
             if amount < 10:
@@ -106,8 +108,10 @@ class AdminCommands(commands.Cog):
                 await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
                 sleep(1)
                 await interaction.channel.purge(limit=int(float(amount)) + 2)
+                await interaction.followup.send(f'Cleared {amount} messages from this channel')
                 return
             elif amount >= 10 and not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirm")
                 return
             await interaction.channel.send(f'Clearing {amount} messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
@@ -213,6 +217,7 @@ class AdminCommands(commands.Cog):
         if not member_found:
             await interaction.channel.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
             if not await confirmation(self.bot, interaction, confirm_string="yes"):
+                await interaction.channel.send("Command not confirmed")
                 return
         that_day = months_ago(4)
         
