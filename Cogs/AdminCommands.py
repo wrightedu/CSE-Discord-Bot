@@ -111,7 +111,7 @@ class AdminCommands(commands.Cog):
                 await interaction.followup.send(f'Cleared {amount} messages from this channel')
                 return
             elif amount >= 10 and not await confirmation(self.bot, interaction):
-                await interaction.followup.send("Command not confirm")
+                await interaction.followup.send("Command not confirmed")
                 return
             await interaction.channel.send(f'Clearing {amount} messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
@@ -217,7 +217,7 @@ class AdminCommands(commands.Cog):
         if not member_found:
             await interaction.channel.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
             if not await confirmation(self.bot, interaction, confirm_string="yes"):
-                await interaction.channel.send("Command not confirmed")
+                await interaction.followup.send("command not confirmed")
                 return
         that_day = months_ago(4)
         
