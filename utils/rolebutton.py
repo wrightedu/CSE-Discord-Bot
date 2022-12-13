@@ -6,14 +6,16 @@ from discord.utils import get
 
 class RoleButton(Button):
     """Inherits from discord.ui.Button"""
-    def __init__(self, button_name="", role_name=""):
-
+    def __init__(self, button_name="", role_name="", emoji=""):
         #check if the role_name is a real URL, if so give the button the url and ignore role_name
+        if emoji:
+            super().emoji=emoji
         if url(role_name):
             super().__init__(label=button_name, url=role_name)
         else:
             super().__init__(label=button_name)
             self.role_name = role_name
+        
 
     async def on_click(self, interaction:discord.Interaction):
         """Gives role to or removes it from user when a role button is clicked

@@ -106,7 +106,8 @@ class CogManagement(commands.Cog):
         Copies to current server.
         """
 
-        await self.bot.tree.sync()      # syncs global tree to server/guild
+        # (((await self.bot.tree.sync())[0].options)[2]).required = False
+        await self.bot.tree.sync()      # syncs global tree to server/guilds
         self.bot.tree.copy_global_to(guild=ctx.guild)       # needs to be run the first time a bot syncs to a server
         await ctx.send(f'All slash commands have been synced')
         await log(self.bot, f'{ctx.author} synced all slash commands in the {ctx.channel} channel')
