@@ -278,7 +278,8 @@ class CourseManagement(commands.Cog):
 
     @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
-    async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str):
+    # @app_commands.command.get_parameter('emoji').required(False)
+    async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str = 'None'):
         """Creates role menus
         Take in user input for what button and role to create
         Check the role given to see if it is a URL
@@ -286,6 +287,10 @@ class CourseManagement(commands.Cog):
         Create the role given (if it doesn't already exist)
         Create the button and put it in a view
         Send the role menu consisting of the view to the user
+
+        EMOJIS: Regular Discord emojis can be entered into the button_name string,
+        however emojis created by user need to be entered using the emoji parameter,
+        and is added to the beginning of the button
         """
 
         await interaction.response.defer(ephemeral=True)
@@ -298,15 +303,25 @@ class CourseManagement(commands.Cog):
             role = await interaction.guild.create_role(name=role_name, permissions=permissions)
             role.mentionable = True
 
+
         # create the button
         view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
-
+        if emoji != 'None':
+                this_button.emoji = emoji
+            
         # If there is not a url give it a callback otherwise continue
         if not this_button.url:
             this_button.callback = this_button.on_click
         view.add_item(this_button)
 
-        # send to user
-        await interaction.channel.send(view=view)
-        await interaction.followup.send("Role button has been built")
+        
+        # send button to user and log command ran
+        try:
+            await interaction.channel.send(view=view)
+        except:
+            await interaction.channel.send("Emoji doesn't exist, please try again.")
+            await log(self.bot, f"{interaction.user} tried creating the '{button_name}' button for role '{role_name}' role in #{interaction.channel} but failed because emoji did not exist")
+        else:
+            await log(self.bot, f"{interaction.user} created the '{role_name}' role and '{button_name}' button in #{interaction.channel}")
+        await interaction.followup.send("Role button was created")

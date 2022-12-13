@@ -198,7 +198,7 @@ class AdminCommands(commands.Cog):
         to a file. Outputs file to discord channel if it is less that 4 MB.
 
         Args:
-            username (str): username of the desired user
+            username (str): username of the desired user (without # and 4 digits)
         Outputs:
             A file to chat including all messages from a user after a date, whether those messages are a reply,
             a link to those messages, and all reactions to those messages.
