@@ -19,27 +19,6 @@ class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # going to be removed, not turning into a slash command
-    @commands.command()
-    async def attendance(self, ctx):
-        """Sends a list of all members in the same voice channel as the command author
-        If the command author is in a voice channel with at least one other member,
-        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
-        """
-
-        # Gets users in the same voice chat as the requester and lists their @'s.
-        try:
-            channel = ctx.message.author.voice.channel
-            members = channel.members
-            members.remove(ctx.author)
-            if members:
-                attendees = "\n".join([member.mention for member in members])
-                await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
-            else:
-                await ctx.message.channel.send("There are no users in your voice channel.")
-        except AttributeError:
-            await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
-
     @app_commands.command(description="Get a cute picture of some corgis!") 
     async def corgme(self, interaction:discord.Interaction, number:int =-1):
         """Sends a picture of a corgi
@@ -244,25 +223,3 @@ class StudentCommands(commands.Cog):
         else:
             await interaction.response.send_message('Too large of an input')
             await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was too large')
-
-    # not implementing slash command for this command since it currently is not developed
-    # @app_commands.command(description="TBD planned support command")
-    # async def support(self, interaction:discord.Interaction):
-        # """A planned support command
-        # Informs user that the command is not yet available.
-
-        # Outputs:
-        #     error message explaining that the command is not yet available.
-        # """
-        # await interaction.response.send_message(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
-    
-    @commands.command()
-    async def support(self, ctx):
-        """A planned support command
-        Informs user that the command is not yet available.
-
-        Outputs:
-            error message explaining that the command is not yet available.
-        """
-
-        await ctx.send(f'This is a feature currently being developed. For now, if you have a question for CSE Support, @them or email them at cse-support.wright.edu')
