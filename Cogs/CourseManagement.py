@@ -301,13 +301,20 @@ class CourseManagement(commands.Cog):
         view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
         if emoji != 'None':
-            this_button.emoji = emoji
-
+                this_button.emoji = emoji
+            
         # If there is not a url give it a callback otherwise continue
         if not this_button.url:
             this_button.callback = this_button.on_click
         view.add_item(this_button)
 
-        # send to user
-        # await interaction.channel.send(view=view)
-        await interaction.response.send_message(view=view)
+        
+        # send button to user and log command ran
+        try:
+            await interaction.channel.send(view=view)
+        except:
+            await interaction.channel.send("Emoji doesn't exist, please try again.")
+            await log(self.bot, f"{interaction.user} tried creating the '{button_name}' button for role '{role_name}' role in #{interaction.channel} but failed because emoji did not exist")
+        else:
+            await log(self.bot, f"{interaction.user} created the '{role_name}' role and '{button_name}' button in #{interaction.channel}")
+        
