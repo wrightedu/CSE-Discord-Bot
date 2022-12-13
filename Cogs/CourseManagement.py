@@ -1,6 +1,5 @@
 import os
 import re
-from typing_extensions import Required
 import pandas as pd
 
 from discord.ext import commands
@@ -274,7 +273,7 @@ class CourseManagement(commands.Cog):
     @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
     # @app_commands.command.get_parameter('emoji').required(False)
-    async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str):
+    async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str = 'None'):
         """Creates role menus
         Take in user input for what button and role to create
         Check the role given to see if it is a URL
@@ -282,11 +281,11 @@ class CourseManagement(commands.Cog):
         Create the role given (if it doesn't already exist)
         Create the button and put it in a view
         Send the role menu consisting of the view to the user
+
+        EMOJIS: Regular Discord emojis can be entered into the button_name string,
+        however emojis created by user need to be entered using the emoji parameter,
+        and is added to the beginning of the button
         """
-
-        command = await self.bot.tree.fetch_command(1004468238282920042)
-        print(command.options[2].required)
-
 
         permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
@@ -301,7 +300,7 @@ class CourseManagement(commands.Cog):
         # create the button
         view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
-        if emoji[0] == '<':
+        if emoji != 'None':
             this_button.emoji = emoji
 
         # If there is not a url give it a callback otherwise continue
@@ -310,4 +309,5 @@ class CourseManagement(commands.Cog):
         view.add_item(this_button)
 
         # send to user
-        await interaction.channel.send(view=view)
+        # await interaction.channel.send(view=view)
+        await interaction.response.send_message(view=view)
