@@ -278,7 +278,6 @@ class CourseManagement(commands.Cog):
 
     @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
-    # @app_commands.command.get_parameter('emoji').required(False)
     async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str = 'None'):
         """Creates role menus
         Take in user input for what button and role to create
