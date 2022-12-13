@@ -307,7 +307,7 @@ class CourseManagement(commands.Cog):
         view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
         if emoji != 'None':
-                this_button.emoji = emoji
+            this_button.emoji = emoji
             
         # If there is not a url give it a callback otherwise continue
         if not this_button.url:
