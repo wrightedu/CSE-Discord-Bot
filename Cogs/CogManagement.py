@@ -13,6 +13,7 @@ async def setup(bot:commands.Bot):
 class CogManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # self.unloaded = False
 
     @app_commands.command(description="Load a specific cog")
     @app_commands.default_permissions(administrator=True)
@@ -34,7 +35,11 @@ class CogManagement(commands.Cog):
         # If the file exists it loads the cog
         if exists(file):
             await interaction.response.send_message(f'Loading {cog_name}')
-            await self.bot.load_extension(f'Cogs.{cog_name}')
+            try:
+                await self.bot.load_extension(f'Cogs.{cog_name}')
+            except:
+                await interaction.channel.send(f'Cog {cog_name} is already loaded')
+                return
             await interaction.channel.send(f'Cog {cog_name} has been loaded')
             await log(self.bot, f'{interaction.user} loaded the {cog_name} cog.')
         else:
@@ -56,13 +61,19 @@ class CogManagement(commands.Cog):
             Message to user informing them of what cog is being restarted, and when the action is done.
         """
 
+        # if self.unloaded:
+        #     await interaction.response.send_message(f'Cog {cog_name}')
         # Finds the absolute path to the cog that will be reloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it reloads the cog
         if exists(file):
             await interaction.response.send_message(f'Reloading {cog_name}')
-            await self.bot.reload_extension(f'Cogs.{cog_name}')
+            try:
+                await self.bot.reload_extension(f'Cogs.{cog_name}')
+            except:
+                await interaction.channel.send(f'Cog {cog_name} is unloaded')
+                return
             await interaction.channel.send(f'Cog {cog_name} has been reloaded')
             await log(self.bot, f'{interaction.user} reloaded the {cog_name} cog.')
         else:
@@ -91,7 +102,11 @@ class CogManagement(commands.Cog):
         if exists(file):
             if cog_name != 'CogManagement':
                 await interaction.response.send_message(f'Unloading {cog_name}')
-                await self.bot.unload_extension(f'Cogs.{cog_name}')
+                try:
+                    await self.bot.unload_extension(f'Cogs.{cog_name}')
+                except:
+                    await interaction.channel.send(f'Cog {cog_name} is already unloaded')
+                    return
                 await interaction.channel.send(f'Cog {cog_name} has been unloaded')
                 await log(self.bot, f'{interaction.user} unloaded the {cog_name} cog.')
         else:
