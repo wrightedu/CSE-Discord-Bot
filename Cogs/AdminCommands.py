@@ -107,7 +107,7 @@ class AdminCommands(commands.Cog):
                 await interaction.channel.send(f'Clearing {amount} messages from this channel')
                 await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
                 sleep(1)
-                await interaction.channel.purge(limit=int(float(amount)) + 2)
+                await interaction.channel.purge(limit=int(float(amount)) + 1)
                 await interaction.followup.send(f'Cleared {amount} messages from this channel')
                 return
             elif amount >= 10 and not await confirmation(self.bot, interaction):
@@ -117,7 +117,7 @@ class AdminCommands(commands.Cog):
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
 
         sleep(1)
-        await interaction.channel.purge(limit=int(float(amount)) + 5)
+        await interaction.channel.purge(limit=int(float(amount)) + 4)
         await interaction.followup.send(f'Cleared {amount} messages from this channel')
 
 
