@@ -3,6 +3,8 @@ import copy
 
 from discord.ui import View
 from discord.ext import commands
+from discord import app_commands
+
 
 from utils.utils import *
 
@@ -101,13 +103,12 @@ class Gourmet(commands.Cog):
             else:
                 await interaction.response.edit_message(content='**__You have run out of restaurants. You are going to arbys.__**', view=self)
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def feedme(self, ctx):
+    @app_commands.command(description="Sends a message with buttons to give you options on possible food choices")
+    async def feedme(self, interaction:discord.Interaction):
         """Sends a menu with options regarding restaurants
         Sends a view that ontains buttons with options to add or remove a restaurant
         or randomly select a vegan or non-vegan restaurant
         """
 
-        await ctx.send(view=self.GourmetMenu(cog=self))
-        await log(self.bot, f'{ctx.author} ran /feedMe in `#{ctx.channel}`')
+        await interaction.response.send_message(view=self.GourmetMenu(cog=self))
+        await log(self.bot, f'{interaction.user} ran /feedMe in `#{interaction.channel}`')
