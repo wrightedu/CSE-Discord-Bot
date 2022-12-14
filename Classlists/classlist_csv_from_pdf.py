@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from tika import parser
 import pandas as pd
-import re
 
 if __name__ == '__main__':
     text = parser.from_file('Look_Up_Classes.pdf')['content']
@@ -96,7 +95,7 @@ if __name__ == '__main__':
 
     # Handle duplicate class numbers
     text_occurances = df.groupby(['text']).size()
-    for class_number, count in text_occurances.items():
+    for class_number, count in text_occurances.iteritems():
         if count > 1:
             for i, row in df.iterrows():
                 if row['text'].lower() == class_number.lower():
@@ -107,7 +106,7 @@ if __name__ == '__main__':
 
     # Handle cross lists
     name_occurances = df.groupby(['long_name']).size()
-    for name, count in name_occurances.items():
+    for name, count in name_occurances.iteritems():
         if count > 1:
             # Get first occurance of name
             first_occurance = None
