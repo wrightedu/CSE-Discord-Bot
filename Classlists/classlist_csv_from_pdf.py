@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# run these first:
+# sudo apt install python3-pip
+# pip install tika
+# pip install pandas
+
 from tika import parser
 import pandas as pd
 import re
