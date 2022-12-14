@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from tika import parser
 import pandas as pd
+import re
 
 if __name__ == '__main__':
     text = parser.from_file('Look_Up_Classes.pdf')['content']
