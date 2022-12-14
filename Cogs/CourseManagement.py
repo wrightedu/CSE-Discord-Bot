@@ -270,7 +270,6 @@ class CourseManagement(commands.Cog):
                 this_button.callback = this_button.on_click
                 view.add_item(this_button)
         if not len(view.children):
-            # await interaction.channel.send('No buttons were built. Please check your prefix')
             await interaction.followup.send("No buttons were built. Please check your prefix")
             return
         await channel.send(view=view)
