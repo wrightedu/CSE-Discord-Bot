@@ -173,11 +173,12 @@ class CourseManagement(commands.Cog):
         Delete all listed categories and roles
         """
 
-        await interaction.response.send_message("Destroying courses")
+        await interaction.response.defer(ephemeral=True)
         csv_filepath = f'role_lists/roles_{interaction.guild.id}.csv'
         try:
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
+            await interaction.followup.send("File not found")
             raise FileNotFoundError
 
         # drop cross-listed courses (and other roles if on the file)
@@ -210,6 +211,7 @@ class CourseManagement(commands.Cog):
         await interaction.channel.send(message)
 
         if not await confirmation(self.bot, interaction, 'destroy'):
+            await interaction.followup.send("Confirmation denied")
             return
         
         # Destroy categories and all subchannels
@@ -222,6 +224,7 @@ class CourseManagement(commands.Cog):
             await role.delete()
 
         await interaction.channel.send('***CATEGORIES AND ROLES HAVE BEEN DESTROYED***')
+        await interaction.followup.send("Courses have been destroyed")
 
     @app_commands.command()
     @app_commands.default_permissions(administrator=True)
@@ -235,7 +238,7 @@ class CourseManagement(commands.Cog):
             prefix (str): used to extract courses of a major from the csv and send their buttons to the proper channel
         """
 
-        await interaction.response.send_message("Building role menu")
+        await interaction.response.defer(ephemeral=True)
         # check for prefix
         if prefix == '':
             await log(self.bot, f'{interaction.user} attempted running `buildrolemenu`, however a prefix was not entered')
@@ -246,6 +249,7 @@ class CourseManagement(commands.Cog):
         try:
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
+            await interaction.followup.send("File not found")
             raise FileNotFoundError
 
         # extracts appropriate columns using a dataframe
@@ -267,12 +271,13 @@ class CourseManagement(commands.Cog):
                 view.add_item(this_button)
         if not len(view.children):
             await interaction.channel.send('No buttons were built. Please check your prefix')
+            await interaction.followup.send("No buttons were built")
             return
         await channel.send(view=view)
+        await interaction.followup.send("Role buttons have been built")
 
     @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
-    # @app_commands.command.get_parameter('emoji').required(False)
     async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str = 'None'):
         """Creates role menus
         Take in user input for what button and role to create
@@ -287,6 +292,7 @@ class CourseManagement(commands.Cog):
         and is added to the beginning of the button
         """
 
+        await interaction.response.defer(ephemeral=True)
         permissions = discord.Permissions(read_messages=True, send_messages=True, embed_links=True, 
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
@@ -301,7 +307,7 @@ class CourseManagement(commands.Cog):
         view = View(timeout=None)
         this_button = RoleButton(button_name=button_name, role_name=role_name)
         if emoji != 'None':
-                this_button.emoji = emoji
+            this_button.emoji = emoji
             
         # If there is not a url give it a callback otherwise continue
         if not this_button.url:
@@ -317,4 +323,4 @@ class CourseManagement(commands.Cog):
             await log(self.bot, f"{interaction.user} tried creating the '{button_name}' button for role '{role_name}' role in #{interaction.channel} but failed because emoji did not exist")
         else:
             await log(self.bot, f"{interaction.user} created the '{role_name}' role and '{button_name}' button in #{interaction.channel}")
-        
+        await interaction.followup.send("Role button was created")

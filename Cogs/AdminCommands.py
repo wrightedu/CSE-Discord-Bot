@@ -85,9 +85,10 @@ class AdminCommands(commands.Cog):
             States the amount of messages being cleared or, if invalid input, help on how to use the command
         """
 
-        await interaction.response.send_message(f'Invoked `/clear`...')
+        await interaction.response.defer(ephemeral=True)
         if amount == 'all':
             if not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirmed")
                 return
             await interaction.channel.send(f'Clearing all messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
@@ -99,6 +100,7 @@ class AdminCommands(commands.Cog):
             except ValueError:
                 await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
                 await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
+                await interaction.followup.send("`amount` parameter is invalid")
                 return
 
             if amount < 10:
@@ -106,14 +108,17 @@ class AdminCommands(commands.Cog):
                 await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
                 sleep(1)
                 await interaction.channel.purge(limit=int(float(amount)) + 2)
+                await interaction.followup.send(f'Cleared {amount} messages from this channel')
                 return
             elif amount >= 10 and not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirmed")
                 return
             await interaction.channel.send(f'Clearing {amount} messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
 
         sleep(1)
         await interaction.channel.purge(limit=int(float(amount)) + 5)
+        await interaction.followup.send(f'Cleared {amount} messages from this channel')
 
 
     @app_commands.command(description="removes a specified role from each member of a guild.")
@@ -132,6 +137,8 @@ class AdminCommands(commands.Cog):
             Message to chat regarding what role was removed and how many users were stripped of it
         """
 
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send("Removing role")
         guild = interaction.guild
 
         try:
@@ -164,7 +171,6 @@ class AdminCommands(commands.Cog):
             await interaction.channel.send(f'No members have the role {role.mention}')
         else:
             await interaction.channel.send(f'Cleared {role.mention} from {", ".join(cleared_members)}')
-    
 
     @app_commands.command(description="downloads a given number of corgi pictures")
     @app_commands.default_permissions(administrator=True)
@@ -198,7 +204,7 @@ class AdminCommands(commands.Cog):
             a link to those messages, and all reactions to those messages.
         """
 
-        await interaction.response.send_message(f'Invoked `/history`...')
+        await interaction.response.defer(ephemeral=True)
 
         guild = interaction.guild
 
@@ -211,6 +217,7 @@ class AdminCommands(commands.Cog):
         if not member_found:
             await interaction.channel.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
             if not await confirmation(self.bot, interaction, confirm_string="yes"):
+                await interaction.followup.send("command not confirmed")
                 return
         that_day = months_ago(4)
         
@@ -242,6 +249,7 @@ class AdminCommands(commands.Cog):
             await interaction.channel.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
 
         os.remove("/tmp/history.txt")
+        await interaction.followup.send("History gathered")
 
 
     @app_commands.command(description="set status of discord bot")
@@ -256,7 +264,7 @@ class AdminCommands(commands.Cog):
             status (str): Text to be displayed
         """
 
-        await interaction.response.send_message(f'Invoked `/status`...')
+        await interaction.response.defer(ephemeral=True)
 
         # open a file to store the status in
         async with aiofiles.open('status.txt', mode='w') as f:
@@ -270,6 +278,7 @@ class AdminCommands(commands.Cog):
                 await self.bot.change_presence(activity=discord.Game(status))
                 await log(self.bot, f'{interaction.user} changed the custom status to "Playing {status}"')
                 await f.write(status) # write the new status to the file
+        await interaction.followup.send("Status set")
     
     
     @app_commands.command(description="outputs various stats of the server")
@@ -343,10 +352,12 @@ class AdminCommands(commands.Cog):
             Message to chat confirming that the bot is restarting.
         """
 
-        await interaction.response.send_message("Invoked `/restart`...")
+        await interaction.response.defer(ephemeral=True)
         if await confirmation(self.bot, interaction):
             await interaction.channel.send('Restarting...')
+            await interaction.followup.send("The bot has restarted")
             os.execv(sys.argv[0], sys.argv)
+        await interaction.followup.send("The bot was not restarted")
 
     @app_commands.command(description="shutdown the discord bot")
     @app_commands.default_permissions(administrator=True)
@@ -358,7 +369,9 @@ class AdminCommands(commands.Cog):
             Message to user that discord bot is being shut down
         """
 
-        await interaction.response.send_message("Invoked `/stop`...")
+        await interaction.response.defer(ephemeral=True)
         if await confirmation(self.bot, interaction):
             await interaction.channel.send('Stopping...')
+            await interaction.followup.send("Stopping the bot")
             await self.bot.close()
+        await interaction.followup.send("The bot was not stopped")
