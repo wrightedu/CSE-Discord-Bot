@@ -13,7 +13,6 @@ async def setup(bot:commands.Bot):
 class CogManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # self.unloaded = False
 
     @app_commands.command(description="Load a specific cog")
     @app_commands.default_permissions(administrator=True)
@@ -29,12 +28,15 @@ class CogManagement(commands.Cog):
         Outputs:
             Message to user informing them of what cog is being loaded, and when the action is done.
         """
+
         # Finds the absolute path to the cog that will be loaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it loads the cog
         if exists(file):
             await interaction.response.send_message(f'Loading {cog_name}')
+
+            # Attempt the load, if already loaded tell the user and return
             try:
                 await self.bot.load_extension(f'Cogs.{cog_name}')
             except:
@@ -61,14 +63,14 @@ class CogManagement(commands.Cog):
             Message to user informing them of what cog is being restarted, and when the action is done.
         """
 
-        # if self.unloaded:
-        #     await interaction.response.send_message(f'Cog {cog_name}')
         # Finds the absolute path to the cog that will be reloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it reloads the cog
         if exists(file):
             await interaction.response.send_message(f'Reloading {cog_name}')
+
+            # Attempt the reload, if unloaded tell the user and return
             try:
                 await self.bot.reload_extension(f'Cogs.{cog_name}')
             except:
@@ -102,6 +104,8 @@ class CogManagement(commands.Cog):
         if exists(file):
             if cog_name != 'CogManagement':
                 await interaction.response.send_message(f'Unloading {cog_name}')
+
+                # Attempt the unload, if already unloaded tell the user and return
                 try:
                     await self.bot.unload_extension(f'Cogs.{cog_name}')
                 except:
