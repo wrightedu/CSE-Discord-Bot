@@ -113,6 +113,9 @@ class CogManagement(commands.Cog):
                     return
                 await interaction.channel.send(f'Cog {cog_name} has been unloaded')
                 await log(self.bot, f'{interaction.user} unloaded the {cog_name} cog.')
+            else:
+                await interaction.response.send_message(f'Cannot unload {cog_name}')
+                return
         else:
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to unload the {cog_name} cog, but failed.')
