@@ -1,4 +1,3 @@
-import asyncio
 import os
 import sys
 from time import sleep
