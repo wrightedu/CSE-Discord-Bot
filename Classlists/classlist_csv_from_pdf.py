@@ -1,9 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+# run these first:
+# sudo apt install python3-pip
+# pip install tika
+# pip install pandas
+
 from tika import parser
 import pandas as pd
+import re
 
 if __name__ == '__main__':
     text = parser.from_file('Look_Up_Classes.pdf')['content']
+    # In order to get the PDF you must zoom out to 20% while printing the page
+    # This ensures the all the data is on one line and it can be parsed correctly
 
     # Split text into groups separated by new lines
     # In the PDF, this manifests as different blocks of columns
@@ -19,27 +28,43 @@ if __name__ == '__main__':
     # Duncan (P)
     # ---
     sections = text.split('\n\n')
-
     # Find sections that contain class names
     class_rows = []
     for section in sections:
+        # If the select column has nothing in it
+        match = re.search(r'^\d{5}\s', section)
         # Select Column: Select the box in front of the CRN then choose Register or Add to Worksheet. You may see the following in place of the box. A blank means already registered, C means a
         # closed class, NR means not available for registration and SR means a student restriction (i.e. time ticket has not started, holds, or academic standing restrictions).
-        if section.startswith('C ') or section.startswith('NR ') or section.startswith('SR '):
+        if section.startswith('C ') or section.startswith('NR ') or section.startswith('SR ') or match:
             class_rows.append(section)
+
 
     # Get list of classes (number, name)
     classes = []
     for row in class_rows:
-        class_department = row.split(' ')[2]
-        class_number = row.split(' ')[3]
-        class_name = ''
-        for word in row.split(' ')[7:]:
-            if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR'} or word[0].isdigit():
-                break
-            else:
-                class_name += word.strip() + ' '
-        class_name = class_name.strip().replace('\n', ' ')
+        if row.startswith('C ') or row.startswith('NR ') or row.startswith('SR '):
+            class_department = row.split(' ')[2]
+            class_number = row.split(' ')[3]
+            class_name = ''
+            for word in row.split(' ')[7:]:
+                
+                if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR'} or word[0].isdigit():
+                    break
+                else:
+                    class_name += word.strip() + ' '
+            class_name = class_name.strip().replace('\n', ' ')
+        # If the select row has nothing in it set everything back one
+        else:
+            class_department = row.split(' ')[1]
+            class_number = row.split(' ')[2]
+            class_name = ''
+            for word in row.split(' ')[6:]:
+                if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR'} or word[0].isdigit():
+                    break
+                else:
+                    # print(word)
+                    class_name += word.strip() + ' '
+            class_name = class_name.strip().replace('\n', ' ')
 
         # Add to class list if all the following conditions are true:
         # If not a lab
@@ -77,7 +102,7 @@ if __name__ == '__main__':
 
     # Handle duplicate class numbers
     text_occurances = df.groupby(['text']).size()
-    for class_number, count in text_occurances.iteritems():
+    for class_number, count in text_occurances.items():
         if count > 1:
             for i, row in df.iterrows():
                 if row['text'].lower() == class_number.lower():
@@ -88,7 +113,7 @@ if __name__ == '__main__':
 
     # Handle cross lists
     name_occurances = df.groupby(['long_name']).size()
-    for name, count in name_occurances.iteritems():
+    for name, count in name_occurances.items():
         if count > 1:
             # Get first occurance of name
             first_occurance = None
@@ -108,10 +133,3 @@ if __name__ == '__main__':
 
     # Save to classlist
     df.to_csv('classlist.csv', index=False)
-
-    # Add other roles
-    with open('classlist.csv', 'a') as f:
-        f.write('"Career Services", "career_services", "Career Services",,\n')
-        f.write('"ACM", "acm", "ACM", "Association for Computing Machinery",\n')
-        f.write('"IEEE", "ieee", "IEEE", "Institute of Electrical and Electronics Engineers",\n')
-        f.write('"Collegiate Esports Club", "esports_club", "https://discord.gg/smmV38d",,\n')
