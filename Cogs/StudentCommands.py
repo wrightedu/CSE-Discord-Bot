@@ -19,6 +19,19 @@ async def setup(bot:commands.Bot):
 class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+    
+    @app_commands.command(description="Sends a check in message and the username")
+    async def checkin(self, interaction:discord.Interaction, message:str):
+        """A check in function for checking into the office and for productivity tracking.
+        This command can be executed by anyone.
+        
+        Outputs:
+            Prints user message and user display name with a time stamp.
+        """
+        timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
+        await interaction.channel.send(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`")
+        await interaction.response.send_message(view=checkinmenu(self.bot), ephemeral=True)
+
 
     @app_commands.command(description="Get a cute picture of some corgis!") 
     async def corgme(self, interaction:discord.Interaction, number:int =-1):
