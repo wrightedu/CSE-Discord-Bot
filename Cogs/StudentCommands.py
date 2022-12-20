@@ -50,7 +50,7 @@ class StudentCommands(commands.Cog):
         """
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         await interaction.channel.send(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`")
-        await interaction.response.send_message(view=checkinmenu(), ephemeral=True)
+        await interaction.response.send_message(view=checkinmenu(self.bot), ephemeral=True)
 
     @commands.command(aliases=['corgmi'])
     async def corgme(self, ctx, number=-1):

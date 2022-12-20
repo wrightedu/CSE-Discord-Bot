@@ -295,7 +295,7 @@ class AdminCommands(commands.Cog):
     async def restart(self, ctx):
         """Restart the discord bot
         Send message to user confirming restart, then restarts the bot
-
+Sane rate limit handling that prevents 429s
         Outputs:
             Message to chat confirming that the bot is restarting.
         """
