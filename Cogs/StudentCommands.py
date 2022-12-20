@@ -20,45 +20,8 @@ class StudentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-<<<<<<< HEAD
-    @commands.command()
-    async def attendance(self, ctx):
-        """Sends a list of all members in the same voice channel as the command author
-        If the command author is in a voice channel with at least one other member,
-        sends a message containing the name of the voice channel and @mentions of all the members in that channel, except the command author
-        """
-
-        # Gets users in the same voice chat as the requester and lists their @'s.
-        try:
-            channel = ctx.message.author.voice.channel
-            members = channel.members
-            members.remove(ctx.author)
-            if members:
-                attendees = "\n".join([member.mention for member in members])
-                await ctx.message.channel.send(f"Attendees of {channel.name} required by {ctx.message.author.mention}:\n {attendees}")
-            else:
-                await ctx.message.channel.send("There are no users in your voice channel.")
-        except AttributeError:
-            await ctx.message.channel.send(f"You must be in a voice channel to use this command.")
-
-    @app_commands.command(description="Sends a check in message and the username")
-    async def checkin(self, interaction:discord.Interaction, message:str):
-        """A check in function for checking into the office and for productivity tracking.
-        This command can be executed by anyone.
-        
-        Outputs:
-            Prints user message and user display name with a time stamp.
-        """
-        timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-        await interaction.channel.send(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`")
-        await interaction.response.send_message(view=checkinmenu(self.bot), ephemeral=True)
-
-    @commands.command(aliases=['corgmi'])
-    async def corgme(self, ctx, number=-1):
-=======
     @app_commands.command(description="Get a cute picture of some corgis!") 
     async def corgme(self, interaction:discord.Interaction, number:int =-1):
->>>>>>> development
         """Sends a picture of a corgi
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
         Loop through all images in the directory containing pictures and place them in a list of images.
