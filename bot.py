@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import os
 from time import time
 
 import discord
 from discord.ext import commands
-# from discord_components import DiscordComponents
 from dotenv import load_dotenv
 
 from utils.utils import *
@@ -22,15 +21,11 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 async def on_ready():
     """Initializes cogs on bot startup
 
-    Sets up Discord components
     Begins logging
     Loads all cogs
     Sets status
     Finishes startup log
     """
-
-    # Set up Discord Components
-    # DiscordComponents(bot)
 
     # Startup status
     await bot.change_presence(activity=discord.Game('Booting'), status=discord.Status.dnd)

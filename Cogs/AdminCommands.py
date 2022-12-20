@@ -5,6 +5,7 @@ import re
 
 from discord.ext import commands
 from discord import MessageType
+from discord import app_commands
 
 from utils.utils import *
 
@@ -17,49 +18,64 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['announcement'], help="-announce MSG to several #channels")
-    @commands.has_permissions(administrator=True)
-    async def announce(self, ctx, *, message=''):
-        '''
+    @app_commands.command(description="-announce MSG to several #channels")
+    @app_commands.default_permissions(administrator=True)
+    async def announce(self, interaction:discord.Interaction, channel_mentions:str):
+        """
         Uses the bot to announce something instead of having an admin to do so
 
         Args:
-            message: The announcement to have the bot to tell the students
+            channel_mentions (str): the channels to which the announcement is sent
 
         Outputs:
-            The announcement to the respective News channel in the CSE server
+            The announcement to the specified channel(s) in the CSE server
             Logs that the specific user used the announcement command
-        '''
+        """
 
-        # Error message if there's no announcement.
-        if message == '':
-            await ctx.send(f"No message passed. Please enter `-announce MSG`, replacing MSG with your announcment.")
-            return
+        # Gets the message from the user
+        await interaction.response.send_message("Please enter a message.")
+        message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user)
 
-        # creates channel name to get the channels to print the announcement
-        channel_name = None
+        # logs appropriately
+        await log(self.bot, f"{interaction.user} has executed the announcement command in #{interaction.channel}")
+
+        # gets the channel ids from the mentions
+        channel_mentions_list = channel_mentions.split()
+        channels = []
+        channel_names = []
+        for channel_mention in channel_mentions_list:
+            # ensures the channel mentions can be converted to integers
+            try:
+                int(channel_mention[2:-1])
+            except ValueError:
+                await interaction.channel.send("The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)")
+                return
+
+            # ensures the channels exist
+            channel = discord.utils.get(interaction.guild.text_channels, id=int(channel_mention[2:-1]))
+            if (channel == None):
+                await interaction.channel.send(f"The '{channel_mention}' channel could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
+                await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)")
+                return
+            channels.append(channel)
+            channel_names.append(f"#{channel.name}")
+
+        # sends the message to the specified channels
+        for channel in channels:
+            await channel.send(message.content)
         
-        # asking for a/multiple channel(s) to send the announcement
-        await ctx.send(f'Please enter channel(s) to send this announcement: ')
-        msg = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+        # logs appropriately
+        await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to {', '.join(channel_names)}")
 
-        # if there are no channels return out of the command
-        if not msg.channel_mentions:
-            return
 
-        # logs appropriately and sends the message to the specified channel
-        await log(self.bot, f"{ctx.author} has executed the announcement command in the {ctx.channel}")
-        for channel_name in msg.channel_mentions:
-            await channel_name.send(message)
-
-    @commands.command(help='`-clear AMOUNT` to clear AMOUNT messages\n`-clear all` to clear all messages from this channel')
-    @commands.has_permissions(administrator=True)
-    async def clear(self, ctx, amount=''):
+    @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
+    @app_commands.default_permissions(administrator=True)
+    async def clear(self, interaction:discord.Interaction, amount:str):
         """Clears a specific number of messages from a guild
         Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
-        clear a very large number of messages from the server. If the amount is blank, tell user how to more
-        properly use the command. Otherwise, send message confirming how many messages are being cleared and log it.
-        Purge the appropriate number of messages from the channel.
+        clear a very large number of messages from the server. Otherwise, send message confirming how many
+        messages are being cleared and log it. Purge the appropriate number of messages from the channel.
 
         Args:
             amount (str): Number of messages to be removed
@@ -68,48 +84,80 @@ class AdminCommands(commands.Cog):
             States the amount of messages being cleared or, if invalid input, help on how to use the command
         """
 
+        await interaction.response.defer(ephemeral=True)
         if amount == 'all':
-            if not await confirmation(self.bot, ctx):
+            if not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirmed")
                 return
-            await ctx.send(f'Clearing all messages from this channel')
-            await log(self.bot, f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
+            await interaction.channel.send(f'Clearing all messages from this channel')
+            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
             amount = 999999999999999999999999999999999999999999
-        elif amount == '':
-            await ctx.send(f'No args passed. Use `-clear AMOUNT` to clear AMOUNT messages. Use `-clear all` to clear all messages from this channel')
-            await log(self.bot, f'{ctx.author} attempted to clear messages from #{ctx.channel}, but it failed because parameter "amount" was not passed')
-            return
-        else:
-            amount = int(amount)
-            if amount >= 10 and not await confirmation(self.bot, ctx):
-                return
-            await ctx.send(f'Clearing {amount} messages from this channel')
-            await log(self.bot, f'{ctx.author} cleared {amount} messages from #{ctx.channel}')
-        sleep(1)
-        await ctx.channel.purge(limit=int(float(amount)) + 2)
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def clearrole(self, ctx, *, role_id):
+        else:
+            try:
+                amount = int(amount)
+            except ValueError:
+                await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
+                await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
+                await interaction.followup.send("`amount` parameter is invalid")
+                return
+
+            if amount < 10:
+                await interaction.channel.send(f'Clearing {amount} messages from this channel')
+                await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+                sleep(1)
+                await interaction.channel.purge(limit=int(float(amount)) + 1)
+                await interaction.followup.send(f'Cleared {amount} messages from this channel')
+                return
+            elif amount >= 10 and not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirmed")
+                return
+            await interaction.channel.send(f'Clearing {amount} messages from this channel')
+            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+
+        sleep(1)
+        await interaction.channel.purge(limit=int(float(amount)) + 4)
+        await interaction.followup.send(f'Cleared {amount} messages from this channel')
+
+
+    @app_commands.command(description="removes a specified role from each member of a guild.")
+    @app_commands.default_permissions(administrator=True)
+    async def clearrole(self, interaction:discord.Interaction, role_mention:str):
         """Remove a role from each member of a guild.
-        Remove the extra characters from the ID number of the guild. Search through every member of a guild to see if
-        they have the role that matches the ID in question. If the member has the role, remove it from their roles. Send
-        message in chat confirming that the role has been removed, and the number of users it has been removed from.
+        Remove the extra characters from the ID number of the guild obtained from the role_mention. Search through every
+        member of a guild to see if they have the role that matches the ID in question. If the member has the role,
+        remove it from their roles. Send message in chat confirming that the role has been removed, and the number of
+        users it has been removed from.
 
         Args:
-            role_id (str): ID of the role being removed
+            role_mention (str): mention of role being removed
 
         Outputs:
             Message to chat regarding what role was removed and how many users were stripped of it
         """
 
-        guild = ctx.guild
-        role = discord.utils.get(guild.roles, id=int(role_id[3:-1]))
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send("Removing role")
+        guild = interaction.guild
+
+        try:
+            int(role_mention[3:-1])
+        except ValueError:
+            await interaction.channel.send("The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
+            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because of an invalid role mention")
+            return
+
+        role = discord.utils.get(guild.roles, id=int(role_mention[3:-1]))
+        if role == None:
+            await interaction.channel.send(f"The '{role_mention}' role could not be found. The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
+            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because it could not be found")
+            return
 
         cleared_members = []
 
-        await log(self.bot, f'{ctx.author} is clearing {role} from all members:')
-        # for member in role.get_all_members():
-        async for member in ctx.guild.fetch_members():
+        await log(self.bot, f"{interaction.user} is clearing the '@{role.name}' role from all members:")
+
+        async for member in guild.fetch_members():
             if role in member.roles:
                 await member.remove_roles(role)
                 name = member.nick if member.nick is not None else member.name
@@ -117,15 +165,15 @@ class AdminCommands(commands.Cog):
                 cleared_members.append(name)
 
         if len(cleared_members) > 10:
-            await ctx.send(f'Cleared @{role} from {len(cleared_members)} members')
+            await interaction.channel.send(f'Cleared {role.mention} from {len(cleared_members)} members')
         elif len(cleared_members) == 0:
-            await ctx.send(f'No members have the role @{role}')
+            await interaction.channel.send(f'No members have the role {role.mention}')
         else:
-            await ctx.send(f'Cleared @{role} from {", ".join(cleared_members)}')
-    
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def downloadcorgis(self, ctx, amount):
+            await interaction.channel.send(f'Cleared {role.mention} from {", ".join(cleared_members)}')
+
+    @app_commands.command(description="downloads a given number of corgi pictures")
+    @app_commands.default_permissions(administrator=True)
+    async def downloadcorgis(self, interaction:discord.Interaction, amount:int):
         """Downloads a given number of corgi pictures.
         Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
         Call the download_corgies method from utils.py. Log the user and number of images downloaded.
@@ -135,53 +183,50 @@ class AdminCommands(commands.Cog):
 
         Outputs:
             Message to log stating the user that executed the command and how many images were downloaded
-            Message to user if the input was invalid. States that 100 corgis are downloaded.
+            Message to user stating numer of images downloaded
         """
 
-        try:
-            amount = int(amount)
-        except Exception:
-            amount = 100
-            await ctx.send(f'Invalid parameter, downloading {amount} images')
-        await download_corgis(self.bot, ctx, amount)
-        await log(self.bot, f'{ctx.author} ran /downloadcorgis {amount} in #{ctx.channel}')
+        await download_corgis(self.bot, interaction, amount)
     
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def history(self, ctx):
+
+    @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
+    @app_commands.default_permissions(administrator=True)
+    async def history(self, interaction:discord.Interaction, username:str):
         """Outputs all messages from a specified user after a specified date with some metadata to a file
         Prompts user for username and date. Outputs messages authored by that username and sent after that date
         to a file. Outputs file to discord channel if it is less that 4 MB.
 
+        Args:
+            username (str): username of the desired user (without # and 4 digits)
         Outputs:
             A file to chat including all messages from a user after a date, whether those messages are a reply,
             a link to those messages, and all reactions to those messages.
         """
 
-        guild = ctx.guild
+        await interaction.response.defer(ephemeral=True)
 
-        await ctx.send(f"Please enter a user's discord username.")
-        username_message = await self.bot.wait_for("message", check=lambda message: message.author == ctx.author)
+        guild = interaction.guild
 
         member_found = False
         for member in guild.members:
-            if member.name == username_message.content:
+            if member.name == username:
                 member_found = True
                 break
 
         if not member_found:
-            await ctx.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
-            if not await confirmation(self.bot, ctx, confirm_string="yes"):
+            await interaction.channel.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
+            if not await confirmation(self.bot, interaction, confirm_string="yes"):
+                await interaction.followup.send("command not confirmed")
                 return
         that_day = months_ago(4)
         
         history_file = open("/tmp/history.txt", "w")
-        channel = ctx.channel
+        channel = interaction.channel
         # gets 250 most recent messages posted less than 4 months ago
         messages = [message async for message in channel.history(limit=250, after=that_day, oldest_first=False)]
 
         for message in messages:
-            if message.author.name == username_message.content and message.type is MessageType.default:
+            if message.author.name == username and message.type is MessageType.default:
                 history_file.write(f"{message.content}\n")
                 if message.reference:
                     history_file.write(f"a reply\n")
@@ -196,17 +241,19 @@ class AdminCommands(commands.Cog):
 
         size = os.path.getsize("/tmp/history.txt")
         if size == 0:
-            await ctx.send(f"No messages were found.")
+            await interaction.channel.send(f"No messages were found.")
         elif size <= 4194304:
-            await ctx.send(file=discord.File("/tmp/history.txt"))
+            await interaction.channel.send(file=discord.File("/tmp/history.txt"))
         else:
-            await ctx.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
+            await interaction.channel.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
 
         os.remove("/tmp/history.txt")
+        await interaction.followup.send("History gathered")
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def status(self, ctx, *, status):
+
+    @app_commands.command(description="set status of discord bot")
+    @app_commands.default_permissions(administrator=True)
+    async def status(self, interaction:discord.Interaction, status:str):
         """Set status of discord bot
         Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
         removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
@@ -216,22 +263,26 @@ class AdminCommands(commands.Cog):
             status (str): Text to be displayed
         """
 
+        await interaction.response.defer(ephemeral=True)
+
         # open a file to store the status in
         async with aiofiles.open('status.txt', mode='w') as f:
         
             status = status.strip()
             if status.lower() == 'none':
                 await self.bot.change_presence(activity=None)
-                await log(self.bot, f'{ctx.author} disabled the custom status')
+                await log(self.bot, f'{interaction.user} disabled the custom status')
                 await f.write('Raider Up!') # Default status for when the bot restarts
             elif len(status) <= 128:
                 await self.bot.change_presence(activity=discord.Game(status))
-                await log(self.bot, f'{ctx.author} changed the custom status to "Playing {status}"')
+                await log(self.bot, f'{interaction.user} changed the custom status to "Playing {status}"')
                 await f.write(status) # write the new status to the file
+        await interaction.followup.send("Status set")
     
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def stats(self, ctx):
+    
+    @app_commands.command(description="outputs various stats of the server")
+    @app_commands.default_permissions(administrator=True)
+    async def stats(self, interaction:discord.Interaction):
         """Outputs various stats of the server
         Send message with server stats to user
 
@@ -240,7 +291,7 @@ class AdminCommands(commands.Cog):
             and people with top ten roles.
         """
 
-        guild = ctx.guild
+        guild = interaction.guild
 
         embed = discord.Embed(
             title="Server Stats",
@@ -250,7 +301,7 @@ class AdminCommands(commands.Cog):
         total_text_channels = len(guild.text_channels)
         total_voice_channels = len(guild.voice_channels)
         total_channels = total_text_channels + total_voice_channels 
-        total_users = len(ctx.guild.members)
+        total_users = len(interaction.guild.members)
 
         num_roles = 0
         for role in guild.roles:
@@ -287,12 +338,12 @@ class AdminCommands(commands.Cog):
                 break
             embed.add_field(name=value[0], value=value[1])
 
-        await ctx.reply(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def restart(self, ctx):
+    @app_commands.command(description="restart the discord bot")
+    @app_commands.default_permissions(administrator=True)
+    async def restart(self, interaction:discord.Interaction):
         """Restart the discord bot
         Send message to user confirming restart, then restarts the bot
 Sane rate limit handling that prevents 429s
@@ -300,13 +351,16 @@ Sane rate limit handling that prevents 429s
             Message to chat confirming that the bot is restarting.
         """
 
-        if await confirmation(self.bot, ctx):
-            await ctx.send('Restarting...')
+        await interaction.response.defer(ephemeral=True)
+        if await confirmation(self.bot, interaction):
+            await interaction.channel.send('Restarting...')
+            await interaction.followup.send("The bot has restarted")
             os.execv(sys.argv[0], sys.argv)
+        await interaction.followup.send("The bot was not restarted")
 
-    @commands.command(aliases=['shutdown', 'poweroff', 'exit'])
-    @commands.has_permissions(administrator=True)
-    async def stop(self, ctx):
+    @app_commands.command(description="shutdown the discord bot")
+    @app_commands.default_permissions(administrator=True)
+    async def stop(self, interaction:discord.Interaction):
         """Shutdown the discord bot
         Send message to user confirming shutdown. Exit program.
 
@@ -314,6 +368,9 @@ Sane rate limit handling that prevents 429s
             Message to user that discord bot is being shut down
         """
 
-        if await confirmation(self.bot, ctx):
-            await ctx.send('Stopping...')
-            exit(0)
+        await interaction.response.defer(ephemeral=True)
+        if await confirmation(self.bot, interaction):
+            await interaction.channel.send('Stopping...')
+            await interaction.followup.send("Stopping the bot")
+            await self.bot.close()
+        await interaction.followup.send("The bot was not stopped")

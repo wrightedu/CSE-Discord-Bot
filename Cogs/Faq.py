@@ -2,6 +2,7 @@ from pathlib import Path
 import pandas as pd
 
 from discord.ext import commands
+from discord import app_commands
 
 from utils.utils import *
 
@@ -54,29 +55,30 @@ class Faq(commands.Cog):
                     answer = df.loc[df['keywords'] == message.content,"answers"].values[0]
                     await message.reply(question)
                     await message.reply(answer)
-    
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def faq(self, ctx):
+
+    @app_commands.command(description="Enable bot monitoring of a channel")
+    @app_commands.default_permissions(administrator=True)
+    async def faq(self, interaction:discord.Interaction):
         """Enables or disables bot monitoring of a channel
         Adds or removes channel in which command is run to a list
         Overwrites channels file with contents of list for persistent use
         """
+
         # If the channel is in the list remove it and return
-        if ctx.channel.name in self.channel_names:
-            self.channel_names.remove(ctx.channel.name)
-            await ctx.reply("FAQ has been disabled for this channel!")
+        if interaction.channel.name in self.channel_names:
+            self.channel_names.remove(interaction.channel.name)
+            await interaction.response.send_message("FAQ has been disabled for this channel!")
 
             # Logging
-            await log(self.bot, f'{ctx.author} has disabled FAQ for the {ctx.channel} channel')
+            await log(self.bot, f'{interaction.user} has disabled FAQ for the {interaction.channel} channel')
         
         # If the channel is not in the list add it to the end
         else:
-            await ctx.reply("FAQ has been enabled for this channel!")
-            self.channel_names.append(ctx.channel.name)
+            await interaction.response.send_message("FAQ has been enabled for this channel!")
+            self.channel_names.append(interaction.channel.name)
 
             # Logging
-            await log(self.bot, f'{ctx.author} has enabled FAQ for the {ctx.channel} channel') 
+            await log(self.bot, f'{interaction.user} has enabled FAQ for the {interaction.channel} channel') 
 
         channels_path = r"assets/FAQ/channels.txt"
         path = Path(channels_path)
