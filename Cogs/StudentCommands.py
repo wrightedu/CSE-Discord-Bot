@@ -9,7 +9,7 @@ from discord import app_commands
 
 from utils.utils import *
 from diceParser import parse
-from utils.checkinmenu import checkinmenu
+from Cogs.Checkin import Checkin
 
 
 async def setup(bot:commands.Bot):
@@ -30,7 +30,7 @@ class StudentCommands(commands.Cog):
         """
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         await interaction.channel.send(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`")
-        await interaction.response.send_message(view=checkinmenu(self.bot), ephemeral=True)
+        await interaction.response.send_message(view=Checkin.checkinmenu(self.bot), ephemeral=True)
 
 
     @app_commands.command(description="Get a cute picture of some corgis!") 
