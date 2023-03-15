@@ -36,7 +36,7 @@ class Checkin(commands.Cog):
             timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
             await interaction.response.send_message(content=f"{interaction.user.display_name} sent out an SOS @{timestamp}")
         #Pomodoro button (IN PROGRESS).
-        @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple)
+        @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple, disabled=True)
         async def Pomodoro(self, interact:discord.Interaction, button:discord.ui.Button):
             
             timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
