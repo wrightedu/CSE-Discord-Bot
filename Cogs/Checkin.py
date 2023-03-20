@@ -1,6 +1,7 @@
 from discord.ui import Button
 from discord.ui import View
 from discord.ext import commands
+from discord import app_commands
 
 from utils.utils import *
 
@@ -13,6 +14,19 @@ async def setup(bot):
 class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @app_commands.command(description="Sends a check in message and the username")
+    async def checkin(self, interaction:discord.Interaction, message:str):
+        """A check in function for checking into the office and for productivity tracking.
+        This command can be executed by anyone.
+        
+        Outputs:
+            Prints user message and user display name with a time stamp.
+        """
+        print("test")
+        timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
+        await interaction.channel.send(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`")
+        await interaction.response.send_message(view=Checkin.checkinmenu(self.bot), ephemeral=True)
 
     class checkinmenu(View):
         def __init__(self, bot, *, timeout=None):
@@ -34,6 +48,7 @@ class Checkin(commands.Cog):
         @discord.ui.button(label="HELP!", style=discord.ButtonStyle.red)
         async def HELP(self, interaction:discord.Interaction, button:discord.ui.Button):
             timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
+            print("Help button")
             await interaction.response.send_message(content=f"{interaction.user.display_name} sent out an SOS @{timestamp}")
         #Pomodoro button (IN PROGRESS).
         @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple, disabled=True)
