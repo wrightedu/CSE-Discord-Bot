@@ -23,7 +23,6 @@ class Checkin(commands.Cog):
         Outputs:
             Prints user message and user display name with a time stamp.
         """
-        print("test")
         timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
         await interaction.channel.send(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`")
         await interaction.response.send_message(view=Checkin.checkinmenu(self.bot), ephemeral=True)
@@ -48,7 +47,6 @@ class Checkin(commands.Cog):
         @discord.ui.button(label="HELP!", style=discord.ButtonStyle.red)
         async def HELP(self, interaction:discord.Interaction, button:discord.ui.Button):
             timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-            print("Help button")
             await interaction.response.send_message(content=f"{interaction.user.display_name} sent out an SOS @{timestamp}")
         #Pomodoro button (IN PROGRESS).
         @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple, disabled=True)
