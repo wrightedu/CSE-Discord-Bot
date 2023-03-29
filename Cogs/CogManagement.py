@@ -47,13 +47,16 @@ class CogManagement(commands.Cog):
         else:
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
-    
+
+    # Autocomplete functionality for the parameter "cog_name" in the unload command
     @load.autocomplete("cog_name")
     async def load_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
         choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
+        # For every choice if the typed in value is in the choice add it to the possible options
         for choice in choices:
-            data.append(app_commands.Choice(name=choice, value=choice))
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
         return data
 
     @app_commands.command(description="Reload a specific cog")
@@ -90,12 +93,15 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
+    # Autocomplete functionality for the parameter "cog_name" in the unload command
     @reload.autocomplete("cog_name")
     async def reload_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
         choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
+        # For every choice if the typed in value is in the choice add it to the possible options
         for choice in choices:
-            data.append(app_commands.Choice(name=choice, value=choice))
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
         return data
 
     @app_commands.command(description="Unload a specific cog")
@@ -136,12 +142,15 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to unload the {cog_name} cog, but failed.')
 
+    # Autocomplete functionality for the parameter "cog_name" in the unload command
     @unload.autocomplete("cog_name")
     async def unloadauto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
         choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
+        # For every choice if the typed in value is in the choice add it to the possible options
         for choice in choices:
-            data.append(app_commands.Choice(name=choice, value=choice))
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
         return data
 
     @commands.command()
