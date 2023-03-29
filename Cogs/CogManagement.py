@@ -31,17 +31,8 @@ class CogManagement(commands.Cog):
             Message to user informing them of what cog is being loaded, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be loaded
-        # options=[
-        #     discord.SelectOption(label="CogManagement",description="This is option 1"),
-        #     discord.SelectOption(label="Checkin",description="This is option 2"),
-        #     discord.SelectOption(label="StudentCommands",description="This is option 3")
-        # ]
-        # select = Select(placeholder="Select an option",disabled=False,options=options)
         file = abspath('Cogs/' + cog_name + '.py')
-        # testview = View()
-        # testview.add_item(select)
-        # If the file exists it loads the cog
+
         if exists(file):
             await interaction.response.send_message(f'Loading {cog_name}')
 
@@ -60,7 +51,7 @@ class CogManagement(commands.Cog):
     @load.autocomplete("cog_name")
     async def load_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
-        choices = ["CogManagement", "Checkin", "StudentCommands", "Gourmet"]
+        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
         for choice in choices:
             data.append(app_commands.Choice(name=choice, value=choice))
         return data
@@ -102,7 +93,7 @@ class CogManagement(commands.Cog):
     @reload.autocomplete("cog_name")
     async def reload_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
-        choices = ["CogManagement", "Checkin", "StudentCommands", "Gourmet"]
+        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
         for choice in choices:
             data.append(app_commands.Choice(name=choice, value=choice))
         return data
@@ -148,7 +139,7 @@ class CogManagement(commands.Cog):
     @unload.autocomplete("cog_name")
     async def unloadauto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
-        choices = ["CogManagement", "Checkin", "StudentCommands"]
+        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
         for choice in choices:
             data.append(app_commands.Choice(name=choice, value=choice))
         return data
