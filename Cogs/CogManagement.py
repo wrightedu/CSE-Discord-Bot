@@ -1,6 +1,5 @@
 from os.path import exists, abspath
 
-# import discord
 from discord.ext import commands
 from discord import app_commands
 from typing import List
@@ -34,6 +33,7 @@ class CogManagement(commands.Cog):
 
         file = abspath('Cogs/' + cog_name + '.py')
 
+        # If the file exists it loads the cog
         if exists(file):
             await interaction.response.send_message(f'Loading {cog_name}')
 
@@ -76,7 +76,6 @@ class CogManagement(commands.Cog):
             Message to user informing them of what cog is being restarted, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be reloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it reloads the cog
@@ -122,7 +121,6 @@ class CogManagement(commands.Cog):
             Message to user informing them of what cog is being unloaded, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be unloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it unloads the cog
