@@ -49,7 +49,7 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
-    # Autocomplete functionality for the parameter "cog_name" in the unload command
+    # Autocomplete functionality for the parameter "cog_name" in the load command
     @load.autocomplete("cog_name")
     async def load_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
@@ -94,7 +94,7 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
-    # Autocomplete functionality for the parameter "cog_name" in the unload command
+    # Autocomplete functionality for the parameter "cog_name" in the reload command
     @reload.autocomplete("cog_name")
     async def reload_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
