@@ -26,6 +26,7 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog being loaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being loaded, and when the action is done.
@@ -69,6 +70,7 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog that will be reloaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being restarted, and when the action is done.
@@ -114,6 +116,7 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog being unloaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being unloaded, and when the action is done.
