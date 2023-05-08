@@ -2,6 +2,7 @@ from os.path import exists, abspath
 
 from discord.ext import commands
 from discord import app_commands
+from typing import List
 
 from utils.utils import *
 
@@ -24,12 +25,12 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog being loaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being loaded, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be loaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it loads the cog
@@ -48,6 +49,17 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
+    # Autocomplete functionality for the parameter "cog_name" in the load command
+    @load.autocomplete("cog_name")
+    async def load_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
+        data = []
+        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
+        # For every choice if the typed in value is in the choice add it to the possible options
+        for choice in choices:
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
+        return data
+
     @app_commands.command(description="Reload a specific cog")
     @app_commands.default_permissions(administrator=True)
     async def reload(self, interaction:discord.Interaction, cog_name:str):
@@ -58,12 +70,12 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog that will be reloaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being restarted, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be reloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it reloads the cog
@@ -82,6 +94,17 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
+    # Autocomplete functionality for the parameter "cog_name" in the reload command
+    @reload.autocomplete("cog_name")
+    async def reload_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
+        data = []
+        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
+        # For every choice if the typed in value is in the choice add it to the possible options
+        for choice in choices:
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
+        return data
+
     @app_commands.command(description="Unload a specific cog")
     @app_commands.default_permissions(administrator=True)
     async def unload(self, interaction:discord.Interaction, cog_name:str):
@@ -92,12 +115,12 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog being unloaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being unloaded, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be unloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it unloads the cog
@@ -119,6 +142,17 @@ class CogManagement(commands.Cog):
         else:
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to unload the {cog_name} cog, but failed.')
+
+    # Autocomplete functionality for the parameter "cog_name" in the unload command
+    @unload.autocomplete("cog_name")
+    async def unloadauto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
+        data = []
+        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
+        # For every choice if the typed in value is in the choice add it to the possible options
+        for choice in choices:
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
+        return data
 
     @commands.command()
     @commands.has_permissions(administrator=True)
