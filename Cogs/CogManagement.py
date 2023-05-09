@@ -1,3 +1,4 @@
+import os
 from os.path import exists, abspath
 
 from discord.ext import commands
@@ -7,13 +8,30 @@ from typing import List
 from utils.utils import *
 
 
+def get_choices():
+    """Gets cog names
+    Reads all cog names and adds them to a list. This list is returned and added to a list of choices for 
+    autocomplete
+
+    Outputs:
+        List of cog names
+    """
+
+    cogs_list = []
+    for file in os.listdir('Cogs'):
+        if not file.startswith('__') and file.endswith('.py'):
+            cogs_list.append(f'{file[:-3]}')
+    return cogs_list
+
 async def setup(bot:commands.Bot):
-    await bot.add_cog(CogManagement(bot))
+    choices = get_choices()
+    await bot.add_cog(CogManagement(bot, choices))
 
 
 class CogManagement(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, choices):
         self.bot = bot
+        self.choices = choices
 
     @app_commands.command(description="Load a specific cog")
     @app_commands.default_permissions(administrator=True)
@@ -49,17 +67,6 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
 
-    # Autocomplete functionality for the parameter "cog_name" in the load command
-    @load.autocomplete("cog_name")
-    async def load_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
-        data = []
-        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
-        # For every choice if the typed in value is in the choice add it to the possible options
-        for choice in choices:
-            if current.lower() in choice.lower():
-                data.append(app_commands.Choice(name=choice, value=choice))
-        return data
-
     @app_commands.command(description="Reload a specific cog")
     @app_commands.default_permissions(administrator=True)
     async def reload(self, interaction:discord.Interaction, cog_name:str):
@@ -93,17 +100,6 @@ class CogManagement(commands.Cog):
         else:
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
-
-    # Autocomplete functionality for the parameter "cog_name" in the reload command
-    @reload.autocomplete("cog_name")
-    async def reload_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
-        data = []
-        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
-        # For every choice if the typed in value is in the choice add it to the possible options
-        for choice in choices:
-            if current.lower() in choice.lower():
-                data.append(app_commands.Choice(name=choice, value=choice))
-        return data
 
     @app_commands.command(description="Unload a specific cog")
     @app_commands.default_permissions(administrator=True)
@@ -143,13 +139,14 @@ class CogManagement(commands.Cog):
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to unload the {cog_name} cog, but failed.')
 
-    # Autocomplete functionality for the parameter "cog_name" in the unload command
+    # Autocomplete functionality for the parameter "cog_name" in the load, reload, and unload commands
+    @load.autocomplete("cog_name")
+    @reload.autocomplete("cog_name")
     @unload.autocomplete("cog_name")
-    async def unloadauto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
+    async def cog_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
-        choices = ["AdminCommands", "Checkin", "CogManagement", "CourseManagement", "Faq", "Gourmet", "Listeners", "StudentCommands"]
         # For every choice if the typed in value is in the choice add it to the possible options
-        for choice in choices:
+        for choice in self.choices:
             if current.lower() in choice.lower():
                 data.append(app_commands.Choice(name=choice, value=choice))
         return data
