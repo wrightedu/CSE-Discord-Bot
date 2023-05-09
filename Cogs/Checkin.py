@@ -1,33 +1,24 @@
 from discord.ui import Button
 from discord.ui import View
 from discord.ext import commands
+from discord import app_commands
 
 from utils.utils import *
 
 async def setup(bot):
     await bot.add_cog(Checkin(bot))
 
-
-"""Button menu for the checkin command. Checkout, Help, and Pomodoro."""
-
 class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    class checkinmenu(View):
-        def __init__(self, bot, *, timeout=None):
-            super().__init__(timeout=timeout)
-            self.task = None
-            self.bot = bot
+    @app_commands.command(description="")
+    @app_commands.default_permissions(administrator=True)
+    async def task(self, interaction:discord.Interaction, amount:str):
 
         #Checkout button that displays a message that the user has finished their tasks.
-        @discord.ui.button(label="Checkout", style=discord.ButtonStyle.green)
-        async def checkout(self, interaction:discord.Interaction, button:discord.ui.Button):
-            timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-            for child in self.children:
-                child.disabled = True
-            await interaction.response.edit_message(view=self)
-            await interaction.channel.send(content=f"{interaction.user.display_name} checked out @{timestamp}")
+        task_view = View(timeout=None)
+        
 
 
         #Help button that displays a message that the user needs help with a task.
@@ -36,7 +27,7 @@ class Checkin(commands.Cog):
             timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
             await interaction.response.send_message(content=f"{interaction.user.display_name} sent out an SOS @{timestamp}")
         #Pomodoro button (IN PROGRESS).
-        @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple, disabled=True)
+        @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple)
         async def Pomodoro(self, interact:discord.Interaction, button:discord.ui.Button):
             
             timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
@@ -55,7 +46,7 @@ class Checkin(commands.Cog):
             done.callback = self.done_on_click
             not_done.callback = self.not_done_on_click
             self.task = msg.content
-
+        
 
         async def done_on_click(self, interaction:discord.Interaction):
             timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
