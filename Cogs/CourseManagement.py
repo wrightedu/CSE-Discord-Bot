@@ -266,7 +266,7 @@ class CourseManagement(commands.Cog):
             channel_name = f'{prefix.lower()}-class-selection'
             channel = await get_channel_named(interaction.guild, channel_name)
             if channel == None:
-                await interaction.channel.send(f"{channel_name} can't be found.")
+                message += f"{channel_name} can't be found.\n"
                 continue
             view = View(timeout=None)
             for i in range(len(role_names)):
@@ -278,7 +278,7 @@ class CourseManagement(commands.Cog):
                     this_button.callback = this_button.on_click
                     view.add_item(this_button)
             if not len(view.children):
-                await interaction.channel.send(f"No buttons were built for: {prefix}")
+                message += f"No buttons were built for: {prefix}\n"
                 continue
             await channel.send(view=view)
             message += f"Role buttons have been built for: {prefix}\n"
