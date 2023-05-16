@@ -242,26 +242,37 @@ class CourseManagement(commands.Cog):
 
         await interaction.response.defer()
         message = ""
+        confirmation_message = ""
+
+        csv_filepath = f'role_lists/roles_{interaction.guild.id}.csv'
+        try:
+            courses_df = pd.read_csv(csv_filepath)
+        except FileNotFoundError:
+            await interaction.channel.send("File not found")
+            raise FileNotFoundError
+
+        # iterates through dataframe checking if a role exists
+        # if it doesn't, a confirmation message is created to display
+        # roles that cannot be created 
+        for i in range(len(courses_df)):
+            if not get(interaction.guild.roles, name=courses_df.loc[i, "role/link"]):
+                confirmation_message += f"{courses_df.loc[i, 'role/link']}\n"
+                courses_df.drop(index=i, axis=0, inplace=True)
+
+        # extracts appropriate columns using a dataframe
+        category_names = courses_df["text"].to_list()
+        long_names = courses_df["long_name"].to_list()
+        role_names = courses_df["role/link"].to_list()
+
+        if confirmation_message:
+            confirmation_message = "**The following role(s) could not be found:**\n" + confirmation_message
+            confirmation_message += "Would you like to continue building rolemenus?"
+            await interaction.channel.send(confirmation_message)
+            if not await confirmation(self.bot, interaction, 'confirm'):
+                await interaction.channel.send("Confirmation denied")
+                return
 
         for prefix in prefixes:
-            # check for prefix
-            if prefix == '':
-                await log(self.bot, f'{interaction.user} attempted running `buildrolemenu`, however a prefix was not entered')
-                await interaction.channel.send('Please add a prefix for what courses you need buttons for. Please try again.')
-                return
-            
-            csv_filepath = f'role_lists/roles_{interaction.guild.id}.csv'
-            try:
-                courses_df = pd.read_csv(csv_filepath)
-            except FileNotFoundError:
-                await interaction.channel.send("File not found")
-                raise FileNotFoundError
-
-            # extracts appropriate columns using a dataframe
-            category_names = courses_df["text"].to_list()
-            long_names = courses_df["long_name"].to_list()
-            role_names = courses_df["role/link"].to_list()
-
             # adds RoleButtons to a view with custom attributes and sends it to the appropriate channel
             channel_name = f'{prefix.lower()}-class-selection'
             channel = await get_channel_named(interaction.guild, channel_name)
