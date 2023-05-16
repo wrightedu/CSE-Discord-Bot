@@ -230,8 +230,8 @@ class CourseManagement(commands.Cog):
         """Callback function for buildrolemenu
         Creates role menus
         Find csv and extracts columns needed through a pandas dataframe
-        Create the buttons and put them in a view
         Get confirmation from author when they wish to continue building the role menu despite missing roles in the server
+        Create the buttons and put them in a view
         Send the role menu(s) consisting of the view(s) to the proper channel(s)
 
         Args:
