@@ -123,7 +123,7 @@ class StudentCommands(commands.Cog):
         await interaction.response.send_message(f'{latency} ms')
         await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
 
-    @app_commands.command(description="Create a poll users can vote on, put spaces between options, quotes around multiple word options")
+    @app_commands.command(description="Create a poll users can vote on")
     async def poll(self, interaction:discord.Interaction, question:str, option1: str, option2: str, option3: str = 'None', option4: str = 'None', 
     option5: str = 'None', option6: str = 'None', option7: str = 'None', option8: str = 'None', option9: str = 'None', option10: str = 'None'):
         """Create a poll that users can vote on
