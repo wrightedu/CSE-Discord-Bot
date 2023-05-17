@@ -26,12 +26,12 @@ class Checkin(commands.Cog):
         if (issue != 'None'):
             options.append(issue)
         channel = await interaction.user.create_dm()
-        csv_filepath = f'assets/Tasklists/{interaction.user.id}.csv'
-        try:
+        csv_filepath = f'assets/Tasklists/tasks.csv'
+        if(does_file_exist(csv_filepath)):
             tasks_df = pd.read_csv(csv_filepath)
-        except FileNotFoundError:
-            await interaction.followup.send("No task file found. Please make a .csv file for your tasks", ephemeral=True)
-            raise FileNotFoundError
+        else:
+            header = "name,number,link,status,#pomos"
+            create_csv(tasks.csv)
         task_numbers = tasks_df["number"].to_list()
         if (len(task_numbers) != 0):
             task_num = task_numbers[-1] + 1
