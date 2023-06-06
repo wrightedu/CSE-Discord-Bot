@@ -1,9 +1,12 @@
+import os
+import pandas as pd
+from validators import url
+
 from discord.ui import Button
 from discord.ui import View
 from discord.ext import commands
 from discord import app_commands
-from validators import url
-import pandas as pd
+
 from utils.utils import *
 
 async def setup(bot):
@@ -22,21 +25,27 @@ class Checkin(commands.Cog):
             DM task list to user.
         """
         await interaction.response.send_message("Check your DM's", ephemeral=True)
+
         options = [task]
         if (issue != 'None'):
             options.append(issue)
+
         channel = await interaction.user.create_dm()
+
         csv_filepath = f'assets/Tasklists/tasks.csv'
-        if(does_file_exist(csv_filepath)):
+        if not (os.path.exists(csv_filepath)):
+            file = open(csv_filepath, "w")
+            file.write("name,number,link,status,#pomos")
+            file.close()
             tasks_df = pd.read_csv(csv_filepath)
-        else:
-            header = "name,number,link,status,#pomos"
-            create_csv(tasks.csv)
+
         task_numbers = tasks_df["number"].to_list()
+
         if (len(task_numbers) != 0):
             task_num = task_numbers[-1] + 1
         else:
             task_num = 1    
+
         await channel.send(f'Task: {task}; Num: {task_num}; URL: {issue}')
 
 
