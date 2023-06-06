@@ -48,7 +48,7 @@ if __name__ == '__main__':
             class_name = ''
             for word in row.split(' ')[7:]:
                 
-                if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR'} or word[0].isdigit():
+                if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR', 'MTWR'} or word[0].isdigit():
                     break
                 else:
                     class_name += word.strip() + ' '
@@ -59,7 +59,7 @@ if __name__ == '__main__':
             class_number = row.split(' ')[2]
             class_name = ''
             for word in row.split(' ')[6:]:
-                if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR'} or word[0].isdigit():
+                if word in {'M', 'T', 'W', 'R', 'F', 'MW', 'MF', 'WF', 'MWF', 'TR', 'MTWR'} or word[0].isdigit():
                     break
                 else:
                     # print(word)
