@@ -18,8 +18,17 @@ class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def add_task(self, interaction:discord.Interaction, filepath:str):
-        channel = await interaction.user.create_dm()
+    async def add_task(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
+        """A function that creates a task
+        Creates and adds a task based on user input to the tasks.csv file
+
+        Args:
+            filepath (str): String representation of the path to the csv file
+            channel (discord.Channel): Channel to send the discord messages to
+
+        Outputs:
+            Message to chat displaying the task name and number of the new task that was created
+        """
 
         await channel.send("Enter the name of the task you wish to create")
         task_name = await self.bot.wait_for('message', check=lambda message: message.author == interaction.user)
@@ -35,9 +44,9 @@ class Checkin(commands.Cog):
             task_num = task_numbers[-1] + 1
         
         if (issue_link.content.casefold() == "none"):
-            task_as_list = [task_name.content, task_num, '', "Incomplete", 0]
+            task_as_list = [interaction.user.id, task_name.content, task_num, '', "Incomplete", 0]
         else:
-            task_as_list = [task_name.content, task_num, issue_link.content, "Incomplete", 0]
+            task_as_list = [interaction.user.id, task_name.content, task_num, issue_link.content, "Incomplete", 0]
 
         csv_file = open(filepath, 'a')
         writer = csv.writer(csv_file)
@@ -47,10 +56,44 @@ class Checkin(commands.Cog):
         await channel.send(f'Task "{task_name.content}" with ID "{task_num}" has been created.')
 
 
-    async def list_tasks(interaction:discord.Interaction, filepath:str):
-        # do something here to list the tasks
-        pass
-    async def remove_tasks(interaction:discord.Interaction, filepath:str):
+    async def list_tasks(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
+        """A function that lists all tasks
+        Lists the tasks that are currently in the tasks.csv
+
+        Args:
+            filepath (str): String representation of the path to the csv file
+            channel (discord.Channel): Channel to send the discord messages to
+
+        Outputs:
+            
+        """
+
+        tasks_df = pd.read_csv(filepath)
+
+        embed = discord.Embed(
+            title = "Task List",
+            description = "List of your incomplete tasks",
+            colour = discord.Colour.from_rgb(3,105,55)
+        )
+
+        names = ""
+        task_ids = ""
+        time_spent = ""
+
+        for index, row in tasks_df.iterrows():
+            if (row['userid'] == interaction.user.id and row['status'] == "Incomplete"):
+                names += f"{row['name']}\n"
+                task_ids += f"{row['number']}\n"
+                time_spent += f"{row['time spent']}\n"
+
+        embed.add_field(name="**Tasks**", value=names)
+        embed.add_field(name="**ID's**", value=task_ids)
+        embed.add_field(name="**Time Spent**", value=time_spent)
+
+        await channel.send(embed=embed)
+
+
+    async def remove_tasks(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
         # do something here to remove the tasks
         pass
 
@@ -65,22 +108,18 @@ class Checkin(commands.Cog):
         """
         await interaction.response.send_message("Check your DM's", ephemeral=True)
 
-        # options = [task]
-        # if (issue != 'None'):
-        #     options.append(issue)
-
         csv_filepath = f'assets/tasks.csv'
         if not (os.path.exists(csv_filepath)):
             file = open(csv_filepath, "w")
-            file.write("name,number,link,status,#pomos")
+            file.write("userid,name,number,link,status,time spent")
             file.close()
-            tasks_df = pd.read_csv(csv_filepath)
+
+        channel = await interaction.user.create_dm()
 
         if (option == "Add"):
-            await self.add_task(interaction, csv_filepath)
+            await self.add_task(interaction, csv_filepath, channel)
         elif (option == "List"):
-            #stuff here
-            pass
+            await self.list_tasks(interaction, csv_filepath, channel)
         elif (option == "Remove"):
             #stuff here
             pass
