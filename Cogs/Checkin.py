@@ -18,14 +18,45 @@ class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def add_task(interaction:discord.Interaction, filepath:str):
+    async def add_task(self, interaction:discord.Interaction, filepath:str):
         channel = await interaction.user.create_dm()
-        await channel.send("Enter the name of the task!")
-        msg = await interaction.bot.wait_for('message', check=lambda message: message.author == interaction.user)
+
+        await channel.send("Enter the name of the task you wish to create")
+        task_name = await self.bot.wait_for('message', check=lambda message: message.author == interaction.user)
+
+        await channel.send("Enter the link to a Github issue if applicable.\nEnter `none` if there is no issue.")
+        issue_link = await self.bot.wait_for('message', check=lambda message: message.author == interaction.user)
+
+        tasks_df = pd.read_csv(filepath)
+        task_numbers = tasks_df["number"].to_list()
+
+        task_num = 1
+        if (len(task_numbers) != 0):
+            task_num = task_numbers[-1] + 1
+        
+        if (issue_link.content.casefold() == "none"):
+            task_as_list = [task_name.content, task_num, '', "Incomplete", 0]
+        else:
+            task_as_list = [task_name.content, task_num, issue_link.content, "Incomplete", 0]
+
+        csv_file = open(filepath, 'a')
+        writer = csv.writer(csv_file)
+        writer.writerow(task_as_list)
+        csv_file.close()
+
+        await channel.send(f'Task "{task_name.content}" with ID "{task_num}" has been created.')
+
+
+    async def list_tasks(interaction:discord.Interaction, filepath:str):
+        # do something here to list the tasks
+        pass
+    async def remove_tasks(interaction:discord.Interaction, filepath:str):
+        # do something here to remove the tasks
+        pass
 
 
     @app_commands.command(description="Add, list, or mark your tasks as complete")
-    async def task(self, interaction:discord.Interaction, task:str,  option:str, issue: str = 'None'):
+    async def task(self, interaction:discord.Interaction, option:str):
         """A function designed to allow the user to track small tasks
         to increase productivity. 
         
@@ -38,9 +69,7 @@ class Checkin(commands.Cog):
         # if (issue != 'None'):
         #     options.append(issue)
 
-        channel = await interaction.user.create_dm()
-
-        csv_filepath = f'assets/Tasklists/tasks.csv'
+        csv_filepath = f'assets/tasks.csv'
         if not (os.path.exists(csv_filepath)):
             file = open(csv_filepath, "w")
             file.write("name,number,link,status,#pomos")
@@ -48,16 +77,13 @@ class Checkin(commands.Cog):
             tasks_df = pd.read_csv(csv_filepath)
 
         if (option == "Add"):
-            self.add_task(interaction, csv_filepath)
-
-        task_numbers = tasks_df["number"].to_list()
-
-        if (len(task_numbers) != 0):
-            task_num = task_numbers[-1] + 1
-        else:
-            task_num = 1    
-
-        await channel.send(f'Task: {task}; Num: {task_num}; URL: {issue}')
+            await self.add_task(interaction, csv_filepath)
+        elif (option == "List"):
+            #stuff here
+            pass
+        elif (option == "Remove"):
+            #stuff here
+            pass
 
     # Autocomplete functionality for the parameter "cog_name" in the load, reload, and unload commands
     @task.autocomplete("option")
