@@ -2,10 +2,7 @@ import csv
 import os
 import pandas as pd
 from typing import List
-from validators import url
 
-from discord.ui import Button
-from discord.ui import View
 from discord.ext import commands
 from discord import app_commands
 
@@ -55,7 +52,6 @@ class Checkin(commands.Cog):
 
         await channel.send(f'Task "{task_name.content}" with ID "{task_num}" has been created.')
 
-
     async def list_tasks(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
         """A function that lists all tasks
         Lists the tasks that are currently in the tasks.csv
@@ -65,7 +61,7 @@ class Checkin(commands.Cog):
             channel (discord.Channel): Channel to send the discord messages to
 
         Outputs:
-            
+            An embedded discord message that displays the user's tasks in column format
         """
 
         tasks_df = pd.read_csv(filepath)
@@ -92,19 +88,48 @@ class Checkin(commands.Cog):
 
         await channel.send(embed=embed)
 
+    async def complete(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
+        """A function that marks a task as completed
+        Marks a specified task as completed in the status column of the csv
 
-    async def remove_tasks(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
-        # do something here to remove the tasks
-        pass
+        Args:
+            filepath (str): String representation of the path to the csv file
+            channel (discord.Channel): Channel to send the discord messages to
 
+        Outputs:
+            Sends a followup message either confirming the task was completed, or a message saying it could not be completed
+        """
+        
+        tasks_df = pd.read_csv(filepath)
+
+        await channel.send("Enter the ID of the task you wish to mark as complete")
+        task_id = await self.bot.wait_for('message', check=lambda message: message.author == interaction.user)
+        try:
+            int(task_id.content)
+        except:
+            await channel.send("Not a valid ID")
+            return
+
+        for index, row in tasks_df.iterrows():
+            if (row['userid'] == interaction.user.id and row['number'] == int(task_id.content) and row['status'] == "Incomplete"):
+                tasks_df.loc[index, 'status'] = 'Complete'
+                tasks_df.to_csv(filepath, index=False)
+
+                await channel.send(f'Task "{row["name"]}" with ID "{task_id.content}" has been completed.')
+                return
+
+        await channel.send("Nothing has been marked as complete as either the ID was not found, wasn't your task, or was already completed")
 
     @app_commands.command(description="Add, list, or mark your tasks as complete")
     async def task(self, interaction:discord.Interaction, option:str):
-        """A function designed to allow the user to track small tasks
-        to increase productivity. 
+        """Create and manage tasks
+        A function designed to allow the user to track small tasks
+        to increase productivity. Gives the user the option to create a new task,
+        list all incomplete tasks, or mark a specific task as complete.
+
+        Args:
+            option (str): Autocomplete parameter to allow the user to choose between creating, listing, or completing a task
         
-        Outputs: 
-            DM task list to user.
         """
         await interaction.response.send_message("Check your DM's", ephemeral=True)
 
@@ -120,18 +145,16 @@ class Checkin(commands.Cog):
             await self.add_task(interaction, csv_filepath, channel)
         elif (option == "List"):
             await self.list_tasks(interaction, csv_filepath, channel)
-        elif (option == "Remove"):
-            #stuff here
-            pass
+        elif (option == "Mark Completed"):
+            await self.complete(interaction, csv_filepath, channel)
 
     # Autocomplete functionality for the parameter "cog_name" in the load, reload, and unload commands
     @task.autocomplete("option")
     async def task_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
         data = []
-        choices = ["Add", "List", "Remove"] 
+        choices = ["Add", "List", "Mark Completed"] 
         # For every choice if the typed in value is in the choice add it to the possible options
         for choice in choices:
             if current.lower() in choice.lower():
                 data.append(app_commands.Choice(name=choice, value=choice))
         return data
-
