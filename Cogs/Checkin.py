@@ -142,7 +142,7 @@ class Checkin(commands.Cog):
         csv_filepath = f'assets/tasks.csv'
         if not (os.path.exists(csv_filepath)):
             file = open(csv_filepath, "w")
-            file.write("userid,name,number,link,status,time spent")
+            file.write("userid,name,number,link,status,time spent\n")
             file.close()
 
         channel = await interaction.user.create_dm()
