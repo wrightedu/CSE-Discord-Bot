@@ -41,8 +41,9 @@ class Checkin(commands.Cog):
         if (len(task_numbers) != 0):
             task_num = task_numbers[-1] + 1
         
-        if (issue_link.content.casefold() == "none"):
+        if (issue_link.content.casefold() == "none" or not url(issue_link.content)):
             task_as_list = [interaction.user.id, task_name.content, task_num, '', "Incomplete", 0]
+            await channel.send("No valid link was entered, task is still being created...")
         else:
             task_as_list = [interaction.user.id, task_name.content, task_num, issue_link.content, "Incomplete", 0]
 
