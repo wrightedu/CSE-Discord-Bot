@@ -2,6 +2,7 @@ import csv
 import os
 import pandas as pd
 from typing import List
+from validators import url
 
 from discord.ext import commands
 from discord import app_commands
@@ -77,8 +78,12 @@ class Checkin(commands.Cog):
         time_spent = ""
 
         for index, row in tasks_df.iterrows():
+            link = tasks_df.loc[index, 'link']
             if (row['userid'] == interaction.user.id and row['status'] == "Incomplete"):
-                names += f"{row['name']}\n"
+                if url(str(link)):
+                    names += f"[{row['name']}]({link})\n"
+                else:
+                    names += f"{row['name']}\n"
                 task_ids += f"{row['number']}\n"
                 time_spent += f"{row['time spent']}\n"
 
