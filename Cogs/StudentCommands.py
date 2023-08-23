@@ -1,3 +1,4 @@
+import itertools
 import random
 import yaml
 from os.path import exists
@@ -122,43 +123,31 @@ class StudentCommands(commands.Cog):
         await interaction.response.send_message(f'{latency} ms')
         await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
 
-    @app_commands.command(description="Create a poll users can vote on, put spaces between options, quotes around multiple word options")
+    @app_commands.command(description="Create a poll users can vote on")
     async def poll(self, interaction:discord.Interaction, question:str, option1: str, option2: str, option3: str = 'None', option4: str = 'None', 
     option5: str = 'None', option6: str = 'None', option7: str = 'None', option8: str = 'None', option9: str = 'None', option10: str = 'None'):
         """Create a poll that users can vote on
-        Delete user message to call command. Prompt user to enter correct number of messages if command is called
-        impoperly. Determine what the most approptiate reactions for voting will be for the poll. Create a list
-        of descriptions for each option that poll takers can choose from. Generate a two column format with reaction
-        images on the left and options on the right. Embed this and display this in the discord chat.
+        Generates a dictionary from the passed in parameters of the command. Appends to the options list from 
+        the inputted values determined from the optional parameters. Determine what the most appropriate 
+        reactions for voting will be for the poll. Generate a two column format with reaction
+        emojis on the left and options on the right. Embed this and display this in the discord chat.
         Log the creation of the poll.
 
         Args:
             question (str): A question that the poll taker is asking. 
-            options (tuple (str)): A set of options for users to choose. Put a space between each option
-                May have multiple entries
+            options (individual strs): String parameters for the desired options for the poll. 8 of them are optional
 
         Outputs:
             Message stating the question of the poll with answers bound to numeric emojis. Reacts to the message with those emojis
         """
 
-        # make a list of options, always have 2, the rest are optional, add if exist
-        options = [option1, option2]
-        if (option3 != 'None'):
-            options.append(option3)
-        if (option4 != 'None'):
-            options.append(option4)
-        if (option5 != 'None'):
-            options.append(option5)
-        if (option6 != 'None'):
-            options.append(option6)
-        if (option7 != 'None'):
-            options.append(option7)
-        if (option8 != 'None'):
-            options.append(option8)
-        if (option9 != 'None'):
-            options.append(option9)
-        if (option10 != 'None'):
-            options.append(option10)
+        # slices the dictionary of local variables (the parameters) from the 3rd-10th options
+        params = dict(itertools.islice(locals().items(), 5, 13))
+        options = [option1, option2]    
+        for param in params:
+            choice = params[param] # sets the current choice to the value at the current key
+            if choice != 'None':
+                options.append(choice)
 
         # Need between 2 and 10 options for a poll
         if not (1 < len(options) <= 10):
