@@ -226,54 +226,108 @@ class CourseManagement(commands.Cog):
         await interaction.channel.send('***CATEGORIES AND ROLES HAVE BEEN DESTROYED***')
         await interaction.followup.send("Courses have been destroyed")
 
-    @app_commands.command()
-    @app_commands.default_permissions(administrator=True)
-    async def buildrolemenu(self, interaction:discord.Interaction, prefix:str):
-        """Creates role menus
-        Find csv and extracts columns needed through a panda dataframe
+    async def rolemenu_callback(self, interaction:discord.Interaction, prefixes:list):
+        """Callback function for buildrolemenu
+        Creates role menus
+        Find csv and extracts columns needed through a pandas dataframe
+        Get confirmation from author when they wish to continue building the role menu despite missing roles in the server
         Create the buttons and put them in a view
-        Send the role menu consisting of the view(s) to the proper channel
+        Send the role menu(s) consisting of the view(s) to the proper channel(s)
 
         Args:
-            prefix (str): used to extract courses of a major from the csv and send their buttons to the proper channel
+            prefixes (list): used to access selected course-subject prefixes for role button creation
+
+        Outputs:
+            rolemenus that consist of rolebuttons
         """
 
-        await interaction.response.defer(ephemeral=True)
-        # check for prefix
-        if prefix == '':
-            await log(self.bot, f'{interaction.user} attempted running `buildrolemenu`, however a prefix was not entered')
-            await interaction.channel.send('Please add a prefix for what courses you need buttons for. Please try again.')
-            return
-        
+        await interaction.response.defer()
+        message = ""
+        confirmation_message = ""
+
         csv_filepath = f'role_lists/roles_{interaction.guild.id}.csv'
         try:
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
-            await interaction.followup.send("File not found")
+            await interaction.channel.send("File not found")
             raise FileNotFoundError
+
+        # iterates through dataframe checking if a role exists
+        # if it doesn't, a confirmation message is created to display
+        # roles that cannot be created 
+        for i in range(len(courses_df)):
+            if not get(interaction.guild.roles, name=courses_df.loc[i, "role/link"]):
+                confirmation_message += f"{courses_df.loc[i, 'role/link']}\n"
+                courses_df.drop(index=i, axis=0, inplace=True)
 
         # extracts appropriate columns using a dataframe
         category_names = courses_df["text"].to_list()
         long_names = courses_df["long_name"].to_list()
         role_names = courses_df["role/link"].to_list()
 
-        # adds RoleButtons to a view with custom attributes and sends it to the appropriate channel
-        channel_name = f'{prefix.lower()}-class-selection'
-        channel = await get_channel_named(interaction.guild, channel_name)
-        view = View(timeout=None)
-        for i in range(len(role_names)):
-            if re.match(prefix, category_names[i]):         # ensure prefix matches the course name (CEG, CS, EE)
-                if len(view.children) % 25 == 0 and len(view.children) != 0:          # limit of 25 components per view
-                    await channel.send(view=view)
-                    view = View(timeout=None)
-                this_button = RoleButton(button_name=f"{category_names[i]} - {long_names[i]}", role_name=role_names[i])
-                this_button.callback = this_button.on_click
-                view.add_item(this_button)
-        if not len(view.children):
-            await interaction.followup.send("No buttons were built. Please check your prefix")
-            return
-        await channel.send(view=view)
-        await interaction.followup.send("Role buttons have been built")
+        if confirmation_message:
+            confirmation_message = "**The following role(s) could not be found:**\n" + confirmation_message
+            confirmation_message += "Would you like to continue building rolemenus?"
+            await interaction.channel.send(confirmation_message)
+            if not await confirmation(self.bot, interaction, 'confirm'):
+                await interaction.channel.send("Confirmation denied")
+                return
+
+        for prefix in prefixes:
+            # adds RoleButtons to a view with custom attributes and sends it to the appropriate channel
+            channel_name = f'{prefix.lower()}-class-selection'
+            channel = await get_channel_named(interaction.guild, channel_name)
+            if channel == None:
+                message += f"{channel_name} can't be found.\n"
+                continue
+            view = View(timeout=None)
+            for i in range(len(role_names)):
+                if re.match(prefix, category_names[i]):         # ensure prefix matches the course name (CEG, CS, EE)
+                    if len(view.children) % 25 == 0 and len(view.children) != 0:          # limit of 25 components per view
+                        await channel.send(view=view)
+                        view = View(timeout=None)
+                    this_button = RoleButton(button_name=f"{category_names[i]} - {long_names[i]}", role_name=role_names[i])
+                    this_button.callback = this_button.on_click
+                    view.add_item(this_button)
+            if not len(view.children):
+                message += f"No buttons were built for: {prefix}\n"
+                continue
+            await channel.send(view=view)
+            message += f"Role buttons have been built for: {prefix}\n"
+        await interaction.channel.send(message)
+
+    @app_commands.command()
+    @app_commands.default_permissions(administrator=True)
+    async def buildrolemenu(self, interaction:discord.Interaction):
+        """Creates rolemenu dropdown
+        Creates options for class prefixes
+        Creates a select menu (dropdown) using these options
+        Calls rolemenu_callback when prefixes are selected
+        Deletes the select menu after execution
+        """
+
+        options=[
+            discord.SelectOption(label="CEG", description="Builds role menus for CEG"),
+            discord.SelectOption(label="CS", description="Builds role menus for CS"),
+            discord.SelectOption(label="EE", description="Builds role menus for EE"),
+            discord.SelectOption(label="EGR", description="Builds role menus for EGR"),
+            discord.SelectOption(label="ME", description="Builds role menus for ME"),
+        ]
+
+        select = discord.ui.Select(placeholder="Select an option", max_values=len(options), options=options)
+
+        option_view = View(timeout=None)
+        option_view.add_item(select)
+
+        # nested function to allow callback to take the list of selected prefixes as a parameter
+        async def callback_helper(interaction):
+            await self.rolemenu_callback(interaction, select.values)
+            await message.delete()
+
+        select.callback = callback_helper
+
+        await interaction.response.send_message("Select one or more prefixes", view=option_view)
+        message = await interaction.original_response()
 
     @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
