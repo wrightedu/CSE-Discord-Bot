@@ -40,6 +40,9 @@ class Faq(commands.Cog):
 
         if message.author.bot:
             return
+        
+        if message.channel.type == discord.ChannelType.private:
+            return
 
         if message.channel.name in self.channel_names:
             if '?' in message.content:

@@ -1,5 +1,9 @@
-from discord.ui import Button
-from discord.ui import View
+import csv
+import os
+import pandas as pd
+from typing import List
+from validators import url
+
 from discord.ext import commands
 from discord import app_commands
 
@@ -8,75 +12,155 @@ from utils.utils import *
 async def setup(bot):
     await bot.add_cog(Checkin(bot))
 
-
-"""Button menu for the checkin command. Checkout, Help, and Pomodoro."""
-
 class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(description="Sends a check in message and the username")
-    async def checkin(self, interaction:discord.Interaction, message:str):
-        """A check in function for checking into the office and for productivity tracking.
-        This command can be executed by anyone.
-        
+    async def add_task(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
+        """A function that creates a task
+        Creates and adds a task based on user input to the tasks.csv file
+
+        Args:
+            filepath (str): String representation of the path to the csv file
+            channel (discord.Channel): Channel to send the discord messages to
+
         Outputs:
-            Prints user message and user display name with a time stamp.
+            Message to chat displaying the task name and number of the new task that was created
         """
-        timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-        await interaction.channel.send(f"{interaction.user.display_name} checked in @ {timestamp} and is doing: `{message}`")
-        await interaction.response.send_message(view=Checkin.checkinmenu(self.bot), ephemeral=True)
 
-    class checkinmenu(View):
-        def __init__(self, bot, *, timeout=None):
-            super().__init__(timeout=timeout)
-            self.task = None
-            self.bot = bot
+        await channel.send("Enter the name of the task you wish to create")
+        task_name = await self.bot.wait_for('message', check=lambda message: message.author == interaction.user)
 
-        #Checkout button that displays a message that the user has finished their tasks.
-        @discord.ui.button(label="Checkout", style=discord.ButtonStyle.green)
-        async def checkout(self, interaction:discord.Interaction, button:discord.ui.Button):
-            timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-            for child in self.children:
-                child.disabled = True
-            await interaction.response.edit_message(view=self)
-            await interaction.channel.send(content=f"{interaction.user.display_name} checked out @{timestamp}")
+        await channel.send("Enter the link to a Github issue if applicable.\nEnter `none` if there is no issue.")
+        issue_link = await self.bot.wait_for('message', check=lambda message: message.author == interaction.user)
 
+        tasks_df = pd.read_csv(filepath)
+        task_numbers = tasks_df["number"].to_list()
 
-        #Help button that displays a message that the user needs help with a task.
-        @discord.ui.button(label="HELP!", style=discord.ButtonStyle.red)
-        async def HELP(self, interaction:discord.Interaction, button:discord.ui.Button):
-            timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-            await interaction.response.send_message(content=f"{interaction.user.display_name} sent out an SOS @{timestamp}")
-        #Pomodoro button (IN PROGRESS).
-        @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple, disabled=True)
-        async def Pomodoro(self, interact:discord.Interaction, button:discord.ui.Button):
-            
-            timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-            pomodoro = View(timeout=None)
-            done = Button(label="Done", style=discord.ButtonStyle.green)
-            not_done = Button(label="Not Done", style=discord.ButtonStyle.red)
+        task_num = 1
+        if (len(task_numbers) != 0):
+            task_num = task_numbers[-1] + 1
+        
+        if (issue_link.content.casefold() == "none" or not url(issue_link.content)):
+            task_as_list = [interaction.user.id, task_name.content, task_num, '', "Incomplete", 0]
+            await channel.send("No valid link was entered, task is still being created...")
+        else:
+            task_as_list = [interaction.user.id, task_name.content, task_num, issue_link.content, "Incomplete", 0]
 
-            pomodoro.add_item(done)
-            pomodoro.add_item(not_done)
-            await interact.response.edit_message(view=pomodoro)
-            await interact.channel.send(f'What are you working on?', ephemeral=True)
-            msg = await self.bot.wait_for('message', check=lambda message: message.author == interact.user)
-            print(msg.content)
-            
+        csv_file = open(filepath, 'a')
+        writer = csv.writer(csv_file)
+        writer.writerow(task_as_list)
+        csv_file.close()
 
-            done.callback = self.done_on_click
-            not_done.callback = self.not_done_on_click
-            self.task = msg.content
+        await channel.send(f'Task "{task_name.content}" with ID "{task_num}" has been created.')
 
+    async def list_tasks(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
+        """A function that lists all tasks
+        Lists the tasks that are currently in the tasks.csv
 
-        async def done_on_click(self, interaction:discord.Interaction):
-            timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-            await interaction.response.edit_message(view=self)
-            await interaction.channel.send(content=f"{interaction.user.display_name} completed {self.task} @{timestamp}")
+        Args:
+            filepath (str): String representation of the path to the csv file
+            channel (discord.Channel): Channel to send the discord messages to
 
+        Outputs:
+            An embedded discord message that displays the user's tasks in column format
+        """
 
-        async def not_done_on_click(self, interaction:discord.Interaction):
-            timestamp = datetime.datetime.now().strftime(r"%I:%M %p")
-            await interaction.response.edit_message(view=self)
-            await interaction.channel.send(content=f"{interaction.user.display_name} did not complete {self.task} @{timestamp}")
+        tasks_df = pd.read_csv(filepath)
+
+        embed = discord.Embed(
+            title = "Task List",
+            description = "List of your incomplete tasks",
+            colour = discord.Colour.from_rgb(3,105,55)
+        )
+
+        names = ""
+        task_ids = ""
+        time_spent = ""
+
+        for index, row in tasks_df.iterrows():
+            link = tasks_df.loc[index, 'link']
+            if (row['userid'] == interaction.user.id and row['status'] == "Incomplete"):
+                if url(str(link)):
+                    names += f"[{row['name']}]({link})\n"
+                else:
+                    names += f"{row['name']}\n"
+                task_ids += f"{row['number']}\n"
+                time_spent += f"{row['time spent']}\n"
+
+        embed.add_field(name="**Tasks**", value=names)
+        embed.add_field(name="**ID's**", value=task_ids)
+        embed.add_field(name="**Time Spent**", value=time_spent)
+
+        await channel.send(embed=embed)
+
+    async def complete(self, interaction:discord.Interaction, filepath:str, channel:discord.DMChannel):
+        """A function that marks a task as completed
+        Marks a specified task as completed in the status column of the csv
+
+        Args:
+            filepath (str): String representation of the path to the csv file
+            channel (discord.Channel): Channel to send the discord messages to
+
+        Outputs:
+            Sends a followup message either confirming the task was completed, or a message saying it could not be completed
+        """
+        
+        tasks_df = pd.read_csv(filepath)
+
+        await channel.send("Enter the ID of the task you wish to mark as complete")
+        task_id = await self.bot.wait_for('message', check=lambda message: message.author == interaction.user)
+        try:
+            int(task_id.content)
+        except:
+            await channel.send("Not a valid ID")
+            return
+
+        for index, row in tasks_df.iterrows():
+            if (row['userid'] == interaction.user.id and row['number'] == int(task_id.content) and row['status'] == "Incomplete"):
+                tasks_df.loc[index, 'status'] = 'Complete'
+                tasks_df.to_csv(filepath, index=False)
+
+                await channel.send(f'Task "{row["name"]}" with ID "{task_id.content}" has been completed.')
+                return
+
+        await channel.send("Nothing has been marked as complete as either the ID was not found, wasn't your task, or was already completed")
+
+    @app_commands.command(description="Add, list, or mark your tasks as complete")
+    async def task(self, interaction:discord.Interaction, option:str):
+        """Create and manage tasks
+        A function designed to allow the user to track small tasks
+        to increase productivity. Gives the user the option to create a new task,
+        list all incomplete tasks, or mark a specific task as complete.
+
+        Args:
+            option (str): Autocomplete parameter to allow the user to choose between creating, listing, or completing a task
+        
+        """
+        await interaction.response.send_message("Check your DM's", ephemeral=True)
+
+        csv_filepath = f'assets/tasks.csv'
+        if not (os.path.exists(csv_filepath)):
+            file = open(csv_filepath, "w")
+            file.write("userid,name,number,link,status,time spent\n")
+            file.close()
+
+        channel = await interaction.user.create_dm()
+
+        if (option == "Add"):
+            await self.add_task(interaction, csv_filepath, channel)
+        elif (option == "List"):
+            await self.list_tasks(interaction, csv_filepath, channel)
+        elif (option == "Mark Completed"):
+            await self.complete(interaction, csv_filepath, channel)
+
+    # Autocomplete functionality for the parameter "cog_name" in the load, reload, and unload commands
+    @task.autocomplete("option")
+    async def task_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
+        data = []
+        choices = ["Add", "List", "Mark Completed"] 
+        # For every choice if the typed in value is in the choice add it to the possible options
+        for choice in choices:
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
+        return data
