@@ -150,8 +150,10 @@ class StudentCommands(commands.Cog):
                 options.append(choice)
 
         # Define reactions
-        if len(options) == 2 and options[0] == 'yes' and options[1] == 'no':
+        if len(options) == 2 and options[0].casefold() == 'yes' and options[1].casefold() == 'no':
             reactions = ['✅', '❌']
+        elif len(options) == 2 and options[0].casefold() == 'no' and options[1].casefold() == 'yes':
+            reactions = ['❌', '✅']
         else:
             reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
 
