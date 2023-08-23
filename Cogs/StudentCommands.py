@@ -149,11 +149,6 @@ class StudentCommands(commands.Cog):
             if choice != 'None':
                 options.append(choice)
 
-        # Need between 2 and 10 options for a poll
-        if not (1 < len(options) <= 10):
-            await interaction.response.send_message('Enter between 2 and 10 answers')
-            return
-
         # Define reactions
         if len(options) == 2 and options[0] == 'yes' and options[1] == 'no':
             reactions = ['✅', '❌']
