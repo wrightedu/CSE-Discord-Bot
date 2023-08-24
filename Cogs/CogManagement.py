@@ -1,18 +1,37 @@
+import os
 from os.path import exists, abspath
 
 from discord.ext import commands
 from discord import app_commands
+from typing import List
 
 from utils.utils import *
 
 
+def get_choices():
+    """Gets cog names
+    Reads all cog names and adds them to a list. This list is returned and added to a list of choices for 
+    autocomplete
+
+    Outputs:
+        List of cog names
+    """
+
+    cogs_list = []
+    for file in os.listdir('Cogs'):
+        if not file.startswith('__') and file.endswith('.py'):
+            cogs_list.append(f'{file[:-3]}')
+    return cogs_list
+
 async def setup(bot:commands.Bot):
-    await bot.add_cog(CogManagement(bot))
+    choices = get_choices()
+    await bot.add_cog(CogManagement(bot, choices))
 
 
 class CogManagement(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, choices):
         self.bot = bot
+        self.choices = choices
 
     @app_commands.command(description="Load a specific cog")
     @app_commands.default_permissions(administrator=True)
@@ -24,12 +43,12 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog being loaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being loaded, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be loaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it loads the cog
@@ -58,12 +77,12 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog that will be reloaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being restarted, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be reloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it reloads the cog
@@ -92,12 +111,12 @@ class CogManagement(commands.Cog):
 
         Args:
             cog_name (str): Name of the cog being unloaded
+                cog_name will be autofilled with all of the cogs we currently have
 
         Outputs:
             Message to user informing them of what cog is being unloaded, and when the action is done.
         """
 
-        # Finds the absolute path to the cog that will be unloaded
         file = abspath('Cogs/' + cog_name + '.py')
 
         # If the file exists it unloads the cog
@@ -119,6 +138,18 @@ class CogManagement(commands.Cog):
         else:
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to unload the {cog_name} cog, but failed.')
+
+    # Autocomplete functionality for the parameter "cog_name" in the load, reload, and unload commands
+    @load.autocomplete("cog_name")
+    @reload.autocomplete("cog_name")
+    @unload.autocomplete("cog_name")
+    async def cog_auto(self, interaction:discord.Interaction, current:str) -> List[app_commands.Choice[str]]:
+        data = []
+        # For every choice if the typed in value is in the choice add it to the possible options
+        for choice in self.choices:
+            if current.lower() in choice.lower():
+                data.append(app_commands.Choice(name=choice, value=choice))
+        return data
 
     @commands.command()
     @commands.has_permissions(administrator=True)
