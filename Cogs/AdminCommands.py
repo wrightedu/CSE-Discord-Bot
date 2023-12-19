@@ -277,6 +277,9 @@ class AdminCommands(commands.Cog):
                 await self.bot.change_presence(activity=discord.Game(status))
                 await log(self.bot, f'{interaction.user} changed the custom status to "Playing {status}"')
                 await f.write(status) # write the new status to the file
+            elif len(status) > 128:
+                await interaction.followup.send("Unable to set status, length of given status is > 128")
+                return # returns so the interaction doesn't set a followup twice
         await interaction.followup.send("Status set")
     
     
