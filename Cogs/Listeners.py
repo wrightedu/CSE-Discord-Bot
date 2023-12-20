@@ -13,9 +13,16 @@ class Listeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        """Any time anyone sends a message in #i-made-a-pr, react with the poop emoji"""
+        """Auto-reacts emojis to discord messages
+        Any time anyone sends a message in #i-made-a-pr or #cs-help-room, the bot reacts with the poop emoji
+        or the wave emoji respectively. The bot reacts to every message in the #i-made-a-pr channel, but only
+        specific messages that are sent by TA's and contain specified keywords in the #cs-help-room channel.
 
-        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
+        Outputs:
+            An emoji reaction to a message that matches any necessary channel, author, and/or keyword criteria
+        """
+
+        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messagess
         if type(ctx.channel) == discord.TextChannel:
             if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
                 await ctx.add_reaction("💩")
