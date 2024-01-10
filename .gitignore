@@ -8,6 +8,7 @@ reaction_roles*
 *__pycache__/
 corgis/
 dogs/
+assets/moss_ids.csv
 
 
 # Logs and databases #
