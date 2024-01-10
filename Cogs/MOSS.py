@@ -78,7 +78,7 @@ class MOSS(commands.Cog):
         discord_id = interaction.user.id
 
         # Verify that the given moss_id is valid
-        if not moss_id.isdigit() or len(moss_id) != 8:
+        if not moss_id.isdigit():
             await interaction.response.send_message("Invalid MossID. Please try again.")
             return
 
