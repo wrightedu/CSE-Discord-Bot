@@ -53,8 +53,124 @@ class CourseManagement(commands.Cog):
         """Verifies roles to be destroyed
         Looks through all roles and verifies if the list of role names is on the server
 
-        Args:
-            role_names (List[str]): a list of strings of the role names to delete
+Owner avatar
+CSE-Discord-Bot
+Public
+
+wrightedu/CSE-Discord-Bot
+t
+Add file
+Folders and files
+Name	Last commit message
+	Last commit date
+Latest commit
+L30N1DAS
+L30N1DAS
+Merge pull request #239 from wrightedu/development
+b61ec85
+ · 
+History
+.github
+	
+Update pull_request_template.md
+	
+Classlists
+	
+Fixed the issue where "MTWR" was showing up after the classname
+	
+Cogs
+	
+Got rid of Mason's comment because it made no sense
+	
+assets
+	
+Fixed Mason's oopsie part 3
+	
+role_lists
+	
+Adding Main Server's role_list
+	
+utils
+	
+Merge branch 'development' into emoji
+	
+.gitignore
+	
+Blame Matt for this nonsense
+	
+ARCHITECTURE.md
+	
+Added architecture
+	
+CONTRIBUTING.md
+	
+Fixed typo
+	
+CSEdiscord.yml
+	
+Added AWS Cloudformation template
+	
+LICENSE
+	
+Create LICENSE
+	
+README.md
+	
+Formatting fix in README
+	
+REQUIREMENTS.txt
+	
+Added validators back into REQUIREMENTS.txt
+	
+bot.py
+	
+Removed Discord Components and Asyncio
+	
+diceParser.py
+	
+Forgot diceParser.py
+	
+helloworld.yml
+	
+Add language yaml file
+	
+role_menus.json
+	
+Summer 2022 list
+	
+template_roles.csv
+	
+Added support for spaces in class roles
+	
+Repository files navigation
+
+README
+
+    GPL-3.0 license
+
+CSE-Discord-Bot
+
+Discord bot for the Wright State University CSE-EE Discord server and any other official Wright State University that request its presence.
+License and Liability Statement
+
+This project and associated IP is property of Wright State University under the jurisdiction of the CSE Development Team. Wright State University claims no responsibility for any potentially illegal or malicious use of this software.
+
+This project is protected under the GNU General Public License v3.
+
+The GNU GPL-3 license permits commercial use, distribution, and modification of this software in those distributions. This does not mean that any forked versions of this software are associated with or supported by Wright State University. This Discord bot only operates in official Wright State University Discord servers where the owners/administrators of that server have requested the use of the bot. The official WSU CSE Bot has the Discord name WSU CSE Bot#2486.
+Issue Submission
+
+Any issues with this bot or any official Wright State University Discord server should be submitted as an issue in this repository, following one of the provided templates. You can find the issue tab here
+Contributions
+
+Ryan Slater is the primary author of this project.
+The Wright State University CSE Dev Team is primarily responsible for the ongoing development and upkeep of this project.
+
+Credit goes to Alan Fleming for the dice parser used in this project. Visit his DiceParser repository for more information.
+Contributing to this project
+
+If you would like to contribute to this project, read the Contributing Guide
+r]): a list of strings of the role names to delete
 
         Outputs:
             roles (List[roles]): a list of the verified roles.
