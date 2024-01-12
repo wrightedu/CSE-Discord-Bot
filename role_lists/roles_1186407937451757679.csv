@@ -1,5 +1,4 @@
 text,emoji,role/link,long_name,create_channels
-CEG 1900,,CEG 1900,Internship,"#ceg1900,0#Student Voice,2#TA Voice"
 CEG 2350,,CEG 2350,Operating System Concepts and Usage,"#ceg2350,0#Student Voice,2#TA Voice"
 CEG 2400,,CEG 2400,Introduction to PC Networking,"#ceg2400,0#Student Voice,2#TA Voice"
 CEG 2410,,CEG 2410,System Administration,"#ceg2410,0#Student Voice,2#TA Voice"
@@ -24,13 +23,13 @@ CEG 4980,,CEG 4980,Team Projects I,"#ceg4980,0#Student Voice,2#TA Voice"
 CEG 4981,,CEG 4981,Team Projects II,"#ceg4981,0#Student Voice,2#TA Voice"
 CEG 5310,,CEG 3310,Computer Organization,
 CEG 5320,,CEG 3320,Digital System Design,
-CEG 5350,,CEG 5350,Operating Systems Internals and Design,"#ceg5350,0#Student Voice,2#TA Voice"
+CEG 5350,,CEG 4350,Operating System Internals and Design,
 CEG 6110,,CEG 4110,Introduction to Software Engineering,
 CEG 6120,,CEG 4120,Managing the Software Development Process,
 CEG 6324,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
 CEG 6326,,CEG 4326,IC Hardware Security and Trust,
 CEG 6420,,CEG 4420,Host Computer Security,
-CEG 6424,,CEG 6424,Security Attacks & Defenses,"#ceg6424,0#Student Voice,2#TA Voice"
+CEG 6424,,CEG 4424,Security Attacks and Defenses,
 CEG 6426,,CEG 4426,Legal Aspects of Cyber Security,
 CEG 6430,,CEG 4430,Cyber Network Security,
 CEG 6750,,CEG 4750,Information Security,
@@ -47,7 +46,6 @@ CS 1150,,CS 1150,Introduction to Computer Science,"#cs1150,0#Student Voice,2#TA 
 CS 1160,,CS 1160,Introduction to Computer Programming,"#cs1160,0#Student Voice,2#TA Voice"
 CS 1180,,CS 1180,Computer Science I,"#cs1180,0#Student Voice,2#TA Voice"
 CS 1181,,CS 1181,Computer Science II,"#cs1181,0#Student Voice,2#TA Voice"
-CS 1900,,CEG 1900,Internship,
 CS 2200,,CS 2200,Discrete Structures and Their Algorithms,"#cs2200,0#Student Voice,2#TA Voice"
 CS 3100,,CS 3100,Data Structures and Algorithms,"#cs3100,0#Student Voice,2#TA Voice"
 CS 3170,,CS 3170,Mobile Application Development,"#cs3170,0#Student Voice,2#TA Voice"
@@ -76,7 +74,7 @@ CS 7900 (Topics in Mach Learning & AI),,CS 7900 (Topics in Mach Learning & AI),T
 CS 7900 (Quantum Algorithms),,CS 7900 (Quantum Algorithms),Quantum Algorithms,"#cs-7900-quantum-algorithms,0#Student Voice,2#TA Voice"
 EE 2000,,EE 2000,Digital Design with HDL,"#ee2000,0#Student Voice,2#TA Voice"
 EE 2010,,EE 2010,Analog Circuit Theory,"#ee2010,0#Student Voice,2#TA Voice"
-EE 2011,,EE 2011,Analog Circuit Techniques,"#ee2011,0#Student Voice,2#TA Voice"
+EE 2011,,EE 2010,Analog Circuit Techniques,
 EE 3210,,EE 3210,Continuous Linear Systems,"#ee3210,0#Student Voice,2#TA Voice"
 EE 3260,,EE 3260,Random Signals and Noise,"#ee3260,0#Student Voice,2#TA Voice"
 EE 3310,,EE 3310,Electronic Devices and Circuits,"#ee3310,0#Student Voice,2#TA Voice"
@@ -91,9 +89,8 @@ EE 4550,,CEG 4326,IC Hardware Security and Trust,
 EE 4620,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
 EE 4800 (Intro to Electronic Warfare),,EE 4800 (Intro to Electronic Warfare),Intro to Electronic Warfare,"#ee-4800-intro-to-electronic-warfare,0#Student Voice,2#TA Voice"
 EE 4800 (Fund of Modern VLSI Devices),,EE 4800 (Fund of Modern VLSI Devices),Fund of Modern VLSI Devices,"#ee-4800-fund-of-modern-vlsi-devices,0#Student Voice,2#TA Voice"
-EE 4830,,EE 4830,Internship in Electrical Engineering,"#ee4830,0#Student Voice,2#TA Voice"
-EE 4910,,EE 4910,Electrical Engineering Senior Design Project I,"#ee4910,0#Student Voice,2#TA Voice"
-EE 4920,,EE 4920,Electrical Engineering Senior Design Project II,"#ee4920,0#Student Voice,2#TA Voice"
+EE 4910,,CEG 4980,Electrical Engineering Senior Design Project I,
+EE 4920,,CEG 4981,Electrical Engineering Senior Design Project II,
 EE 4990,,EE 4990,Special Problems in Electrical Engineering,"#ee4990,0#Student Voice,2#TA Voice"
 EE 6000,,EE 4000,Discrete Linear Systems,
 EE 6120,,EE 4120,Industrial Controls and Automation,
@@ -111,4 +108,4 @@ EE 7440,,EE 7440,RF Power Amplifiers,"#ee7440,0#Student Voice,2#TA Voice"
 EE 7520,,CEG 7020,Low Power VLSI System Design,
 EE 7560,,CEG 7060,Advanced Robotics,
 EE 7620,,EE 7620,"Detection, Estimation, and Optimal Filter Theory","#ee7620,0#Student Voice,2#TA Voice"
-EE 7840,,EE 7840,Computer Vision,"#ee7840,0#Student Voice,2#TA Voice"
+EE 7840,,CEG 7550,Computer Vision,
