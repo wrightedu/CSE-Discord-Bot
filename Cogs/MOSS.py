@@ -77,8 +77,9 @@ class MOSS(commands.Cog):
         # Assign the user's discord id to a variable
         discord_id = interaction.user.id
 
-        # Verify that the given moss_id is valid
-        if not moss_id.isdigit():
+        # Verify that the given moss_id is valid 
+        # From what I have seen, moss_id's are 8 or 9 digits long. This check can be removed if we find out otherwise
+        if not moss_id.isdigit() or not (len(moss_id) == 8 or len(moss_id) == 9):
             await interaction.response.send_message("Invalid MossID. Please try again.")
             return
 
@@ -94,13 +95,15 @@ class MOSS(commands.Cog):
             if update.content.lower() == "y":
                 moss_df.loc[moss_df["discord_id"] == discord_id, "moss_id"] = moss_id
                 moss_df.to_csv(csv_filepath, index=False)
+                await log(self.bot, f"{interaction.user} ran /moss_register in #{interaction.channel} and updated their MossID in the CSV")
                 await interaction.followup.send(f"The new MossID: `{moss_id}`, is now associated with your account in the CSV")
             else:
                 await interaction.followup.send("Your MossID has not been updated.")
 
             return
         else:
-            moss_df = moss_df.append({"discord_id":discord_id, "moss_id":moss_id}, ignore_index=True)
+            new_row_df = pd.DataFrame([{"discord_id": discord_id, "moss_id": moss_id}])
+            moss_df = pd.concat([moss_df, new_row_df], ignore_index=True)
             moss_df.to_csv(csv_filepath, index=False)
+            await log(self.bot, f"{interaction.user} ran /moss_register in #{interaction.channel} and added their MossID to the CSV")
             await interaction.response.send_message(f"The MossID: `{moss_id}`, has been added to the CSV and is associated with your account")
-
