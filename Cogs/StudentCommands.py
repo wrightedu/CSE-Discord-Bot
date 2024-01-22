@@ -36,6 +36,7 @@ class StudentCommands(commands.Cog):
         Outputs:
             image: picture being sent to chat
         """
+        await interaction.response.defer()
 
         # Check if corgis dir exists
         if not exists('dogs/corgis'):
@@ -57,7 +58,7 @@ class StudentCommands(commands.Cog):
         image = images[number]
 
         # Send image
-        await interaction.response.send_message(f'Corgi #{number}:', file=discord.File(image))
+        await interaction.followup.send(f'Corgi #{number}:', file=discord.File(image))
 
         # put in the log channel that the corgme command was run
         await log(self.bot, f'{interaction.user} ran /corgme in #{interaction.channel}')

@@ -52,7 +52,7 @@ async def download_corgis(bot, interaction, amount):
         Who sent command and the amount of pictures downloaded.
     """
 
-    await interaction.response.send_message(f'Downloading {amount} images')
+    await interaction.followup.send(f'Downloading {amount} images')
     downloader.download('corgis',
                         limit=amount,
                         output_dir='dogs',
