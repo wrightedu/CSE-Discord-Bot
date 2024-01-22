@@ -10,7 +10,7 @@ import pandas as pd
 async def setup(bot:commands.Bot):
     await bot.add_cog(MOSS(bot))
 
-# constructor method that passes in Cog commands???
+# constructor method that passes in Cog commands
 class MOSS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -41,7 +41,6 @@ class MOSS(commands.Cog):
         file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
         # TODO change bob.zip to <datestamp>.zip
-        #now =
         zip_filepath = f"{mosspath}/bob.zip"
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
