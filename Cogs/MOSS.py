@@ -14,7 +14,7 @@ def get_moss_id(discord_id):
         discord_id (int): the discord id of the user
 
     Returns:
-        string: the moss id associated with the user's discord id
+        string: the moss id associated with the user's discord id or none if the user is not in the CSV
     """
 
     # Assign the CSV to a variable and create a pandas dataframe
