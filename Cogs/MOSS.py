@@ -6,6 +6,28 @@ from utils.utils import *
 import os
 import pandas as pd
 
+def get_moss_id(discord_id):
+    """Gets a user's MossID
+    Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
+
+    Args:
+        discord_id (int): the discord id of the user
+
+    Returns:
+        string: the moss id associated with the user's discord id
+    """
+
+    # Assign the CSV to a variable and create a pandas dataframe
+    csv_filepath = "assets/moss_ids.csv"
+    moss_df = pd.read_csv(csv_filepath)
+
+    if discord_id in moss_df["discord_id"].values:
+        return moss_df.loc[moss_df["discord_id"] == discord_id]["moss_id"].values[0]
+    else:
+        # From /moss, we can check if 'none' was returned and send a message to the user
+        return None
+
+
 # adds my cog to the bot
 async def setup(bot:commands.Bot):
     await bot.add_cog(MOSS(bot))
