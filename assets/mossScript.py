@@ -6,6 +6,8 @@ import platform
 import random
 import datetime
 
+# hi, Matt
+
 # Deciding on directory sep. Mac&Linux us '/' while Windows uses '\'
 os_separator: str = "/" if platform.system() in ["Linux", "Darwin"] else "\\"
 
