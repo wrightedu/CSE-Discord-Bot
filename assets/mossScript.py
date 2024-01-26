@@ -24,9 +24,9 @@ curr_dir = os.path.abspath('.') + os_separator
 
 test_exist = curr_dir+os_separator+'StudentCode'+os_separator+'namedFiles'
 if os.path.exists(test_exist) and os.listdir(test_exist):
-    y_n = str(input(
+    yes_or_no = str(input(
         "namedFiles already exists and contains files. Would you like to empty it?")).lower()
-    if len(y_n) == 0 or y_n[0] == 'y':
+    if len(yes_or_no) == 0 or yes_or_no[0] == 'y':
         shutil.rmtree(test_exist)
 
 # Choosing a file extension
@@ -54,7 +54,11 @@ named_dir = dir+os_separator+'namedFiles'
 
 def get_last_name(file: str) -> str:
     """
-    gets the last name from file
+    Gets the last name from file
+
+    :param str file: The file name to get the last name from
+    :return: Tries to split the file name. Should be successful as it follows the Pilot naming convention. If it files, just
+        uses the file name itself
     """
     try:
         return file.split(' - ')[1].split()[1]
@@ -64,7 +68,7 @@ def get_last_name(file: str) -> str:
 
 def unzip():
     """
-    unizps main zip file downloaded from Pilot into unzipped directory
+    Unizps main zip file downloaded from Pilot into unzipped directory
     """
     try:
         shutil.rmtree(unzipped_dir)
@@ -108,10 +112,13 @@ def file_to_dir():
 user_submissions_dates = dict()
 
 
-def getDate(file_name):
+def get_date_from_file(file_name):
     """
     Gets the date from a file_name. Uses splitting and formatting
     based on Pilot
+
+    :param str file_name: The file name to get the date from
+    :return datetime date_object: The extracted date as a datetime obj. If not found returns a string "NoDate"
     """
     try:
         date = str.join(' ', file_name.split(
@@ -125,18 +132,22 @@ def getDate(file_name):
         return "NoDate"
 
 
-def isMoreRecent(d1, d2):
+def is_more_recent(date_1, date_2):
     """
-    checks if d1: date is more recent compared to d2:date
+    checks if date_1: date is more recent compared to date_2:date
+
+    :param date date_1: The first date to compare
+    :param date date_2: The second date to compare
+    :return True if date_1 is more recent than date_2, else False
     """
-    if not isinstance(d1, datetime.datetime) or not isinstance(d2, datetime.datetime):
+    if not isinstance(date_1, datetime.datetime) or not isinstance(date_2, datetime.datetime):
         return False
     else:
-        # if d1 is newer
-        return d1 > d2
+        # if date_1 is newer
+        return date_1 > date_2
 
 
-def dealWithZip():
+def unzip_inner_zip_files():
     """
     deals with leftover zip files that were submitted as zips in pilot
     creates temp lastName.dir folders that the .zip gets extracted to
@@ -146,12 +157,13 @@ def dealWithZip():
         return
     for zipped_file in os.listdir(unzipped_dir):
         user_last_name = get_last_name(zipped_file)
+        # Skip non-zip files
         if zipped_file[-4:] != '.zip':
             continue
         stored_user_date = user_submissions_dates.get(user_last_name, "NoDate")
-        current_user_date = getDate(zipped_file)
+        current_user_date = get_date_from_file(zipped_file)
         # If stored is newer than current file, skip
-        if stored_user_date != "NoDate" and isMoreRecent(stored_user_date, current_user_date):
+        if stored_user_date != "NoDate" and is_more_recent(stored_user_date, current_user_date):
             continue
         with ZipFile(unzipped_dir+os_separator+zipped_file, 'r') as zf:
             temp_dir = unzipped_dir+os_separator + \
@@ -173,6 +185,11 @@ def find_file_extension_files(search_path):
     searches for .{file_extension} files and notes the directory title which is the last name so we can move it later
     to namedFiles
     gets abs paths of the .{file_extension} files
+
+    :param str search_path: The path that the search tree/walk will start from.
+
+    :return list[str] results: Contains the absolute paths to source code files found.
+    :return list[str] titles: The student last names. Duplicates will ahve a random number attached at the end. Should probably change that
     """
     results = []
     titles = []  # names of students
@@ -180,39 +197,42 @@ def find_file_extension_files(search_path):
     # Wlaking top-down from the root
     i = 1
     for root, dir, files in os.walk(search_path):
-        code_files = []
+        source_code_files = []
         # title = parent folder name. just so we save the name of the student that we are currently in
         title = root.split(
             os_separator)[-1] if root.split(os_separator)[-1][-4:] == '.dir' else title
         i += 1
-        code_files = [os.path.join(root, file)
+        source_code_files = [os.path.join(root, file)
                       for file in files if file[-len(file_extension):] == file_extension and file[0:2] != '._']  # '._' is a MacOS thing
-        if code_files:
-            for i in range(len(code_files)):
+        if source_code_files:
+            for i in range(len(source_code_files)):
                 titles.append(title)
-            results.extend(code_files)
+            results.extend(source_code_files)
     titles = list(map(lambda x: x+str(random.choice(range(0, 100)))
                       if x == 'dummyName' else x, titles))
     return results, titles
 
 # moves files in list
-
-
-def moveFiles(lst, titles):
+def move_files(zip_files_paths, student_names):
     """
     searches for .{file_extension} files and notes the directory title which is the last name so we can move it later
     to namedFiles
     gets abs paths of the .{file_extension} files
+
+    :param list[str] zip_files_paths:
     """
-    silly_number = str(1)
-    for i in range(len(titles)):
-        file_path = lst[i]
-        new_path = named_dir+os_separator+titles[i]
+    random_number = str(1)
+    for i in range(len(student_names)):
+        file_path = zip_files_paths[i]
+        # New path for the file
+        new_path = named_dir+os_separator+student_names[i]
+        # If it already exists, add a random number to it
         if os.path.exists(new_path):
             new_path = new_path.split(file_extension)[
-                0]+silly_number+file_extension
-            silly_number = str(int(silly_number)+1)
+                0]+random_number+file_extension
+            random_number = str(int(random_number)+1)
         os.rename(file_path, new_path)
+    # If it doesn't exist, DO NO RMTREE
     if not os.path.exists(unzipped_dir):
         return
     shutil.rmtree(unzipped_dir)
@@ -223,7 +243,7 @@ unzip()
 # make .{file_extension} files into dirs
 file_to_dir()
 # make .zip files into dirs of lastName.dir format
-dealWithZip()
+unzip_inner_zip_files()
 
 # get all .{file_extension} file abs paths
 zip_dirs, titles = find_file_extension_files(unzipped_dir)
@@ -233,12 +253,16 @@ while len(zip_dirs) > len(titles) and len(titles)+i < len(titles)-1:
     titles.append(zip_dirs[len(titles)+i].split('/')[3])
     i += 1
 
+# Adds the {file_extension} to each title (last name) if it doesn't exist already.
 titles = list(
     map(lambda x: (x[0:len(x)-len(file_extension)+1] if len(x) > len(file_extension) else x)+file_extension, titles))
+
+# Print results of operation
 print('Found {} {} and {} .zip submissions.'.format(
     len(os.listdir(named_dir)), file_extension, len(zip_dirs)))
+
 # move .{file_extension} files into namedFiles
-moveFiles(zip_dirs, titles)
+move_files(zip_dirs, titles)
 
 # # run moss!
 subprocess.Popen(
