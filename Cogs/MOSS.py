@@ -14,9 +14,35 @@ async def setup(bot:commands.Bot):
 class MOSS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    async def delete_all(dir_path):
+        """Delete all files and directories
+        Delete's all files and directories below the directory specified by the path
+        passed into the function.
+
+        Args:
+            dir_path (string): Directory to remove all contents from
+
+        Outputs:
+            An error if raised.
+        """
+        try:
+            for file in os.listdir(dir_path):
+                file_path = os.path.join(dir_path, file)
+                print(file_path)
+                if os.path.isdir(file_path):
+                    try:
+                        os.rmdir(file_path)
+                    except Exception as e:
+                        await MOSS.delete_all(file_path)
+                        os.rmdir(file_path)
+                elif os.path.isfile(file_path):
+                    os.remove(file_path)
+        except Exception as e:
+            print(f"Could not delete {file}. Error: {e}")
     
     
-    @app_commands.command(description="This will check if students are cheaters") # they ALL are
+    @app_commands.command(description="This will check if students are cheaters") 
     @app_commands.default_permissions(administrator=True)
     async def test(self, interaction:discord.Interaction):
         """ Run MOSS command
@@ -33,6 +59,9 @@ class MOSS(commands.Cog):
         mosspath = "/tmp/moss"
         if not os.path.exists(mosspath):
             os.mkdir(mosspath)
+        
+        if len(os.listdir(mosspath)) > 0:
+            await MOSS.delete_all(mosspath)
 
         # copied and pasted - needs fixed
         await interaction.response.send_message("Please attach a .zip file of all student code!")
