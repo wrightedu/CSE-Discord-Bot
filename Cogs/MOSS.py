@@ -8,6 +8,14 @@ import pandas as pd
 
 # adds my cog to the bot
 async def setup(bot:commands.Bot):
+    # Might want to make this a global class variable at some point(?)
+    csv_filepath = "assets/moss_ids.csv"
+
+    # If the moss_ids.csv does not exist on startup, create it
+    if not os.path.exists(csv_filepath):
+        with open(csv_filepath, 'w') as file:
+            # Add the header for the df
+            file.write("discord_id,moss_id\n")
     await bot.add_cog(MOSS(bot))
 
 # constructor method that passes in Cog commands
