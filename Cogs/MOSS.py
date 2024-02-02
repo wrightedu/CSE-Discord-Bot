@@ -4,6 +4,7 @@ from discord.ext import commands
 from zipfile import ZipFile 
 from utils.utils import *
 import os
+import subprocess
 import pandas as pd
 
 def get_moss_id(discord_id):
@@ -96,6 +97,7 @@ class MOSS(commands.Cog):
         Outputs:
             MOSS URL
         """
+        moss_id = get_moss_id(interaction.user.id)
 
         # TODO change mosspath to /tmp/<mossuser>
         mosspath = "/tmp/moss"
@@ -117,11 +119,8 @@ class MOSS(commands.Cog):
 
         await file.attachments[0].save(zip_filepath)
 
-        # here I need to unzip the file in zip_filepath
-        with ZipFile(zip_filepath, 'r') as code_zip:
-            code_zip.extractall(path=mosspath)
-
-        
+        subprocess.Popen( 
+            f'WSU_mossScript --id {moss_id}')
 
 
     @app_commands.command(description="Register a new MossID")
