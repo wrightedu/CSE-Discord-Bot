@@ -86,7 +86,7 @@ class MOSS(commands.Cog):
     
     @app_commands.command(description="This will check if students are cheaters") #they ALL are
     @app_commands.default_permissions(administrator=True)
-    async def test(self, interaction:discord.Interaction):
+    async def moss(self, interaction:discord.Interaction):
         """ Run MOSS command
         Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 

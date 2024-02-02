@@ -5,6 +5,17 @@ import subprocess
 import platform
 import random
 import datetime
+import argparse
+
+"""
+Parse arguments for moss_id.
+"""
+parser = argparse.ArgumentParser(description='none')
+parser.add_argument('--id', type=str, help='Requires moss_id.')
+
+args = parser.parse_args()
+
+moss_id = args.id
 
 # Code written by Ali Aljaffer
 
@@ -267,7 +278,7 @@ move_files(zip_dirs, titles)
 
 # # run moss!
 subprocess.Popen(
-    f'.{os_separator}moss .{os_separator}moss_id{os_separator}namedFiles{os_separator}*{file_extension}', shell=True)
+    f'.{os_separator}utils{os_separator}WSU_mossnet.pl -i {moss_id} {moss_path}{os_separator}namedFiles{os_separator}*{file_extension}', shell=True)
 
 # WIP
 # mossum = input('run mossum too?').lower()[0] == 'y'
