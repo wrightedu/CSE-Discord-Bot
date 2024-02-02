@@ -6,17 +6,85 @@ from utils.utils import *
 import os
 import pandas as pd
 
+def get_moss_id(discord_id):
+    """Gets a user's MossID
+    Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
+
+    Args:
+        discord_id (int): the discord id of the user
+
+    Returns:
+        string: the moss id associated with the user's discord id or none if the user is not in the CSV
+    """
+
+    # Assign the CSV to a variable and create a pandas dataframe
+    csv_filepath = "assets/moss_ids.csv"
+    moss_df = pd.read_csv(csv_filepath)
+
+    if discord_id in moss_df["discord_id"].values:
+        return moss_df.loc[moss_df["discord_id"] == discord_id]["moss_id"].values[0]
+    else:
+        # From /moss, we can check if 'none' was returned and send a message to the user
+        return None
+
+
 # adds my cog to the bot
 async def setup(bot:commands.Bot):
+    # Might want to make this a global class variable at some point(?)
+    csv_filepath = "assets/moss_ids.csv"
+
+    # If the moss_ids.csv does not exist on startup, create it
+    if not os.path.exists(csv_filepath):
+        with open(csv_filepath, 'w') as file:
+            # Add the header for the df
+            file.write("discord_id,moss_id\n")
     await bot.add_cog(MOSS(bot))
 
 # constructor method that passes in Cog commands
 class MOSS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    async def delete_all(dir_path):
+        """Delete all files and directories
+        Delete's all files and directories below the directory specified by the path
+        passed into the function.
+
+        Args:
+            dir_path (string): Directory to remove all contents from
+
+        Outputs:
+            An error if raised.
+        """
+        try:
+            for file in os.listdir(dir_path):
+                file_path = os.path.join(dir_path, file)
+                print(file_path)
+                if os.path.isdir(file_path):
+                    try:
+                        os.rmdir(file_path)
+                    except Exception as e:
+                        await MOSS.delete_all(file_path)
+                        os.rmdir(file_path)
+                elif os.path.isfile(file_path):
+                    os.remove(file_path)
+        except Exception as e:
+            print(f"Could not delete {file}. Error: {e}")
+
+    async def check_moss_folder(dir_path):
+        """If a folder for the moss user does not exist, creates one at the specified path. If one already exists but
+        has contents, deletes all contents.
+
+        Args:
+            dir_path (string): Path to new or
+        """
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
+        
+        if len(os.listdir(dir_path)) > 0:
+            await MOSS.delete_all(dir_path)
     
-    
-    @app_commands.command(description="This will check if students are cheaters") # they ALL are
+    @app_commands.command(description="This will check if students are cheaters") #they ALL are
     @app_commands.default_permissions(administrator=True)
     async def test(self, interaction:discord.Interaction):
         """ Run MOSS command
@@ -30,9 +98,8 @@ class MOSS(commands.Cog):
         """
 
         # TODO change mosspath to /tmp/<mossuser>
-        mosspath = "/tmp/mosspath"
-        if not os.path.exists(mosspath):
-            os.mkdir(mosspath)
+        mosspath = "/tmp/moss"
+        await MOSS.check_moss_folder(mosspath)
 
         # copied and pasted - needs fixed
         await interaction.response.send_message("Please attach a .zip file of all student code!")
