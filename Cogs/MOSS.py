@@ -100,7 +100,7 @@ class MOSS(commands.Cog):
         moss_id = get_moss_id(interaction.user.id)
 
         # TODO change mosspath to /tmp/<mossuser>
-        mosspath = "/tmp/moss"
+        mosspath = f"/tmp/{moss_id}"
         await MOSS.check_moss_folder(mosspath)
 
         # copied and pasted - needs fixed
@@ -119,8 +119,16 @@ class MOSS(commands.Cog):
 
         await file.attachments[0].save(zip_filepath)
 
-        subprocess.Popen( 
-            f'WSU_mossScript --id {moss_id}')
+        moss_command = f'python ./utils/WSU_mossScript.py --id {moss_id}'
+
+        process = subprocess.Popen(
+            moss_command, stdout = subprocess.PIPE, shell=True)
+        
+        output = process.communicate()[0]
+
+        #print(output.decode())
+
+        await interaction.followup.send(output.decode())
 
 
     @app_commands.command(description="Register a new MossID")

@@ -201,7 +201,7 @@ while (@ARGV && ($_ = $ARGV[0]) =~ /^-(.)(.*)/) {
 	    $rest = shift(@ARGV);
 	}
 	$opt_i = $rest;
-	$userid = $rest;
+	$userid = $opt_i;
 	next;
     }
     if ($first eq "l") {

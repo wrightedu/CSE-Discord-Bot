@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from zipfile import ZipFile
 import os
 import shutil
@@ -47,15 +48,17 @@ if os.path.exists(test_exist) and os.listdir(test_exist):
         shutil.rmtree(test_exist)
 
 # Choosing a file extension
-java_or_else = str(
-    input('Use .java file extension? if not, enter the file extension to use (.cpp,.py,etc)\n'))
-file_extension = '.java' if len(java_or_else) == 0 or java_or_else.lower()[
-    0] == 'y' else java_or_else
-# add . if not present
-file_extension = '.' + \
-    file_extension if file_extension[0] != '.' else file_extension
-print('Using {} as file extension and {} as directory seperator'.format(
-    file_extension, os_separator))
+# java_or_else = str(
+#     input('Use .java file extension? if not, enter the file extension to use (.cpp,.py,etc)\n'))
+# file_extension = '.java' if len(java_or_else) == 0 or java_or_else.lower()[
+#     0] == 'y' else java_or_else
+# # add . if not present
+# file_extension = '.' + \
+#     file_extension if file_extension[0] != '.' else file_extension
+# print('Using {} as file extension and {} as directory seperator'.format(
+#     file_extension, os_separator))
+
+file_extension = '.java'
 
 
 # Have your pilot-downloaded zip file inside tmp/moss_id
