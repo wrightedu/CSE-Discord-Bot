@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from utils.utils import *
 import os
 import pandas as pd
+from utils.WSU_mossScript import *
 
 def get_moss_id(discord_id):
     """Gets a user's MossID
@@ -86,7 +87,7 @@ class MOSS(commands.Cog):
     
     @app_commands.command(description="This will check if students are cheaters") #they ALL are
     @app_commands.default_permissions(administrator=True)
-    async def test(self, interaction:discord.Interaction):
+    async def moss(self, interaction:discord.Interaction):
         """ Run MOSS command
         Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 
@@ -97,8 +98,7 @@ class MOSS(commands.Cog):
             MOSS URL
         """
 
-        # TODO change mosspath to /tmp/<mossuser>
-        mosspath = "/tmp/moss"
+        mosspath = "/tmp/" + get_moss_id(interaction.user.id)
         await MOSS.check_moss_folder(mosspath)
 
         # copied and pasted - needs fixed
@@ -107,8 +107,8 @@ class MOSS(commands.Cog):
         # saves file to the name of the .ZIP file that is given by the user
         file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
-        # TODO change bob.zip to <datestamp>.zip
-        zip_filepath = f"{mosspath}/bob.zip"
+
+        zip_filepath = f"{mosspath}/{file}"
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
         while not len(file.attachments) > 0:
@@ -117,9 +117,12 @@ class MOSS(commands.Cog):
 
         await file.attachments[0].save(zip_filepath)
 
-        # here I need to unzip the file in zip_filepath
-        with ZipFile(zip_filepath, 'r') as code_zip:
-            code_zip.extractall(path=mosspath)
+        # From WSU_mossScript.py - Credit to Ali Aljaffer
+        unzip(mosspath, zip_filepath)
+
+        unzip_inner_zip_files(zip_filepath)
+        
+
 
         
 

@@ -11,13 +11,10 @@ import datetime
 # Deciding on directory sep. Mac&Linux us '/' while Windows uses '\'
 os_separator: str = "/" if platform.system() in ["Linux", "Darwin"] else "\\"
 
-# TO-DO: implement moss_id argparse
-# Get moss_id, check file, run Moss
-
 # current directory
-moss_path = os_separator + 'tmp' + os_separator + moss_id
-unzipped_dir = moss_path + os_separator + 'unzipped'
-named_dir = moss_path + os_separator + 'namedFiles'
+# moss_path = os_separator + 'tmp' + os_separator + moss_id
+# unzipped_dir = moss_path + os_separator + 'unzipped'
+# named_dir = moss_path + os_separator + 'namedFiles'
 
 # Haven't tested it with submissions of multiple java files but should handle
 
@@ -28,30 +25,31 @@ named_dir = moss_path + os_separator + 'namedFiles'
 # Perl, TCL, Matlab, VHDL, Verilog, Spice,
 # MIPS assembly, a8086 assembly, a8086 assembly, HCL2.
 
-test_exist = moss_path + os_separator + 'namedFiles'
-if os.path.exists(test_exist) and os.listdir(test_exist):
-    yes_or_no = str(input(
-        "namedFiles already exists and contains files. Would you like to empty it?")).lower()
-    if len(yes_or_no) == 0 or yes_or_no[0] == 'y':
-        shutil.rmtree(test_exist)
+def init(moss_id):
+    test_exist = moss_path + os_separator + 'namedFiles'
+    if os.path.exists(test_exist) and os.listdir(test_exist):
+        yes_or_no = str(input(
+            "namedFiles already exists and contains files. Would you like to empty it?")).lower()
+        if len(yes_or_no) == 0 or yes_or_no[0] == 'y':
+            shutil.rmtree(test_exist)
 
-# Choosing a file extension
-java_or_else = str(
-    input('Use .java file extension? if not, enter the file extension to use (.cpp,.py,etc)\n'))
-file_extension = '.java' if len(java_or_else) == 0 or java_or_else.lower()[
-    0] == 'y' else java_or_else
-# add . if not present
-file_extension = '.' + \
-    file_extension if file_extension[0] != '.' else file_extension
-print('Using {} as file extension and {} as directory seperator'.format(
-    file_extension, os_separator))
+    # Choosing a file extension
+    java_or_else = str(
+        input('Use .java file extension? if not, enter the file extension to use (.cpp,.py,etc)\n'))
+    file_extension = '.java' if len(java_or_else) == 0 or java_or_else.lower()[
+        0] == 'y' else java_or_else
+    # add . if not present
+    file_extension = '.' + \
+        file_extension if file_extension[0] != '.' else file_extension
+    print('Using {} as file extension and {} as directory seperator'.format(
+        file_extension, os_separator))
 
+    # Have your pilot-downloaded zip file inside tmp/moss_id
+    # Scan dir
 
-# Have your pilot-downloaded zip file inside tmp/moss_id
-# Scan dir
-
-if not os.path.exists(moss_path):
-    os.mkdir(moss_path)
+    if not os.path.exists(moss_path):
+        os.mkdir(moss_path)
+        
 
 def get_last_name(file: str) -> str:
     """
@@ -66,8 +64,8 @@ def get_last_name(file: str) -> str:
     except:
         return file
 
-
-def unzip():
+# Used in MOSS.py
+def unzip(moss_path, unzipped_dir):
     """
     Unizps main zip file downloaded from Pilot into unzipped directory
     """
@@ -147,8 +145,8 @@ def is_more_recent(date_1, date_2):
         # if date_1 is newer
         return date_1 > date_2
 
-
-def unzip_inner_zip_files():
+# Used in MOSS.py
+def unzip_inner_zip_files(unzipped_dir):
     """
     deals with leftover zip files that were submitted as zips in pilot
     creates temp lastName.dir folders that the .zip gets extracted to
@@ -239,40 +237,44 @@ def move_files(zip_files_paths, student_names):
     shutil.rmtree(unzipped_dir)
 
 
-# unzip big pilot zip
-unzip()
-# make .{file_extension} files into dirs
-file_to_dir()
-# make .zip files into dirs of lastName.dir format
-unzip_inner_zip_files()
+def main(moss_id):
 
-# get all .{file_extension} file abs paths
-zip_dirs, titles = find_file_extension_files(unzipped_dir)
-i = 0
-# Fill missing titles using zip_dirs
-while len(zip_dirs) > len(titles) and len(titles)+i < len(titles)-1:
-    titles.append(zip_dirs[len(titles)+i].split('/')[3])
-    i += 1
+    init(moss_id)
 
-# Adds the {file_extension} to each title (last name) if it doesn't exist already.
-titles = list(
-    map(lambda x: (x[0:len(x)-len(file_extension)+1] if len(x) > len(file_extension) else x)+file_extension, titles))
+    # unzip big pilot zip
+    unzip()
+    # make .{file_extension} files into dirs
+    file_to_dir()
+    # make .zip files into dirs of lastName.dir format
+    unzip_inner_zip_files()
 
-# Print results of operation
-print('Found {} {} and {} .zip submissions.'.format(
-    len(os.listdir(named_dir)), file_extension, len(zip_dirs)))
+    # get all .{file_extension} file abs paths
+    zip_dirs, titles = find_file_extension_files(unzipped_dir)
+    i = 0
+    # Fill missing titles using zip_dirs
+    while len(zip_dirs) > len(titles) and len(titles)+i < len(titles)-1:
+        titles.append(zip_dirs[len(titles)+i].split('/')[3])
+        i += 1
 
-# move .{file_extension} files into namedFiles
-move_files(zip_dirs, titles)
+    # Adds the {file_extension} to each title (last name) if it doesn't exist already.
+    titles = list(
+        map(lambda x: (x[0:len(x)-len(file_extension)+1] if len(x) > len(file_extension) else x)+file_extension, titles))
 
-# # run moss!
-subprocess.Popen(
-    f'.{os_separator}moss .{os_separator}moss_id{os_separator}namedFiles{os_separator}*{file_extension}', shell=True)
+    # Print results of operation
+    print('Found {} {} and {} .zip submissions.'.format(
+        len(os.listdir(named_dir)), file_extension, len(zip_dirs)))
 
-# WIP
-# mossum = input('run mossum too?').lower()[0] == 'y'
-# if mossum:
-#     percentage = input('what\'s the lower limit %')
-#     percentage = int(percentage[:-1]) if percentage[-1] == '%' else int(percentage)
-#     link = input('provide link')
-#     subprocess.Popen('mossum -p {} {}'.format(percentage,link), shell=True)
+    # move .{file_extension} files into namedFiles
+    move_files(zip_dirs, titles)
+
+    # # run moss!
+    subprocess.Popen(
+        f'.{os_separator}moss .{os_separator}moss_id{os_separator}namedFiles{os_separator}*{file_extension}', shell=True)
+
+    # WIP
+    # mossum = input('run mossum too?').lower()[0] == 'y'
+    # if mossum:
+    #     percentage = input('what\'s the lower limit %')
+    #     percentage = int(percentage[:-1]) if percentage[-1] == '%' else int(percentage)
+    #     link = input('provide link')
+    #     subprocess.Popen('mossum -p {} {}'.format(percentage,link), shell=True)
