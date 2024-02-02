@@ -20,7 +20,7 @@ class MOSS(commands.Cog):
     @app_commands.default_permissions(administrator=True)
     async def test(self, interaction:discord.Interaction):
         """ Run MOSS command
-        Idk
+        Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 
         Args:
             upload_file (file): similar to course management upload file
@@ -30,7 +30,7 @@ class MOSS(commands.Cog):
         """
 
         # TODO change mosspath to /tmp/<mossuser>
-        mosspath = "/tmp/moss"
+        mosspath = "/tmp/mosspath"
         if not os.path.exists(mosspath):
             os.mkdir(mosspath)
 
@@ -45,7 +45,7 @@ class MOSS(commands.Cog):
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
         while not len(file.attachments) > 0:
-            await interaction.followup.send("I need a populated .zip file.")
+            await interaction.followup.send("I need a populated .zip file :|")
             file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
         await file.attachments[0].save(zip_filepath)
@@ -53,6 +53,8 @@ class MOSS(commands.Cog):
         # here I need to unzip the file in zip_filepath
         with ZipFile(zip_filepath, 'r') as code_zip:
             code_zip.extractall(path=mosspath)
+
+        
 
 
     @app_commands.command(description="Register a new MossID")
