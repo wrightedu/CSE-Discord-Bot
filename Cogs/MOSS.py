@@ -4,6 +4,7 @@ from discord.ext import commands
 from zipfile import ZipFile 
 from utils.utils import *
 import os
+import subprocess
 import pandas as pd
 
 def get_moss_id(discord_id):
@@ -86,9 +87,9 @@ class MOSS(commands.Cog):
     
     @app_commands.command(description="This will check if students are cheaters") #they ALL are
     @app_commands.default_permissions(administrator=True)
-    async def test(self, interaction:discord.Interaction):
+    async def moss(self, interaction:discord.Interaction):
         """ Run MOSS command
-        Idk
+        Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 
         Args:
             upload_file (file): similar to course management upload file
@@ -96,9 +97,10 @@ class MOSS(commands.Cog):
         Outputs:
             MOSS URL
         """
+        moss_id = get_moss_id(interaction.user.id)
 
         # TODO change mosspath to /tmp/<mossuser>
-        mosspath = "/tmp/moss"
+        mosspath = f"/tmp/{moss_id}"
         await MOSS.check_moss_folder(mosspath)
 
         # copied and pasted - needs fixed
@@ -112,14 +114,21 @@ class MOSS(commands.Cog):
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
         while not len(file.attachments) > 0:
-            await interaction.followup.send("I need a populated .zip file.")
+            await interaction.followup.send("I need a populated .zip file :|")
             file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
         await file.attachments[0].save(zip_filepath)
 
-        # here I need to unzip the file in zip_filepath
-        with ZipFile(zip_filepath, 'r') as code_zip:
-            code_zip.extractall(path=mosspath)
+        moss_command = f'python ./utils/WSU_mossScript.py --id {moss_id}'
+
+        process = subprocess.Popen(
+            moss_command, stdout = subprocess.PIPE, shell=True)
+        
+        output = process.communicate()[0]
+
+        #print(output.decode())
+
+        await interaction.followup.send(output.decode())
 
 
     @app_commands.command(description="Register a new MossID")
