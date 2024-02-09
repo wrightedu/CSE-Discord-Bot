@@ -98,6 +98,9 @@ class MOSS(commands.Cog):
             MOSS URL
         """
         moss_id = get_moss_id(interaction.user.id)
+        if moss_id is None:
+            await interaction.response.send_message("You do not have a MossID associated with your account. Please register your MossID with /moss_register first")
+            return
 
         # TODO change mosspath to /tmp/<mossuser>
         mosspath = f"/tmp/{moss_id}"
