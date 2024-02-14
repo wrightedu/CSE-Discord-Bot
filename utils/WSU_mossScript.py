@@ -180,19 +180,21 @@ def unzip_inner_zip_files():
         # If stored is newer than current file, skip
         if stored_user_date != "NoDate" and is_more_recent(stored_user_date, current_user_date):
             continue
-        with ZipFile(unzipped_dir+os_separator+zipped_file, 'r') as zf:
-            temp_dir = unzipped_dir+os_separator + \
-                (user_last_name)+'.dir'
-            if not os.path.exists(temp_dir):
-                os.mkdir(temp_dir)
-            else:
-                shutil.rmtree(temp_dir)
-                os.mkdir(temp_dir)
-            zf.extractall(temp_dir)
-            # update the last name to have the latest date
-            user_submissions_dates[user_last_name] = current_user_date
-
-            i += 1
+        try:
+            with ZipFile(unzipped_dir+os_separator+zipped_file, 'r') as zf:
+                temp_dir = unzipped_dir+os_separator + \
+                    (user_last_name)+'.dir'
+                if not os.path.exists(temp_dir):
+                    os.mkdir(temp_dir)
+                else:
+                    shutil.rmtree(temp_dir)
+                    os.mkdir(temp_dir)
+                zf.extractall(temp_dir)
+                # update the last name to have the latest date
+                user_submissions_dates[user_last_name] = current_user_date
+                i += 1
+        except:
+            print(f'Error unzipping {unzipped_dir+os_separator+zipped_file}')
 
 
 def find_file_extension_files(search_path):
