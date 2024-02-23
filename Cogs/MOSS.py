@@ -112,11 +112,8 @@ class MOSS(commands.Cog):
             file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
         except asyncio.TimeoutError:
             # if the user takes too long, the process will timeout and this message will be returned back
-            await interaction.response.send_message("Took too long to upload file. Please try again.")
-        else:
-            # I put this here in case anything else happened
-            # don't know what would happen
-            await interaction.response.send_message("Something happened...")
+            await interaction.followup.send("Took too long to upload file. Please try again.")
+            return 
 
         zip_filepath = f"{mosspath}/bob.zip"
         # if there are more than 0 attachments, the code will continue
