@@ -99,17 +99,24 @@ class MOSS(commands.Cog):
         """
         moss_id = get_moss_id(interaction.user.id)
 
-        # TODO change mosspath to /tmp/<mossuser>
         mosspath = f"/tmp/{moss_id}"
         await MOSS.check_moss_folder(mosspath)
 
         # copied and pasted - needs fixed
         await interaction.response.send_message("Please attach a .zip file of all student code!")
 
-        # saves file to the name of the .ZIP file that is given by the user
-        file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
+        try:
+            # saves file to the name of the .ZIP file that is given by the user
+            # waits for 1 minute for the file to be uploaded
+            file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
+        except asyncio.TimeoutError:
+            # if the user takes too long, the process will timeout and this message will be returned back
+            await channel.send("Took too long to upload file. Please try again.")
+        else:
+            # I put this here in case anything else happened
+            # don't know what would happen
+            await channel.send("Something happened...")
 
-        # TODO change bob.zip to <datestamp>.zip
         zip_filepath = f"{mosspath}/bob.zip"
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
