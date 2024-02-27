@@ -64,7 +64,6 @@ class MOSS(commands.Cog):
         try:
             for file in os.listdir(dir_path):
                 file_path = os.path.join(dir_path, file)
-                print(file_path)
                 if os.path.isdir(file_path):
                     try:
                         os.rmdir(file_path)
@@ -104,7 +103,7 @@ class MOSS(commands.Cog):
             MOSS URL
         """
 
-        moss_id = get_moss_id(interaction.user.id)
+        moss_id = MOSS.get_moss_id(interaction.user.id)
         if moss_id is None:
             await interaction.response.send_message("You do not have a MossID associated with your account. Please register your MossID with /moss_register first")
             return
