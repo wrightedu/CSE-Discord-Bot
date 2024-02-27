@@ -114,25 +114,27 @@ class MOSS(commands.Cog):
             # if the user takes too long, the process will timeout and this message will be returned back
             await interaction.followup.send("Took too long to upload file. Please try again.")
             return
-
-        zip_filepath = f"{mosspath}/bob.zip"
-
-        # gets first attachment
-        attachment = file.attachments[0]
-
-        # if there are more than 0 attachments, the code will continue
-        # if it's not, the bot will yell at the user
-        while not len(file.attachments) > 0 or not attachment.filename.endswith(".zip"):
-            await interaction.followup.send("Please attach a .zip file")
-            file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
         
         # gives the user the ability to cancel the program if they want to
         if file.content.lower() in ["cancel", "exit", "stop"]:
             await interaction.followup.send("/moss cancelled")
             return
 
+        zip_filepath = f"{mosspath}/bob.zip"
+
+        # if there are more than 0 attachments, the code will continue
+        # if it's not, the bot will yell at the user
+        if not len(file.attachments) > 0 or not file.filename.endswith(".zip"):
+            await interaction.followup.send("Please attach a .zip file. Please rerun.")
+            try:
+                file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
+            except asyncio.TimeoutError:
+                await interaction.followup.send("Took too long to upload file. Please try again.")
+                return
+            return
+
         # saves .zip file
-        await attachment.save(zip_filepath)
+        await file.attachments[0].save(zip_filepath)
 
         moss_command = f'python ./utils/WSU_mossScript.py --id {moss_id}'
 
