@@ -123,18 +123,12 @@ class MOSS(commands.Cog):
         zip_filepath = f"{mosspath}/bob.zip"
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
-        while not len(file.attachments) > 0:
-            await interaction.followup.send("I need a populated .zip file :|")
+        while not len(file.attachments) > 0 or not attachment.filename.endswith(".zip"):
+            await interaction.followup.send("Please attach a .zip file")
             file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
 
         # gets first attachment
         attachment = file.attachments[0]
-        print(attachment.filename)
-
-        # checks if the attachment is a .zip file
-        if not attachment.filename.endswith('.zip'):
-            await interaction.followup.send("Please attach a .zip file. Rerun /moss")
-            return
         
         # saves .zip file
         await attachment.save(zip_filepath)
@@ -145,8 +139,6 @@ class MOSS(commands.Cog):
             moss_command, stdout = subprocess.PIPE, shell=True)
         
         output = process.communicate()[0]
-
-        #print(output.decode())
 
         await interaction.followup.send(output.decode())
 
