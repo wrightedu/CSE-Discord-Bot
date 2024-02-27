@@ -124,13 +124,12 @@ class MOSS(commands.Cog):
 
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
-        if not len(file.attachments) > 0 or not file.filename.endswith(".zip"):
-            await interaction.followup.send("Please attach a .zip file. Please rerun.")
-            try:
-                file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
-            except asyncio.TimeoutError:
-                await interaction.followup.send("Took too long to upload file. Please try again.")
+        if len(file.attachments) > 0:
+            if not file.attachments[0].filename.endswith(".zip"):
+                await interaction.followup.send("Please attach a .zip file. Please rerun.")
                 return
+        else:
+            await interaction.followup.send("Please attach a populated .zip file. Please rerun.")
             return
 
         # saves .zip file
