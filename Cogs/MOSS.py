@@ -7,27 +7,6 @@ import os
 import subprocess
 import pandas as pd
 
-def get_moss_id(discord_id):
-    """Gets a user's MossID
-    Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
-
-    Args:
-        discord_id (int): the discord id of the user
-
-    Returns:
-        string: the moss id associated with the user's discord id or none if the user is not in the CSV
-    """
-
-    # Assign the CSV to a variable and create a pandas dataframe
-    csv_filepath = "assets/moss_ids.csv"
-    moss_df = pd.read_csv(csv_filepath)
-
-    if discord_id in moss_df["discord_id"].values:
-        return moss_df.loc[moss_df["discord_id"] == discord_id]["moss_id"].values[0]
-    else:
-        # From /moss, we can check if 'none' was returned and send a message to the user
-        return None
-
 
 # adds my cog to the bot
 async def setup(bot:commands.Bot):
@@ -41,10 +20,34 @@ async def setup(bot:commands.Bot):
             file.write("discord_id,moss_id\n")
     await bot.add_cog(MOSS(bot))
 
+
 # constructor method that passes in Cog commands
 class MOSS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+
+    def get_moss_id(discord_id):
+        """Gets a user's MossID
+        Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
+
+        Args:
+            discord_id (int): the discord id of the user
+
+        Returns:
+            string: the moss id associated with the user's discord id or none if the user is not in the CSV
+        """
+
+        # Assign the CSV to a variable and create a pandas dataframe
+        csv_filepath = "assets/moss_ids.csv"
+        moss_df = pd.read_csv(csv_filepath)
+
+        if discord_id in moss_df["discord_id"].values:
+            return moss_df.loc[moss_df["discord_id"] == discord_id]["moss_id"].values[0]
+        else:
+            # From /moss, we can check if 'none' was returned and send a message to the user
+            return None
+
 
     async def delete_all(dir_path):
         """Delete all files and directories
@@ -72,6 +75,7 @@ class MOSS(commands.Cog):
         except Exception as e:
             print(f"Could not delete {file}. Error: {e}")
 
+
     async def check_moss_folder(dir_path):
         """If a folder for the moss user does not exist, creates one at the specified path. If one already exists but
         has contents, deletes all contents.
@@ -84,7 +88,8 @@ class MOSS(commands.Cog):
         
         if len(os.listdir(dir_path)) > 0:
             await MOSS.delete_all(dir_path)
-    
+
+
     @app_commands.command(description="This will check if students are cheaters") #they ALL are
     @app_commands.default_permissions(administrator=True)
     async def moss(self, interaction:discord.Interaction):
@@ -97,7 +102,7 @@ class MOSS(commands.Cog):
         Outputs:
             MOSS URL
         """
-        moss_id = get_moss_id(interaction.user.id)
+        moss_id = MOSS.get_moss_id(interaction.user.id)
 
         # TODO change mosspath to /tmp/<mossuser>
         mosspath = f"/tmp/{moss_id}"
@@ -123,7 +128,7 @@ class MOSS(commands.Cog):
 
         process = subprocess.Popen(
             moss_command, stdout = subprocess.PIPE, shell=True)
-        
+
         output = process.communicate()[0]
 
         #print(output.decode())
