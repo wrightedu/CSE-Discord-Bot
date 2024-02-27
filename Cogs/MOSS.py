@@ -1,4 +1,5 @@
 # imports Discord 
+import asyncio
 from discord import app_commands
 from discord.ext import commands
 from zipfile import ZipFile 
@@ -104,24 +105,39 @@ class MOSS(commands.Cog):
         """
         moss_id = MOSS.get_moss_id(interaction.user.id)
 
-        # TODO change mosspath to /tmp/<mossuser>
         mosspath = f"/tmp/{moss_id}"
         await MOSS.check_moss_folder(mosspath)
 
         # copied and pasted - needs fixed
         await interaction.response.send_message("Please attach a .zip file of all student code!")
 
-        # saves file to the name of the .ZIP file that is given by the user
-        file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
+        try:
+            # saves file to the name of the .ZIP file that is given by the user
+            # waits for 1 minute for the file to be uploaded
+            file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
+        except asyncio.TimeoutError:
+            # if the user takes too long, the process will timeout and this message will be returned back
+            await interaction.followup.send("Took too long to upload file. Please try again.")
+            return
+        
+        # gives the user the ability to cancel the program if they want to
+        if file.content.lower() in ["cancel", "exit", "stop"]:
+            await interaction.followup.send("/moss cancelled")
+            return
 
-        # TODO change bob.zip to <datestamp>.zip
         zip_filepath = f"{mosspath}/bob.zip"
+
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
-        while not len(file.attachments) > 0:
-            await interaction.followup.send("I need a populated .zip file :|")
-            file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
+        if len(file.attachments) > 0:
+            if not file.attachments[0].filename.endswith(".zip"):
+                await interaction.followup.send("Please attach a .zip file. Please rerun.")
+                return
+        else:
+            await interaction.followup.send("Please attach a populated .zip file. Please rerun.")
+            return
 
+        # saves .zip file
         await file.attachments[0].save(zip_filepath)
 
         moss_command = f'python ./utils/WSU_mossScript.py --id {moss_id}'
@@ -130,8 +146,6 @@ class MOSS(commands.Cog):
             moss_command, stdout = subprocess.PIPE, shell=True)
 
         output = process.communicate()[0]
-
-        #print(output.decode())
 
         await interaction.followup.send(output.decode())
 
