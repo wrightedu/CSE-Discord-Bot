@@ -145,9 +145,14 @@ class MOSS(commands.Cog):
         process = subprocess.Popen(
             moss_command, stdout = subprocess.PIPE, shell=True)
 
+        await interaction.channel.send("Running MOSS (This can sometimes take 30+ seconds)...")
+
         output = process.communicate()[0]
 
-        await interaction.followup.send(output.decode())
+        # Splits the output by newline and gets the last line, which is the moss link
+        link = output.decode().split("\n")[-2]
+
+        await interaction.followup.send(link)
 
 
     @app_commands.command(description="Register a new MossID")
