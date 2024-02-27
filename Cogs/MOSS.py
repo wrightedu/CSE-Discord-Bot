@@ -124,7 +124,7 @@ class MOSS(commands.Cog):
         process = subprocess.Popen(
             moss_command, stdout = subprocess.PIPE, shell=True)
 
-        await interaction.channel.send("Running MOSS...")
+        await interaction.channel.send("Running MOSS (This can sometimes take 30+ seconds)...")
 
         output = process.communicate()[0]
 
