@@ -115,21 +115,22 @@ class MOSS(commands.Cog):
             await interaction.followup.send("Took too long to upload file. Please try again.")
             return
 
-        # gives the user the ability to cancel the program if they want to
-        if file.content.lower() in ["cancel", "exit", "stop"]:
-            await interaction.followup.send("/moss cancelled")
-            return
-
         zip_filepath = f"{mosspath}/bob.zip"
+
+        # gets first attachment
+        attachment = file.attachments[0]
+
         # if there are more than 0 attachments, the code will continue
         # if it's not, the bot will yell at the user
         while not len(file.attachments) > 0 or not attachment.filename.endswith(".zip"):
             await interaction.followup.send("Please attach a .zip file")
             file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
-
-        # gets first attachment
-        attachment = file.attachments[0]
         
+        # gives the user the ability to cancel the program if they want to
+        if file.content.lower() in ["cancel", "exit", "stop"]:
+            await interaction.followup.send("/moss cancelled")
+            return
+
         # saves .zip file
         await attachment.save(zip_filepath)
 
