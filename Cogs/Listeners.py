@@ -47,6 +47,13 @@ class Listeners(commands.Cog):
     async def on_message_edit(self, before, after):
         """Logs edited messages
         Will log any message that is edited and display both the original, and edited message in the message-log channel
+
+        Args:
+            before (discord.Message): The previous version of the message.
+            after (discord.Message): The current version of the messsage.
+        
+        Outputs:
+            A discord embed containing the original message, the editied message, who edited it, and when it was edited
         """
 
         # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
@@ -70,6 +77,12 @@ class Listeners(commands.Cog):
     async def on_message_delete(self, message):
         """Logs deleted messages
         Will log any message that is deleted and display the original message in the message-log channel
+
+        Args:
+            message (discord.Message): The deleted message
+        
+        Outputs:
+            A discord embed containing the deleted message, who deleted it, and when it was deleted
         """
 
         # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
