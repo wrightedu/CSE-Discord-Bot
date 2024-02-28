@@ -36,8 +36,10 @@ class Gourmet(commands.Cog):
             super().__init__(timeout=timeout)
             self.normal_restaurant = copy.deepcopy(cog.normal_restaurant)
             self.vegan_restaurant = copy.deepcopy(cog.vegan_restaurant)
+            self.main_list = copy.deepcopy(cog.normal_restaurant)
             random.shuffle(self.normal_restaurant)
             random.shuffle(self.vegan_restaurant)
+            random.shuffle(self.main_list)
 
         @discord.ui.button(label="Random", style=discord.ButtonStyle.blurple, emoji='\U0001F3B1')
         async def random(self, interaction:discord.Interaction, button:discord.ui.Button):
@@ -64,11 +66,13 @@ class Gourmet(commands.Cog):
 
             # Turning the message to lowercase and appending it
             msg.content = msg.content.casefold()
-            for rest in self.normal_restaurant:
+            for rest in self.main_list:
                 if msg.content == rest.casefold():
                     await interaction.message.edit(content=f'**__Error: {msg.content} already is in the restaurant list.__**', view=self)
                     return
-            self.normal_restaurant.append(msg.content)
+            self.main_list.append(msg.content)
+
+            self.normal_restaurant = self.main_list
 
         @discord.ui.button(label="Remove Restaurant", style=discord.ButtonStyle.red)
         async def remove(self, interaction:discord.Interaction, button:discord.ui.Button):
@@ -88,11 +92,16 @@ class Gourmet(commands.Cog):
             msg.content = msg.content.casefold()
 
             # If the restaurant is not in the list it responds with an error
-            for rest in self.normal_restaurant:
+            for rest in self.main_list:
                 if msg.content == rest.casefold():
-                    self.normal_restaurant.remove(rest)
+                    self.main_list.remove(rest)
+                    await interaction.message.edit(content=f'**__{msg.content} has been removed.__**', view=self)
                     return
             await interaction.message.edit(content=f'**__Error: {msg.content} is not in the list.__**', view=self)
+
+            self.normal_restaurant = self.main_list
+
+
         
         @discord.ui.button(label="Vegan", style=discord.ButtonStyle.blurple, emoji='\U0001F96C')
         async def vegan(self, interaction:discord.Interaction, button:discord.ui.Button):
