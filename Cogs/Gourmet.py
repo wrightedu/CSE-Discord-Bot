@@ -69,6 +69,7 @@ class Gourmet(commands.Cog):
                     await interaction.message.edit(content=f'**__Error: {msg.content} already is in the restaurant list.__**', view=self)
                     return
             self.normal_restaurant.append(msg.content)
+            await interaction.message.edit(content=f'**__{msg.content} has been added to the list.__**')
 
         @discord.ui.button(label="Remove Restaurant", style=discord.ButtonStyle.red)
         async def remove(self, interaction:discord.Interaction, button:discord.ui.Button):
