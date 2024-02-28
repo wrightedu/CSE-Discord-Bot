@@ -31,6 +31,7 @@ moss_path = os_separator + 'tmp' + os_separator + moss_id
 unzipped_dir = moss_path + os_separator + 'unzipped'
 named_dir = moss_path + os_separator + 'namedFiles'
 
+
 # Haven't tested it with submissions of multiple java files but should handle
 
 # Moss supports these languages
@@ -47,18 +48,23 @@ if os.path.exists(test_exist) and os.listdir(test_exist):
     if len(yes_or_no) == 0 or yes_or_no[0] == 'y':
         shutil.rmtree(test_exist)
 
-# Choosing a file extension
-# java_or_else = str(
-#     input('Use .java file extension? if not, enter the file extension to use (.cpp,.py,etc)\n'))
-# file_extension = '.java' if len(java_or_else) == 0 or java_or_else.lower()[
-#     0] == 'y' else java_or_else
-# # add . if not present
-# file_extension = '.' + \
-#     file_extension if file_extension[0] != '.' else file_extension
-# print('Using {} as file extension and {} as directory seperator'.format(
-#     file_extension, os_separator))
 
-file_extension = '.java'
+def get_file_extension(unzipped_dir):
+    file_extension_list = []
+    for item in os.listdir(unzipped_dir):
+        item_path = os.path.join(unzipped_dir, item)
+        if os.path.isdir(item_path):
+            get_file_extension(unzipped_dir)
+        else:
+            file_extension_list.append(str(item).split(".")[1])
+    j = 0
+    for i in file_extension_list:
+        if(i == file_extension_list[0]):
+            j+=1
+    if(j == len(file_extension_list)):
+        return(file_extension_list[0])
+    else:
+        return(".java")
 
 
 # Have your pilot-downloaded zip file inside tmp/moss_id
@@ -101,7 +107,7 @@ def unzip():
         zip.extractall(unzipped_dir)
 
 
-def file_to_dir():
+def file_to_dir(file_extension):
     """
     Finds .{file_extension} file submissions and turns them into the format lastName.java
     and moves them to namedFiles category
@@ -197,7 +203,7 @@ def unzip_inner_zip_files():
             print(f'Error unzipping {unzipped_dir+os_separator+zipped_file}')
 
 
-def find_file_extension_files(search_path):
+def find_file_extension_files(search_path, file_extension):
     """
     searches for .{file_extension} files and notes the directory title which is the last name so we can move it later
     to namedFiles
@@ -230,7 +236,7 @@ def find_file_extension_files(search_path):
     return results, titles
 
 # moves files in list
-def move_files(zip_files_paths, student_names):
+def move_files(zip_files_paths, student_names, file_extension):
     """
     searches for .{file_extension} files and notes the directory title which is the last name so we can move it later
     to namedFiles
@@ -257,13 +263,15 @@ def move_files(zip_files_paths, student_names):
 
 # unzip big pilot zip
 unzip()
+
+file_extension = get_file_extension(unzipped_dir)
 # make .{file_extension} files into dirs
-file_to_dir()
+file_to_dir(file_extension)
 # make .zip files into dirs of lastName.dir format
 unzip_inner_zip_files()
 
 # get all .{file_extension} file abs paths
-zip_dirs, titles = find_file_extension_files(unzipped_dir)
+zip_dirs, titles = find_file_extension_files(unzipped_dir,file_extension)
 i = 0
 # Fill missing titles using zip_dirs
 while len(zip_dirs) > len(titles) and len(titles)+i < len(titles)-1:
@@ -279,7 +287,7 @@ print('Found {} {} and {} .zip submissions.'.format(
     len(os.listdir(named_dir)), file_extension, len(zip_dirs)))
 
 # move .{file_extension} files into namedFiles
-move_files(zip_dirs, titles)
+move_files(zip_dirs, titles,file_extension)
 
 # # run moss!
 subprocess.Popen(
