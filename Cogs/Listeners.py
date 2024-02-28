@@ -1,3 +1,4 @@
+import datetime
 from discord.ext import commands
 
 from utils.utils import *
@@ -22,7 +23,7 @@ class Listeners(commands.Cog):
             An emoji reaction to a message that matches any necessary channel, author, and/or keyword criteria
         """
 
-        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messagess
+        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
         if type(ctx.channel) == discord.TextChannel:
             if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
                 await ctx.add_reaction("💩")
@@ -40,3 +41,48 @@ class Listeners(commands.Cog):
                 # Add the reaction if any keywords are found in the message
                 if any(keyword in message.lower() for keyword in keywords):
                     await ctx.add_reaction("👋")
+
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        """Logs edited messages
+        Will log any message that is edited and display both the original, and edited message in the message-log channel
+        """
+
+        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
+        if type(before.channel) == discord.TextChannel:
+            # Get the channel to send the message to
+            message_log_channel = discord.utils.get(before.guild.channels, name='message-log')
+
+            # If the message log channel exists, and the message was not sent by the bot, log the message
+            if message_log_channel and before.author != self.bot.user:
+                # Create an embed to log the message
+                embed = discord.Embed(title=f"Message Edited at [{str(datetime.datetime.now())[:-7]}]", color=0x00ff00)
+                embed.add_field(name="Original Message", value=f'"{before.content}"', inline=False)
+                embed.add_field(name="Edited Message", value=f'"{after.content}"', inline=False)
+                embed.set_footer(text=f"Message edited by {after.author} in {before.channel.name}")
+
+                # Send the embed to the message log channel
+                await message_log_channel.send(embed=embed)
+
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        """Logs deleted messages
+        Will log any message that is deleted and display the original message in the message-log channel
+        """
+
+        # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
+        if type(message.channel) == discord.TextChannel:
+            # Get the channel to send the message to
+            message_log_channel = discord.utils.get(message.guild.channels, name='message-log')
+
+            # If the message log channel exists, and the message was not sent by the bot, log the deleted message
+            if message_log_channel and message.author != self.bot.user:
+                # Create an embed to log the message
+                embed = discord.Embed(title=f"Message Deleted at [{str(datetime.datetime.now())[:-7]}]", color=0xFF0000)
+                embed.add_field(name="Message Deleted", value=f'"{message.content}"', inline=False)
+                embed.set_footer(text=f"Message deleted by {message.author} in {message.channel.name}")
+
+                # Send the embed to the message log channel
+                await message_log_channel.send(embed=embed)
