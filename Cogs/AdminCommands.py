@@ -36,6 +36,12 @@ class AdminCommands(commands.Cog):
         await interaction.response.send_message("Please enter a message.")
         message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user)
 
+        # Errors if the user tries to send a message over 2,000 characters (if they have nitro)
+        if (len(message.content) > 2000):
+            await interaction.channel.send("Just because you have nitro, doesn't mean I do! The 'message' parameter can only take a message of 2000 characters or less.")
+            await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because the message was too long")
+            return
+
         # logs appropriately
         await log(self.bot, f"{interaction.user} has executed the announcement command in #{interaction.channel}")
 
