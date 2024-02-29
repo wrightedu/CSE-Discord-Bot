@@ -153,6 +153,11 @@ class AdminCommands(commands.Cog):
             await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because it could not be found")
             return
 
+        if role >= interaction.guild.me.top_role:
+            await interaction.channel.send(f"I cannot remove the {role_mention} role from members because it is equal to or higher than my top role.")
+            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because it is equal to or higher than the bot's top role")
+            return
+
         cleared_members = []
 
         await log(self.bot, f"{interaction.user} is clearing the '@{role.name}' role from all members:")
