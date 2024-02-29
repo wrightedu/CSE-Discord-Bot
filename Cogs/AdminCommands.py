@@ -32,13 +32,6 @@ class AdminCommands(commands.Cog):
             Logs that the specific user used the announcement command
         """
 
-        # Gets the message from the user
-        await interaction.response.send_message("Please enter a message.")
-        message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user)
-
-        # logs appropriately
-        await log(self.bot, f"{interaction.user} has executed the announcement command in #{interaction.channel}")
-
         # gets the channel ids from the mentions
         channel_mentions_list = channel_mentions.split()
         channels = []
@@ -48,18 +41,31 @@ class AdminCommands(commands.Cog):
             try:
                 int(channel_mention[2:-1])
             except ValueError:
-                await interaction.channel.send("The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
+                await interaction.response.send_message("The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
                 await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)")
                 return
 
             # ensures the channels exist
             channel = discord.utils.get(interaction.guild.text_channels, id=int(channel_mention[2:-1]))
             if (channel == None):
-                await interaction.channel.send(f"The '{channel_mention}' channel could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
+                await interaction.response.send_message(f"The '{channel_mention}' channel could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
                 await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)")
                 return
             channels.append(channel)
             channel_names.append(f"#{channel.name}")
+
+        # Gets the message from the user
+        await interaction.response.send_message("Please enter a message.")
+        message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user)
+
+        # Errors if the user tries to send a message over 2,000 characters (if they have nitro)
+        if (len(message.content) > 2000):
+            await interaction.channel.send("Just because you have nitro, doesn't mean I do! The `message` parameter can only take a message of 2000 characters or less.")
+            await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because the message was too long")
+            return
+
+        # logs appropriately
+        await log(self.bot, f"{interaction.user} has executed the announcement command in #{interaction.channel}")
 
         # sends the message to the specified channels
         for channel in channels:
