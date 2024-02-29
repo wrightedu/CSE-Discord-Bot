@@ -70,9 +70,10 @@ class Gourmet(commands.Cog):
                 if msg.content == rest.casefold():
                     await interaction.message.edit(content=f'**__Error: {msg.content} already is in the restaurant list.__**', view=self)
                     return
-            self.main_list.append(msg.content)
 
+            self.main_list.append(msg.content)
             self.normal_restaurant = self.main_list
+            await interaction.message.edit(content=f'**__{msg.content} has been added to the list.__**')
 
         @discord.ui.button(label="Remove Restaurant", style=discord.ButtonStyle.red)
         async def remove(self, interaction:discord.Interaction, button:discord.ui.Button):
