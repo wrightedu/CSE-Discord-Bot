@@ -182,14 +182,14 @@ class MOSS(commands.Cog):
         # Verify that the given moss_id is valid 
         # From what I have seen, moss_id's are 8 or 9 digits long. This check can be removed if we find out otherwise
         if not moss_id.isdigit() or not (len(moss_id) == 8 or len(moss_id) == 9):
-            await interaction.response.send_message("Invalid MossID. Please try again.")
+            await interaction.response.send_message("Invalid MossID. Please try again.",ephemeral=True)
             return
 
         # Checks if the discord_id is already int the CSV, and if it is, it will return the moss_id. If not, 
         # it will add the given moss_id to the CSV
         if discord_id in moss_df["discord_id"].values:
             found_moss_id = moss_df.loc[moss_df["discord_id"] == discord_id]["moss_id"].values[0]
-            await interaction.response.send_message(f"Your account is already registered with the associated MossID: `{found_moss_id}`\nWould you like to update your MossID? (y/n)")
+            await interaction.response.send_message(f"Your account is already registered with the associated MossID: `{found_moss_id}`\nWould you like to update your MossID? (y/n)", ephemeral=True)
 
             update = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
@@ -198,9 +198,9 @@ class MOSS(commands.Cog):
                 moss_df.loc[moss_df["discord_id"] == discord_id, "moss_id"] = moss_id
                 moss_df.to_csv(csv_filepath, index=False)
                 await log(self.bot, f"{interaction.user} ran /moss_register in #{interaction.channel} and updated their MossID in the CSV")
-                await interaction.followup.send(f"The new MossID: `{moss_id}`, is now associated with your account in the CSV")
+                await interaction.followup.send(f"The new MossID: `{moss_id}`, is now associated with your account in the CSV", ephemeral=True)
             else:
-                await interaction.followup.send("Your MossID has not been updated.")
+                await interaction.followup.send("Your MossID has not been updated.", ephemeral=True)
 
             return
         else:
@@ -208,4 +208,4 @@ class MOSS(commands.Cog):
             moss_df = pd.concat([moss_df, new_row_df], ignore_index=True)
             moss_df.to_csv(csv_filepath, index=False)
             await log(self.bot, f"{interaction.user} ran /moss_register in #{interaction.channel} and added their MossID to the CSV")
-            await interaction.response.send_message(f"The MossID: `{moss_id}`, has been added to the CSV and is associated with your account")
+            await interaction.response.send_message(f"The MossID: `{moss_id}`, has been added to the CSV and is associated with your account",ephemeral=True)
