@@ -9,14 +9,16 @@ import datetime
 import argparse
 
 """
-Parse arguments for moss_id.
+Parse arguments for moss_id and file_extension.
 """
 parser = argparse.ArgumentParser(description='none')
 parser.add_argument('--id', type=str, help='Requires moss_id.')
+parser.add_argument('--ext', type=str, help='Requires file_extension.')
 
 args = parser.parse_args()
 
 moss_id = args.id
+file_extension = args.ext
 
 # Code written by Ali Aljaffer
 
@@ -57,8 +59,6 @@ if os.path.exists(test_exist) and os.listdir(test_exist):
 #     file_extension if file_extension[0] != '.' else file_extension
 # print('Using {} as file extension and {} as directory seperator'.format(
 #     file_extension, os_separator))
-
-file_extension = '.java'
 
 
 # Have your pilot-downloaded zip file inside tmp/moss_id
