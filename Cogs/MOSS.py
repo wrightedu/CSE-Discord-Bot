@@ -153,9 +153,9 @@ class MOSS(commands.Cog):
         output = process.communicate()[0]
 
         # Splits the output by newline and gets the last line, which is the moss link
-        # link = output.decode().split("\n")[-2]
-        print(output.decode())
-        # await interaction.followup.send(link)
+        link = output.decode().split("\n")[-2]
+
+        await interaction.followup.send(link)
 
 
     @app_commands.command(description="Register a new MossID")
