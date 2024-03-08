@@ -123,9 +123,27 @@ class MOSS(commands.Cog):
             await interaction.followup.send("Took too long to upload file. Please try again.")
             return
         
+        await interaction.channel.send("Enter the file extension to use (.java,.cpp,.py,etc)")
+
+        try:
+            # saves file extensions for this run of moss that is given by the user
+            # waits for 1 minute for response.
+            file_extension = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
+        except asyncio.TimeoutError:
+            # if the user takes too long, the process will timeout and this message will be returned back
+            await interaction.followup.send("Took too long to give file extension. Please try again.")
+            return
+        
         # gives the user the ability to cancel the program if they want to
         if file.content.lower() in ["cancel", "exit", "stop"]:
             await interaction.followup.send("/moss cancelled")
+            return
+        
+        # makes sure the user uses a correct file extension
+        if file_extension.content.lower() in [".java","",".cpp",".py",".perl",".cs",".vbp",".js",".m",".vhd"]:
+            await interaction.followup.send("Running MOSS (This can sometimes take 30+ seconds)...")
+        else:
+            await interaction.channel.send("Not compatible file type. Aborting.")
             return
 
         zip_filepath = f"{mosspath}/bob.zip"
@@ -143,19 +161,18 @@ class MOSS(commands.Cog):
         # saves .zip file
         await file.attachments[0].save(zip_filepath)
 
-        moss_command = f'python ./utils/WSU_mossScript.py --id {moss_id}'
+        moss_command = f'python3 ./utils/WSU_mossScript.py --id {moss_id} --ext {file_extension}'
 
         process = subprocess.Popen(
             moss_command, stdout = subprocess.PIPE, shell=True)
 
-        await interaction.channel.send("Running MOSS (This can sometimes take 30+ seconds)...")
-
         output = process.communicate()[0]
 
         # Splits the output by newline and gets the last line, which is the moss link
-        link = output.decode().split("\n")[-2]
+        # link = output.decode().split("\n")[-2]
 
-        await interaction.followup.send(link)
+        # await interaction.followup.send(link)
+        print(output.decode())
 
 
     @app_commands.command(description="Register a new MossID")
