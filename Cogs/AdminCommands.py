@@ -225,7 +225,11 @@ class AdminCommands(commands.Cog):
 
         if message == None:
             await interaction.followup.send(f"The message with the ID {message_id} could not be found. Make sure you are in same channel as the message you wish to edit.")
-            await log(self.bot, f"{interaction.user} tried to edit the message with the ID {message_id} in #{interaction.channel} but failed because the message could not be found")
+            await log(self.bot, f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because the message could not be found")
+            return
+        elif message.author != self.bot.user:
+            await interaction.followup.send(f"The message with the ID {message_id} is not a message sent by the bot.")
+            await log(self.bot, f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because it was not a message sent by the bot")
             return
 
         bot_message = await interaction.followup.send(f"Please enter the new message. Type 'cancel' to cancel.")
@@ -241,7 +245,7 @@ class AdminCommands(commands.Cog):
             else:
                 await message.edit(content=new_message.content)
                 await new_message.delete()
-                await log(self.bot, f"{interaction.user} edited the message with the ID {message_id} in #{interaction.channel}")
+                await log(self.bot, f"{interaction.user} edited the message with the ID `{message_id}` in #{interaction.channel}")
         except asyncio.TimeoutError:
             await interaction.followup.send("You took too long to respond. Exiting command...")
             return
