@@ -228,17 +228,23 @@ class AdminCommands(commands.Cog):
             await log(self.bot, f"{interaction.user} tried to edit the message with the ID {message_id} in #{interaction.channel} but failed because the message could not be found")
             return
 
-        await interaction.followup.send(f"Please enter the new message.")
+        bot_message = await interaction.followup.send(f"Please enter the new message. Type 'cancel' to cancel.")
 
         try:
             new_message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user, timeout=60.0)
+            
+            if new_message.content == 'cancel':
+                await bot_message.edit(content="Message edit cancelled")
+                await new_message.delete()
+                await log(self.bot, f"{interaction.user} cancelled the edit of the message in #{interaction.channel}")
+                return
+            else:
+                await message.edit(content=new_message.content)
+                await new_message.delete()
+                await log(self.bot, f"{interaction.user} edited the message with the ID {message_id} in #{interaction.channel}")
         except asyncio.TimeoutError:
             await interaction.followup.send("You took too long to respond. Exiting command...")
             return
-
-        await message.edit(content=new_message.content)
-
-        await log(self.bot, f"{interaction.user} edited the message with the ID {message_id} in #{interaction.channel}")
 
 
     @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
