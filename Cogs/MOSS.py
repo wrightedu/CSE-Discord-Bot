@@ -19,13 +19,16 @@ async def setup(bot:commands.Bot):
         with open(csv_filepath, 'w') as file:
             # Add the header for the df
             file.write("discord_id,moss_id\n")
-    await bot.add_cog(MOSS(bot))
+    choices = ["C", "C++", "Java", "C#", "Python", "Javascript "]
+    await bot.add_cog(MOSS(bot,choices))
 
 
 # constructor method that passes in Cog commands
 class MOSS(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, choices):
         self.bot = bot
+        self.choices = choices
+
 
 
     def get_moss_id(discord_id):
@@ -92,7 +95,7 @@ class MOSS(commands.Cog):
 
     @app_commands.command(description="This will check if students are cheaters") #they ALL are
     @app_commands.default_permissions(administrator=True)
-    async def moss(self, interaction:discord.Interaction):
+    async def moss(self, interaction:discord.Interaction, language:str):
         """ Run MOSS command
         Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 
@@ -102,6 +105,20 @@ class MOSS(commands.Cog):
         Outputs:
             MOSS URL
         """
+        if(language == "Java"):
+            file_extension = ".java"
+        elif(language == "C"):
+            file_extension = ".c"
+        elif(language == "C++"):
+            file_extension = ".cpp"
+        elif(language == "C#"):
+            file_extension = ".cs"
+        elif(language == "Python"):
+            file_extension = ".py"
+        elif(language == "Javascript"):
+            file_extension = ".js"
+        else:
+            file_extension = ".null"
 
         moss_id = MOSS.get_moss_id(interaction.user.id)
         if moss_id is None:
@@ -123,27 +140,9 @@ class MOSS(commands.Cog):
             await interaction.followup.send("Took too long to upload file. Please try again.")
             return
         
-        await interaction.channel.send("Enter the file extension to use (.java,.cpp,.py,etc)")
-
-        try:
-            # saves file extensions for this run of moss that is given by the user
-            # waits for 1 minute for response.
-            file_extension = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
-        except asyncio.TimeoutError:
-            # if the user takes too long, the process will timeout and this message will be returned back
-            await interaction.followup.send("Took too long to give file extension. Please try again.")
-            return
-        
         # gives the user the ability to cancel the program if they want to
         if file.content.lower() in ["cancel", "exit", "stop"]:
             await interaction.followup.send("/moss cancelled")
-            return
-        
-        # makes sure the user uses a correct file extension
-        if file_extension.content.lower() in [".java","",".cpp",".py",".perl",".cs",".vbp",".js",".m",".vhd"]:
-            await interaction.followup.send("Running MOSS (This can sometimes take 30+ seconds)...")
-        else:
-            await interaction.channel.send("Not compatible file type. Aborting.")
             return
 
         zip_filepath = f"{mosspath}/bob.zip"
