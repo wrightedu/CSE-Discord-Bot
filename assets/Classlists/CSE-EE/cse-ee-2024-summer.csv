@@ -1,0 +1,30 @@
+text,emoji,role/link,long_name,create_channels
+CEG 3310,,CEG 3310,Computer Organization,"#ceg3310,0#Student Voice,2#TA Voice"
+CEG 4324,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,"#ceg4324,0#Student Voice,2#TA Voice"
+CEG 4350,,CEG 4350,Operating System Internals and Design,"#ceg4350,0#Student Voice,2#TA Voice"
+CEG 5310,,CEG 3310,Computer Organization,
+CEG 5350,,CEG 4350,Operating System Internals and Design,
+CEG 6324,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
+CEG 7040,,CEG 7040,VLSI Testing and Design for Testability,"#ceg7040,0#Student Voice,2#TA Voice"
+CEG 7370,,CEG 7370,Distributed Computing,"#ceg7370,0#Student Voice,2#TA Voice"
+CEG 7420,,CEG 7420,Reverse Engineering & Program Analysis,"#ceg7420,0#Student Voice,2#TA Voice"
+CEG 7450,,CEG 7450,Advanced Computer Networks,"#ceg7450,0#Student Voice,2#TA Voice"
+CS 1000,,CS 1000,Technology and Society,"#cs1000,0#Student Voice,2#TA Voice"
+CS 1180,,CS 1180,Computer Science I,"#cs1180,0#Student Voice,2#TA Voice"
+CS 1181,,CS 1181,Computer Science II,"#cs1181,0#Student Voice,2#TA Voice"
+CS 3100,,CS 3100,Data Structures and Algorithms,"#cs3100,0#Student Voice,2#TA Voice"
+CS 4240,,CS 4240,Coding Theory,"#cs4240,0#Student Voice,2#TA Voice"
+CS 4290,,CS 4290,Cryptography and Data Security,"#cs4290,0#Student Voice,2#TA Voice"
+CS 5100,,CS 3100,Data Structures and Algorithms,
+CS 6240,,CS 4240,Coding Theory,
+CS 6290,,CS 4290,Cryptography and Data Security,
+CS 7120,,CS 7120,Functional and Logic Programming,"#cs7120,0#Student Voice,2#TA Voice"
+CS 7700,,CS 7700,Advanced Database Systems,"#cs7700,0#Student Voice,2#TA Voice"
+CS 7800,,CS 7800,Information Retrieval,"#cs7800,0#Student Voice,2#TA Voice"
+EE 2010,,EE 2010,Analog Circuit Theory,"#ee2010,0#Student Voice,2#TA Voice"
+EE 3210,,EE 3210,Continuous Linear Systems,"#ee3210,0#Student Voice,2#TA Voice"
+EE 4620,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
+EE 5210,,EE 5210,Linear Systems I,"#ee5210,0#Student Voice,2#TA Voice"
+EE 6620,,CEG 4324,Digital Integrated Circuit Design with PLDs and FPGAs,
+EE 7430,,EE 7430,High Frequency Magnetic Components,"#ee7430,0#Student Voice,2#TA Voice"
+EE 7540,,CEG 7040,VLSI Testing and Design for Testability,
