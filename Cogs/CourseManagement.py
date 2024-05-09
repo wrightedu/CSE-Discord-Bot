@@ -353,7 +353,11 @@ class CourseManagement(commands.Cog):
         # if a user entered a role mention, get the role object + name
         if role_name.startswith("<@&") and role_name.endswith(">"):
             role_name = role_name[3:-1]
-            role = interaction.guild.get_role(int(role_name))
+
+            try:
+                role = interaction.guild.get_role(int(role_name))
+            except ValueError:
+                role = None
 
             if role:
                 role_name = role.name
