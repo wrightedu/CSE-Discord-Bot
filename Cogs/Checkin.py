@@ -18,7 +18,16 @@ class Checkin(commands.Cog):
     class CheckinView(View):
         @discord.ui.button(label="Check-in", style=discord.ButtonStyle.green)
         async def checkin(self, interaction:discord.Interaction, button:discord.ui.Button):
-            """A button that will create a timesheet for the user in the SQLite database"""
+            """A button that will create a timesheet for the user in the SQLite database
+
+            This will eventually have some database interaction
+
+            Args:
+                button (discord.ui.Button): the channels to which the announcement is sent
+
+            Outputs:
+                A View with a button that will create a timesheet for the user in the SQLite database
+            """
 
             # This will eventually have some database interaction
             await interaction.response.send_message("You have checked in! (not really)")
@@ -26,7 +35,11 @@ class Checkin(commands.Cog):
     @app_commands.command(name="checkin-register", description="Register for checkin/timesheets!")
     async def checkin_register(self, interaction:discord.Interaction):
         """Allows a user to register for a check-in
+
         This will eventually have some database interaction
+
+        Outputs:
+            A palceholder message to confirm a DM was sent to the user
         """
 
         discordID = interaction.user.id # for later use
