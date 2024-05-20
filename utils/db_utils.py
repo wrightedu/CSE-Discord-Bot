@@ -41,12 +41,12 @@ def initialize_db(db_location) -> None:
     )"""
 
     create_u_help_table_query = """ CREATE TABLE IF NOT EXISTS u_help(
-    u_help_id INTEGER PRIMARY KEY AUTO INCREMENT,
+    u_help_id INTEGER PRIMARY KEY AUTOINCREMENT,
     remark TEXT, 
     pomo_id INTEGER,
     FOREIGN KEY(pomo_id) REFERENCES pomodoro(pomo_id)
     )"""
-
+    
     cursor.execute(create_user_table_query)
     cursor.execute(create_timesheet_table_query)
     cursor.execute(create_pomodoro_table_query)
