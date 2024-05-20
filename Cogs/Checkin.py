@@ -36,3 +36,4 @@ class Checkin(commands.Cog):
         channel = await interaction.user.create_dm()
 
         await channel.send(view=view)
+        await interaction.response.send_message("A DM has been sent to you", ephemeral=True)
