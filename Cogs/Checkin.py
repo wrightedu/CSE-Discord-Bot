@@ -51,6 +51,8 @@ class Checkin(commands.Cog):
         view.add_item(check_out_button)
         view.add_item(pomo_button)
 
+        return view
+
     @app_commands.command(name="checkin-register", description="Register for checkin/timesheets!")
     async def checkin_register(self, interaction:discord.Interaction):
         """Allows a user to register for a check-in
