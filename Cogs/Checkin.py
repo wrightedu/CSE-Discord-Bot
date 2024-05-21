@@ -7,8 +7,18 @@ from discord.ext import commands
 from discord import app_commands
 
 from utils.utils import *
+from utils.db_utils import initialize_db
+
 
 async def setup(bot):
+    cwd = (os.path.dirname(os.path.abspath(__file__)))
+    directory = os.path.dirname(cwd)
+    db_path = os.path.join(directory, "cse_discord.db")
+    if not os.path.exists(db_path):
+        initialize_db(db_path)
+    else:
+        print("Database initialization failed")
+
     await bot.add_cog(Checkin(bot))
 
 class Checkin(commands.Cog):
