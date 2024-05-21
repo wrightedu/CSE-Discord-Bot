@@ -39,7 +39,7 @@ class Checkin(commands.Cog):
         This will eventually have some database interaction
 
         Outputs:
-            A palceholder message to confirm a DM was sent to the user
+            A placeholder message to confirm a DM was sent to the user
         """
 
         discordID = interaction.user.id # for later use
