@@ -65,15 +65,4 @@ def initialize_db(db_location) -> None:
     except Exception as e:
         print(f'Could not create table because {e} occured')
     conn.close()
-
-
-
-def insert_user(conn, discord_id: str, discord_name: str, 
-                date_registered:str ) -> None:
-    pass
-
-def insert_timesheet(conn, time_id: str, discord_id: str, 
-                     time_in: str, time_out: str, total_hours: int) -> None:
-    pass
-
-def insert_pomodoro(conn, p_id: int, timsheet: str, )
+    
