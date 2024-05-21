@@ -42,7 +42,7 @@ class Checkin(commands.Cog):
             # This will eventually have some database interaction
             await interaction.response.send_message("You have checked in! (not really)")
 
-    async def checkedInView():
+    def checkedInView():
         """Function that returns the checked-in view
         The Checked-in View will contain a button to allow a user to check-out, as well as a button
         for a user to start a pomodoro
