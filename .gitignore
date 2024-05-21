@@ -20,6 +20,7 @@ log
 *.swp
 status.txt
 ./assets/tasks.csv
+*.db
 
 # OS generated files #
 ######################
