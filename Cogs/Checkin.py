@@ -33,7 +33,7 @@ class Checkin(commands.Cog):
             This will eventually have some database interaction
 
             Args:
-                button (discord.ui.Button): the channels to which the announcement is sent
+                button (discord.ui.Button): the button that will be clicked to check in
 
             Outputs:
                 A View with a button that will create a timesheet for the user in the SQLite database
