@@ -42,6 +42,39 @@ class Checkin(commands.Cog):
             # This will eventually have some database interaction
             await interaction.response.send_message("You have checked in! (not really)")
 
+    class CheckedinView(View):
+        @discord.ui.button(label="Check-out", style=discord.ButtonStyle.red)
+        async def checkout(self, interaction:discord.Interaction, button:discord.ui.Button):
+            """A button that will update the user's timesheet in the SQLite database
+
+            This will eventually have some database interaction
+
+            Args:
+                button (discord.ui.Button): the button that will be clicked to check out
+
+            Outputs:
+                A View with a button that will update the user's timesheet in the SQLite database
+            """
+
+            # This will eventually have some database interaction
+            await interaction.response.send_message("You have checked out! (not really)")
+
+        @discord.ui.button(label="Pomodoro", style=discord.ButtonStyle.blurple)
+        async def pomodoro(self, interaction:discord.Interaction, button:discord.ui.Button):
+            """A button that will update the user's timesheet in the SQLite database
+
+            This will eventually have some database interaction
+
+            Args:
+                button (discord.ui.Button): the button that will be clicked to start a pomodoro
+
+            Outputs:
+                A View with a button that will update the user's timesheet in the SQLite database
+            """
+
+            # This will eventually have some database interaction
+            await interaction.response.send_message("You have started a pomodoro! (not really)")
+
     @app_commands.command(name="checkin-register", description="Register for checkin/timesheets!")
     async def checkin_register(self, interaction:discord.Interaction):
         """Allows a user to register for a check-in
