@@ -6,7 +6,15 @@ import sqlite3
 
 def initialize_db(db_location) -> None:
     """
-    Used to initialize database 
+    Create a new database file in SQLITE3 with Tables. 
+    The tables created are empty when first initialized
+
+    Args: 
+        db_location(string): Path to where the database file is stored. 
+            Usually project directory
+    
+    Output: 
+        An error if raised
     """
     conn = sqlite3.connect(db_location)
 
@@ -47,9 +55,13 @@ def initialize_db(db_location) -> None:
     FOREIGN KEY(pomo_id) REFERENCES pomodoro(pomo_id)
     )"""
     
-    cursor.execute(create_user_table_query)
-    cursor.execute(create_timesheet_table_query)
-    cursor.execute(create_pomodoro_table_query)
-    cursor.execute(create_u_help_table_query)
-    conn.commit()
+    try:
+        cursor.execute(create_user_table_query)
+        cursor.execute(create_timesheet_table_query)
+        cursor.execute(create_pomodoro_table_query)
+        cursor.execute(create_u_help_table_query)
+        conn.commit()
+        print("All tables created")
+    except Exception as e:
+        print(f'Could not create table because {e} occured')
     conn.close()
