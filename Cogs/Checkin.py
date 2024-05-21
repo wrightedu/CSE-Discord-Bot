@@ -43,6 +43,14 @@ class Checkin(commands.Cog):
             await interaction.response.send_message("You have checked in! (not really)")
 
     async def checkedInView():
+        """Function that returns the checked-in view
+        The Checked-in View will contain a button to allow a user to check-out, as well as a button
+        for a user to start a pomodoro
+
+        Outputs:
+            view (discord.ui.View) - The view containing the checkout and pomo buttons
+        """
+
         view = View()
 
         check_out_button = discord.ui.Button(label="Check-out", style=discord.ButtonStyle.red, custom_id="checkoutbutton")
