@@ -350,11 +350,22 @@ class CourseManagement(commands.Cog):
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
 
+        # if a user entered a role mention, get the role object + name
+        if role_name.startswith("<@&") and role_name.endswith(">"):
+            role_name = role_name[3:-1]
+
+            try:
+                role = interaction.guild.get_role(int(role_name))
+            except ValueError:
+                role = None
+
+            if role:
+                role_name = role.name
+
         # create the role if it does not exist
         if not get(interaction.guild.roles, name=role_name):
             role = await interaction.guild.create_role(name=role_name, permissions=permissions)
             role.mentionable = True
-
 
         # create the button
         view = View(timeout=None)
@@ -367,7 +378,6 @@ class CourseManagement(commands.Cog):
             this_button.callback = this_button.on_click
         view.add_item(this_button)
 
-        
         # send button to user and log command ran
         try:
             await interaction.channel.send(view=view)
