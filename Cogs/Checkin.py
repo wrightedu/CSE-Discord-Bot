@@ -29,12 +29,6 @@ class Checkin(commands.Cog):
         """Function that returns the check in view upon registration
         The Check-in View will contain a button to allow a user to check-in
 
-
-        This will eventually have some database interaction
-
-        Args:
-            button (discord.ui.Button): the button that will be clicked to check in
-
         Outputs:
             view (discord.ui.View) - The view containing the checkin
         """
@@ -64,6 +58,26 @@ class Checkin(commands.Cog):
         view.add_item(pomo_button)
 
         return view
+    
+    def pomoView():
+        """ Function that returns the pomo view
+        The pomo View will contain buttons to finish your pomodoro, report that you are blocked, and not done.
+
+        Outputs:
+            view(discord.ui.View) - The view containing the pomodoro view buttons
+        """
+        
+        view = View()
+
+        done_button = discord.ui.Button(label="Done", style=discord.ButtonStyle.green, custom_id="pomo_done")
+        blocked_button = discord.ui.Button(label="Help/Blocked", style=discord.ButtonStyle.red, custom_id="pomo_blocked")
+        not_done_button = discord.ui.Button(label="Not Done", style=discord.ButtonStyle.secondary, custom_id="pomo_not_done")
+
+        view.add_item(done_button)
+        view.add_item(blocked_button)
+        view.add_item(not_done_button)
+
+        return view
 
     @app_commands.command(name="checkin-register", description="Register for checkin/timesheets!")
     async def checkin_register(self, interaction:discord.Interaction):
@@ -78,7 +92,7 @@ class Checkin(commands.Cog):
         discordID = interaction.user.id # for later use
         discordUser = interaction.user.name # for later use
 
-        view = Checkin.checkInView()
+        view = Checkin.checkedInView()
         channel = await interaction.user.create_dm()
 
         await channel.send(view=view)
