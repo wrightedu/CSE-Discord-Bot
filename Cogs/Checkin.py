@@ -92,7 +92,7 @@ class Checkin(commands.Cog):
         discordID = interaction.user.id # for later use
         discordUser = interaction.user.name # for later use
 
-        view = Checkin.checkedInView()
+        view = Checkin.checkInView()
         channel = await interaction.user.create_dm()
 
         await channel.send(view=view)
