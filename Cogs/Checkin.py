@@ -81,18 +81,20 @@ class Checkin(commands.Cog):
     @app_commands.command(name="checkin-register", description="Register for checkin/timesheets!")
     async def checkin_register(self, interaction:discord.Interaction):
         """Allows a user to register for a check-in
-
-        This will eventually have some database interaction
+        This function will insert the user into the database and send a DM to the user
 
         Outputs:
             A placeholder message to confirm a DM was sent to the user
         """
 
-        discordID = interaction.user.id # for later use
-        discordUser = interaction.user.name # for later use
+        discord_id = interaction.user.id
+        discord_user = interaction.user.name
+
+        time = str(get_time_epoch())
 
         conn = create_connection("cse_discord.db")
-        insert_user(conn, discordID, discordUser, "")
+        insert_user(conn, discord_id, discord_user, time)
+        conn.close()
 
         view = Checkin.checkInView()
         channel = await interaction.user.create_dm()
