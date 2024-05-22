@@ -42,7 +42,7 @@ def initialize_db(db_location) -> None:
     time_finish TEXT,
     time_delta REAL,
     status INTEGER,
-    help REAL,
+    help_count REAL,
     FOREIGN KEY (timesheet_id) REFERENCES timesheet(time_id)
     )"""
 
@@ -146,6 +146,44 @@ def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, 
             c.execute(insert_timesheet_query, (discord_id, time_in,
                                                time_out, total_time))
             print(f"User {discord_id} has been checked in at {time_in}")
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+        conn.commit()
+        return c.lastrowid  # returns the id of the new record
+    else:
+        # this check should be redundunt
+        print("Error! Cannot create database connection")
+
+
+def insert_pomodoro(conn, timesheet_id: int, issue: str, time_start: str, time_finish: str = None,
+                    time_delta: float = None, status: int = None, help_count: float = None) -> int:
+    """
+    Takes the arguments to create a new record in the pomodoro Table
+    timesheet_id, issue, and time_start are NOT NULL in the database and must be provided
+
+    Args:
+        conn: Connection object returned by the `create_connection` function
+        timesheet_id (int): The current timesheet_id of the user who's invoking the pomodoro function for a given day
+        time_start (str): The datetime object converted into String of when the user starts pomodoro
+        time_finish (str): The datetime object converted into String of when the user stops pomo
+        time_delta (float): The time delta of time start and time finish from when user starts the pomodoro and stops it
+        status (int): 1 or 0 as flag for completion of the pomodoro
+        help (float): number of times the user has requested help/hit the help button
+
+    Output:
+        Returns pomo_id of the last/current inserted record
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+            insert_pomodoro_query = """ INSERT INTO pomodoro(timesheet_id, issue,
+            time_start, time_finish, time_delta, status, help_count) VALUES(?,?,?,?,?,?,?)"""
+            c.execute(insert_pomodoro_query, (timesheet_id, issue, time_start, time_finish,
+                                              time_delta, status, help_count))
+            print(
+                f"New pomodoro for Timesheet id {timesheet_id} recorded on {time_start}")
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
