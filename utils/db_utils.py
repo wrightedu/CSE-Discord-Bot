@@ -125,3 +125,37 @@ def insert_user(conn, discord_id: str, discord_name: str,
         # this check should be redundunt
         print("Error! Cannot create database connection")
         return "Could not connect to database"
+
+
+def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, total_time: str = None) -> int:
+    """
+    Takes the arguments to create a new record in the timesheet Table
+    discord_id and time_in are NOT NULL in the database and must be provided
+
+    Args:
+        conn: Connection object returned by the `create_connection` function
+        discord_id (str): The discord user id of the user
+        time_in (str): The datetime object converted into String of when the user checks-in
+        time_out (str): The datetime object converted into String of when the user checks-out
+        time_out (float): The time delta of time in and time out from user checks in and check out
+
+    Output:
+        Returns timesheet_id of the last/current inserted record
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+            insert_timesheet_query = """ INSERT INTO timesheet(discord_id, time_in,
+            time_out, total_time) VALUES(?,?,?,?)"""
+            c.execute(insert_timesheet_query, (discord_id, time_in,
+                                               time_out, total_time))
+            print(f"User {discord_id} has been checked in at {time_in}")
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+        conn.commit()
+        return c.lastrowid  # returns the id of the new record
+    else:
+        # this check should be redundunt
+        print("Error! Cannot create database connection")
