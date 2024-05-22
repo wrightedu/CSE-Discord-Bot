@@ -83,7 +83,7 @@ def create_connection(db_file: str):
     return conn
 
 
-def insert_user(conn, discord_id: str, discord_name: str,
+def insert_user(database_name, discord_id: str, discord_name: str,
                 date_registered: str) -> None:
     """
     Takes the arguments to create a new record in the User Table
@@ -94,15 +94,24 @@ def insert_user(conn, discord_id: str, discord_name: str,
         discord_name (str): The name of the user
         date_registered(str): The date and time when the user hits the register button
     """
-    conn = create_connection(conn)
+    conn = create_connection(database_name)
     if conn is not None:
         try:
-            # c = conn.cursor()
-            # c.execute("B")
-            pass
+            c = conn.cursor()
+            insert_user_query = """ INSERT INTO user(discord_id, discord_name,
+            date_registered) VALUES(?,?,?)"""
+            c.execute(insert_user_query, (discord_id, discord_name,
+                                           date_registered))
+            print(f"User {discord_id} has been inserted into the datasbase.")
+        except sqlite3.IntegrityError as e:
+            if "UNIQUE constraint failed" in str(e):
+                print(f"{discord_id} already exists in the database.")
+            else:
+                print(e)
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
             return None
+        conn.commit()
     else:
         print("Error! Cannot create database connection")
