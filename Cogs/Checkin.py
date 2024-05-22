@@ -7,8 +7,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db
-
+from utils.db_utils import initialize_db, insert_user, create_connection
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -91,6 +90,9 @@ class Checkin(commands.Cog):
 
         discordID = interaction.user.id # for later use
         discordUser = interaction.user.name # for later use
+
+        conn = create_connection("cse_discord.db")
+        insert_user(conn, discordID, discordUser, "")
 
         view = Checkin.checkInView()
         channel = await interaction.user.create_dm()
