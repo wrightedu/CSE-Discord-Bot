@@ -35,8 +35,8 @@ class Checkin(commands.Cog):
 
 
         view = View()
-        check_in_button = discord.ui.Button(label="Check-in", style=discord.ButtonStyle.green, custom_id="checkinbutton")
-        view.add_item(check_in_button)
+        checkin_button = discord.ui.Button(label="Check-in", style=discord.ButtonStyle.green, custom_id="checkin_checkin_btn")
+        view.add_item(checkin_button)
 
         return view
 
@@ -51,10 +51,10 @@ class Checkin(commands.Cog):
 
         view = View()
 
-        check_out_button = discord.ui.Button(label="Check-out", style=discord.ButtonStyle.red, custom_id="checkoutbutton")
-        pomo_button = discord.ui.Button(label="Pomodoro", style=discord.ButtonStyle.blurple, custom_id="pomobutton")
+        checkout_button = discord.ui.Button(label="Check-out", style=discord.ButtonStyle.red, custom_id="checkedin_checkout_btn")
+        pomo_button = discord.ui.Button(label="Pomodoro", style=discord.ButtonStyle.blurple, custom_id="checkedin_pomo_btn")
 
-        view.add_item(check_out_button)
+        view.add_item(checkout_button)
         view.add_item(pomo_button)
 
         return view
@@ -69,9 +69,9 @@ class Checkin(commands.Cog):
         
         view = View()
 
-        done_button = discord.ui.Button(label="Done", style=discord.ButtonStyle.green, custom_id="pomo_done")
-        blocked_button = discord.ui.Button(label="Help/Blocked", style=discord.ButtonStyle.red, custom_id="pomo_blocked")
-        not_done_button = discord.ui.Button(label="Not Done", style=discord.ButtonStyle.secondary, custom_id="pomo_not_done")
+        done_button = discord.ui.Button(label="Done", style=discord.ButtonStyle.green, custom_id="pomo_done_btn")
+        blocked_button = discord.ui.Button(label="Help/Blocked", style=discord.ButtonStyle.red, custom_id="pomo_blocked_btn")
+        not_done_button = discord.ui.Button(label="Not Done", style=discord.ButtonStyle.secondary, custom_id="pomo_not_done_btn")
 
         view.add_item(done_button)
         view.add_item(blocked_button)
