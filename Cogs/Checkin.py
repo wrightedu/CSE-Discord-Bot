@@ -25,22 +25,26 @@ class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    class CheckinView(View):
-        @discord.ui.button(label="Check-in", style=discord.ButtonStyle.green)
-        async def checkin(self, interaction:discord.Interaction, button:discord.ui.Button):
-            """A button that will create a timesheet for the user in the SQLite database
+    def checkInView():
+        """Function that returns the check in view upon registration
+        The Check-in View will contain a button to allow a user to check-in
 
-            This will eventually have some database interaction
 
-            Args:
-                button (discord.ui.Button): the button that will be clicked to check in
+        This will eventually have some database interaction
 
-            Outputs:
-                A View with a button that will create a timesheet for the user in the SQLite database
-            """
+        Args:
+            button (discord.ui.Button): the button that will be clicked to check in
 
-            # This will eventually have some database interaction
-            await interaction.response.send_message("You have checked in! (not really)")
+        Outputs:
+            view (discord.ui.View) - The view containing the checkin
+        """
+
+
+        view = View()
+        check_in_button = discord.ui.Button(label="Check-in", style=discord.ButtonStyle.green, custom_id="checkinbutton")
+        view.add_item(check_in_button)
+
+        return view
 
     def checkedInView():
         """Function that returns the checked-in view
@@ -74,7 +78,7 @@ class Checkin(commands.Cog):
         discordID = interaction.user.id # for later use
         discordUser = interaction.user.name # for later use
 
-        view = self.CheckinView()
+        view = Checkin.checkInView()
         channel = await interaction.user.create_dm()
 
         await channel.send(view=view)
