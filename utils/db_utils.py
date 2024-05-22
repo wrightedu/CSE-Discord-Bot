@@ -123,7 +123,7 @@ def insert_user(conn, discord_id: str, discord_name: str,
         print("Error! Cannot create database connection")
 
 
-def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str, total_time: float):
+def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, total_time: str = None):
     """
     Takes the arguments to create a new record in the timesheet Table
     discord_id and time_in are NOT NULL in the database and must be provided
