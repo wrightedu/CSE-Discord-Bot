@@ -196,3 +196,17 @@ def months_ago(months):
     delta = datetime.timedelta(days=num_days)
     that_day = now - delta
     return that_day
+
+async def update_view(interaction, view:discord.ui.View):
+    """Takes in a view and updates the current message with the new view
+    Uses the interaction to get the channel and message id. Fetches the message and edits it with the new view.
+
+    Args:
+        interaction (discord.Interaction): The interaction object
+        view (discord.ui.View): The new view that will replace the old view
+    """
+    channel = interaction.channel
+    message_id = interaction.message.id
+
+    message = await channel.fetch_message(message_id)
+    await message.edit(view=view)
