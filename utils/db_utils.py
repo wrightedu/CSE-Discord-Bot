@@ -123,7 +123,7 @@ def insert_user(conn, discord_id: str, discord_name: str,
         print("Error! Cannot create database connection")
 
 
-def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, total_time: str = None):
+def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, total_time: str = None) -> int:
     """
     Takes the arguments to create a new record in the timesheet Table
     discord_id and time_in are NOT NULL in the database and must be provided
@@ -134,6 +134,9 @@ def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, 
         time_in (str): The datetime object converted into String of when the user checks-in
         time_out (str): The datetime object converted into String of when the user checks-out
         time_out (float): The time delta of time in and time out from user checks in and check out
+
+    Output:
+        Returns timesheet_id of the last/current inserted record
     """
     if conn is not None:
         try:
@@ -148,6 +151,7 @@ def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, 
             conn.rollback()
             return None
         conn.commit()
+        return c.lastrowid  # returns the id of the new record
     else:
         # this check should be redundunt
         print("Error! Cannot create database connection")
