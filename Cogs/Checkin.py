@@ -16,7 +16,7 @@ async def setup(bot):
     if not os.path.exists(db_path):
         initialize_db(db_path)
     else:
-        print("Database initialization failed")
+        print("Database already exists")
 
     await bot.add_cog(Checkin(bot))
 
@@ -90,11 +90,21 @@ class Checkin(commands.Cog):
         discord_id = interaction.user.id
         discord_user = interaction.user.name
 
-        time = str(get_time_epoch())
+        time = str(await get_time_epoch())
 
         conn = create_connection("cse_discord.db")
-        insert_user(conn, discord_id, discord_user, time)
+        status = insert_user(conn, discord_id, discord_user, time)
         conn.close()
+
+        if status == "User already exists":
+            await interaction.response.send_message("ERROR: You are already registered", ephemeral=True)
+            return
+        elif status == "Could not connect to database":
+            await interaction.response.send_message("ERROR: Unable to connect to database", ephemeral=True)
+            return
+        elif status == "Error":
+            await interaction.response.send_message("Error registering for checkin", ephemeral=True)
+            return
 
         view = Checkin.checkInView()
         channel = await interaction.user.create_dm()
