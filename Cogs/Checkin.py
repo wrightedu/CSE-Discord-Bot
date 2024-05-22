@@ -29,13 +29,39 @@ class Checkin(commands.Cog):
         """Function that returns the check in view upon registration
         The Check-in View will contain a button to allow a user to check-in
 
+
+        This will eventually have some database interaction
+
+        Args:
+            button (discord.ui.Button): the button that will be clicked to check in
+
         Outputs:
             view (discord.ui.View) - The view containing the checkin
         """
 
+
         view = View()
         check_in_button = discord.ui.Button(label="Check-in", style=discord.ButtonStyle.green, custom_id="checkinbutton")
         view.add_item(check_in_button)
+
+        return view
+
+    def checkedInView():
+        """Function that returns the checked-in view
+        The Checked-in View will contain a button to allow a user to check-out, as well as a button
+        for a user to start a pomodoro
+
+        Outputs:
+            view (discord.ui.View) - The view containing the checkout and pomo buttons
+        """
+
+        view = View()
+
+        check_out_button = discord.ui.Button(label="Check-out", style=discord.ButtonStyle.red, custom_id="checkoutbutton")
+        pomo_button = discord.ui.Button(label="Pomodoro", style=discord.ButtonStyle.blurple, custom_id="pomobutton")
+
+        view.add_item(check_out_button)
+        view.add_item(pomo_button)
 
         return view
 
