@@ -74,34 +74,39 @@ def create_connection(db_file: str):
         returns an object `conn` that represents the connection the database
     """
     conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        print(f'Connected to the Database {db_file}')
+    if os.path.exists(db_file):
+        try:
+            conn = sqlite3.connect(db_file)
+            print(f'Connected to the Database {db_file}')
+            return conn
+        except sqlite3.Error as e:
+            print(f'Could not connect to database because {e}')
         return conn
-    except sqlite3.Error as e:
-        print(f'Could not connect to database because {e}')
-    return conn
+    else:
+        print("Error! database file does not exist")
+        return conn
 
 
-def insert_user(database_name, discord_id: str, discord_name: str,
+def insert_user(conn, discord_id: str, discord_name: str,
                 date_registered: str) -> None:
     """
     Takes the arguments to create a new record in the User Table
     discord_id and date_registered are NOT NULL in the database and must be provided
 
     Args:
+        conn: Connection object returned by the `create_connection` function
         discord_id (str): The discord user id of the user
         discord_name (str): The name of the user
         date_registered(str): The date and time when the user hits the register button
     """
-    conn = create_connection(database_name)
+
     if conn is not None:
         try:
             c = conn.cursor()
             insert_user_query = """ INSERT INTO user(discord_id, discord_name,
             date_registered) VALUES(?,?,?)"""
             c.execute(insert_user_query, (discord_id, discord_name,
-                                           date_registered))
+                                          date_registered))
             print(f"User {discord_id} has been inserted into the datasbase.")
         except sqlite3.IntegrityError as e:
             if "UNIQUE constraint failed" in str(e):
@@ -114,4 +119,5 @@ def insert_user(database_name, discord_id: str, discord_name: str,
             return None
         conn.commit()
     else:
+        # this check should be redundunt
         print("Error! Cannot create database connection")
