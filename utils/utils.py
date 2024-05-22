@@ -210,3 +210,13 @@ async def update_view(interaction, view:discord.ui.View):
 
     message = await channel.fetch_message(message_id)
     await message.edit(view=view)
+
+async def get_time_epoch():
+    """ Function that gets the current epoch timestamp.
+
+    Returns:
+        current_time (float): current epoch time as float
+    """
+    current_time = datetime.datetime.now()
+
+    return current_time.timestamp()
