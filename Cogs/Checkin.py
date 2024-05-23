@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -23,6 +23,22 @@ async def setup(bot):
 class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: discord.Interaction):
+        """ An event listener to check for different checkin button presses.
+            Verifies that the interaction includes a custom_id. Each individual statement
+            checks to make sure that the interaction contains a specific custom_id.
+        """
+        if interaction.data is not None and 'custom_id' in interaction.data and interaction.data['custom_id'] is not None:
+            if 'checkin_checkin_btn' in interaction.data['custom_id']:
+                time = str(await get_time_epoch())
+                conn = create_connection("cse_discord.db")
+
+                timesheet = insert_timesheet(conn, interaction.user.id, time)
+
+                await update_view(interaction, Checkin.checkedInView())
+                await interaction.response.send_message("You have checked in!", ephemeral=True)
 
     def checkInView():
         """Function that returns the check in view upon registration
