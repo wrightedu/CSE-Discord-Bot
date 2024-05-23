@@ -200,7 +200,7 @@ def insert_pomodoro(conn, timesheet_id: int, issue: str, time_start: str, time_f
         print("Error! Cannot create database connection")
 
 
-def insert_u_help(conn, remark: str, pomo_id: int) -> int:
+def insert_user_help(conn, remark: str, pomo_id: int) -> int:
     """
     Takes the arguments to create a new record in the u_help Table
 
@@ -214,8 +214,8 @@ def insert_u_help(conn, remark: str, pomo_id: int) -> int:
     if conn is not None:
         try:
             c = conn.cursor()
-            insert_u_help_query = """ INSERT INTO u_help(remark, pomo_id) VALUES(?,?)"""
-            c.execute(insert_u_help_query, (remark, pomo_id))
+            insert_user_help_query = """ INSERT INTO u_help(remark, pomo_id) VALUES(?,?)"""
+            c.execute(insert_user_help_query, (remark, pomo_id))
             print(
                 f"New help record for Pomo id {pomo_id} recorded.")
         except sqlite3.Error as e:
@@ -227,4 +227,3 @@ def insert_u_help(conn, remark: str, pomo_id: int) -> int:
     else:
         # this check should be redundunt
         print("Error! Cannot create database connection")
-        
