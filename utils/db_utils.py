@@ -88,7 +88,7 @@ def create_connection(db_file: str):
 
 
 def insert_user(conn, discord_id: str, discord_name: str,
-                date_registered: str) -> None:
+                date_registered: str) -> str:
     """
     Takes the arguments to create a new record in the User Table
     discord_id and date_registered are NOT NULL in the database and must be provided
@@ -111,16 +111,20 @@ def insert_user(conn, discord_id: str, discord_name: str,
         except sqlite3.IntegrityError as e:
             if "UNIQUE constraint failed" in str(e):
                 print(f"{discord_id} already exists in the database.")
+                return "User already exists"
             else:
                 print(e)
+                return "Error"
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
-            return None
+            return "Error"
         conn.commit()
+        return None # No error
     else:
         # this check should be redundunt
         print("Error! Cannot create database connection")
+        return "Could not connect to database"
 
 
 def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, total_time: str = None) -> int:

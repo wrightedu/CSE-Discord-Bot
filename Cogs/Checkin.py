@@ -7,8 +7,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db
-
+from utils.db_utils import initialize_db, insert_user, create_connection
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -17,7 +16,7 @@ async def setup(bot):
     if not os.path.exists(db_path):
         initialize_db(db_path)
     else:
-        print("Database initialization failed")
+        print("Database already exists")
 
     await bot.add_cog(Checkin(bot))
 
@@ -82,15 +81,30 @@ class Checkin(commands.Cog):
     @app_commands.command(name="checkin-register", description="Register for checkin/timesheets!")
     async def checkin_register(self, interaction:discord.Interaction):
         """Allows a user to register for a check-in
-
-        This will eventually have some database interaction
+        This function will insert the user into the database and send a DM to the user
 
         Outputs:
             A placeholder message to confirm a DM was sent to the user
         """
 
-        discordID = interaction.user.id # for later use
-        discordUser = interaction.user.name # for later use
+        discord_id = interaction.user.id
+        discord_user = interaction.user.name
+
+        time = str(await get_time_epoch())
+
+        conn = create_connection("cse_discord.db")
+        status = insert_user(conn, discord_id, discord_user, time)
+        conn.close()
+
+        if status == "User already exists":
+            await interaction.response.send_message("ERROR: You are already registered", ephemeral=True)
+            return
+        elif status == "Could not connect to database":
+            await interaction.response.send_message("ERROR: Unable to connect to database", ephemeral=True)
+            return
+        elif status == "Error":
+            await interaction.response.send_message("Error registering for checkin", ephemeral=True)
+            return
 
         view = Checkin.checkInView()
         channel = await interaction.user.create_dm()
