@@ -2,6 +2,8 @@ import os
 from os.path import exists, abspath
 
 from typing import List
+
+import discord
 from discord.ext import commands
 from discord import app_commands
 
@@ -163,7 +165,7 @@ class CogManagement(commands.Cog):
     @load.autocomplete("cog_name")
     @reload.autocomplete("cog_name")
     @unload.autocomplete("cog_name")
-    async def cog_auto(self, current: str) -> List[app_commands.Choice[str]]:
+    async def cog_auto(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
         """
         Generate a list of choices based on the current input.
 
