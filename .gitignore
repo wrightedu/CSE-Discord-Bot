@@ -48,3 +48,6 @@ token
 # Virtual Env        #
 ######################
 venv/
+
+# Ignore Visual Studio Code settings directory
+.vscode
