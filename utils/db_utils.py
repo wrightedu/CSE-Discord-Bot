@@ -166,11 +166,12 @@ def insert_pomodoro(conn, timesheet_id: int, issue: str, time_start: str, time_f
     Args:
         conn: Connection object returned by the `create_connection` function
         timesheet_id (int): The current timesheet_id of the user who's invoking the pomodoro function for a given day
+        issue (str): Description of the issue the user is having as entered by the user.
         time_start (str): The datetime object converted into String of when the user starts pomodoro
         time_finish (str): The datetime object converted into String of when the user stops pomo
         time_delta (float): The time delta of time start and time finish from when user starts the pomodoro and stops it
         status (int): 1 or 0 as flag for completion of the pomodoro
-        help (float): number of times the user has requested help/hit the help button
+        help_count (float): number of times the user has requested help/hit the help button
 
     Output:
         Returns pomo_id of the last/current inserted record
