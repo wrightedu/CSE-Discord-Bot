@@ -38,7 +38,7 @@ class MOSS(commands.Cog):
 
 
     def get_moss_id(self, discord_id):
-        """        
+        """Gets a user's MossID        
         Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
 
         Args:
@@ -60,7 +60,7 @@ class MOSS(commands.Cog):
 
 
     async def delete_all(self, dir_path):
-        """
+        """Delete all files and directories
         Delete's all files and directories below the directory specified by the path
         passed into the function.
 
@@ -104,7 +104,7 @@ class MOSS(commands.Cog):
     @app_commands.command(description="This will check if students are cheaters")
     @app_commands.default_permissions(administrator=True)
     async def moss(self, interaction:discord.Interaction):
-        """ 
+        """Run MOSS command 
         Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 
         Args:
@@ -171,7 +171,7 @@ class MOSS(commands.Cog):
     @app_commands.command(description="Register a new MossID")
     @app_commands.checks.has_any_role("Teaching Assistant", "Faculty", "cse-devteam", "cse-support")
     async def moss_register(self, interaction:discord.Interaction, moss_id:str):
-        """
+        """Adds new user's DiscordID and MossID to the CSV
         Allows a user to register their MossID and associate it to their DiscordID in the CSV. If the user already has a MossID
         associated with their DiscordID, they will be given the option to update their MossID. If they do not wish to update
         their MossID, command execution will terminate.
