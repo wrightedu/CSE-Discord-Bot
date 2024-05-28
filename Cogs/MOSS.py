@@ -78,7 +78,7 @@ class MOSS(commands.Cog):
                     try:
                         os.rmdir(file_path)
                     except OSError:
-                        await MOSS.delete_all(file_path)    # Recursively delete directories
+                        await MOSS.delete_all(self, file_path)
                         os.rmdir(file_path)
                 elif os.path.isfile(file_path):
                     os.remove(file_path)
@@ -98,7 +98,7 @@ class MOSS(commands.Cog):
             os.mkdir(dir_path)
         
         if len(os.listdir(dir_path)) > 0:
-            await MOSS.delete_all(dir_path)
+            await MOSS.delete_all(self, dir_path)
 
 
     @app_commands.command(description="This will check if students are cheaters")
@@ -114,13 +114,13 @@ class MOSS(commands.Cog):
             MOSS URL
         """
 
-        moss_id = MOSS.get_moss_id(interaction.user.id)
+        moss_id = self.get_moss_id(interaction.user.id)
         if moss_id is None:
             await interaction.response.send_message("You do not have a MossID associated with your account. Please register your MossID with /moss_register first")
             return
 
         mosspath = f"/tmp/{moss_id}"
-        await MOSS.check_moss_folder(mosspath)
+        await self.check_moss_folder(mosspath)
 
         await interaction.response.send_message("Please attach a .zip file of all student code!")
 
