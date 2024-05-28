@@ -24,9 +24,6 @@ class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    class CreatePomodoro(discord.ui.Modal, title='Pomodoro Creation'):
-        name = discord.ui.TextInput(label='What issue are you working on?')
-
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
         """ An event listener to check for different checkin button presses.
