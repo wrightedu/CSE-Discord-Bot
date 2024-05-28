@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, get_timesheet_id
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, get_timesheet_id
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +39,26 @@ class Checkin(commands.Cog):
 
                 await update_view(interaction, Checkin.checkedInView())
                 await interaction.response.send_message("You have checked in!", ephemeral=True)
+            elif 'checkedin_pomo_btn' in interaction.data['custom_id']:
+                modal = discord.ui.Modal(title="Pomodoro Creation", custom_id=f"checkedin_pomo_create_{interaction.message.id}")
+                modal.add_item(discord.ui.TextInput(label="What issue are you working on", required=True))
+
+                await interaction.response.send_modal(modal)
+            elif 'checkedin_pomo_create' in interaction.data['custom_id']:
+                conn = create_connection("cse_discord.db")
+                timesheet_id = get_timesheet_id(conn, interaction.user.id)
+                time = str(await get_time_epoch())
+                pomo_reason = interaction.data['components'][0]['components'][0]['value']
+                pomo = insert_pomodoro(conn, timesheet_id, pomo_reason, time)
+
+                channel = interaction.channel
+                message_id = int(interaction.data['custom_id'].replace("checkedin_pomo_create_", ""))
+
+                message = await channel.fetch_message(message_id)
+                await message.edit(view=Checkin.pomoView())
+
+                await interaction.response.send_message("You have started a pomodoro. I will check with you in 20 minutes", ephemeral=True)
+
 
     def checkInView():
         """Function that returns the check in view upon registration
