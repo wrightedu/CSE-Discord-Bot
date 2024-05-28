@@ -10,10 +10,24 @@ from utils.utils import *
 
 
 async def setup(bot):
+    """
+    Set up the Gourmet cog and add it to the bot.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     await bot.add_cog(Gourmet(bot))
     
 
 class Gourmet(commands.Cog):
+    """
+    A class representing commands for gourmet-related actions.
+
+    Attributes:
+        bot (commands.Bot): The bot instance.
+        normal_restaurant (list): List of normal restaurants.
+        vegan_restaurant (list): List of vegan restaurants.
+    """
     def __init__(self, bot):
         self.bot = bot
         self.normal_restaurant = []
@@ -32,6 +46,16 @@ class Gourmet(commands.Cog):
 
     # Menu that extends from a View
     class GourmetMenu(View):
+        """
+        A menu for selecting restaurants.
+
+        Attributes:
+            cog: The Gourmet cog instance.
+            timeout (int): The timeout duration for the menu.
+            normal_restaurant (list): List of normal restaurants.
+            vegan_restaurant (list): List of vegan restaurants.
+            main_list (list): Combined list of normal and vegan restaurants.
+        """
         def __init__(self, *, cog, timeout=180):
             super().__init__(timeout=timeout)
             self.normal_restaurant = copy.deepcopy(cog.normal_restaurant)
