@@ -238,12 +238,15 @@ def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out
             conn: Connection object returned by the `create_connection` function
             time_id (int): The timesheed id of the user that needs to be updated
             discord_id (str): The discord id of the user
-            time_in (str): The datetime object coverted into String of when the user checks-in. Not used when updating the record
+            time_in (str): The datetime object coverted into String of when the user checks-in. 
+                            Not used when updating the record
             time_out (str): The datetime object converted into String of when the user checks-out
-            total_time (float): The time delta of time in and time out obtained after user checks out
+            total_time (float): The time delta of time in and time out 
+                                obtained after user checks out
 
         Output:
-            Returns boolean value to signify if the update operatation was Completed(True) or failed(False)
+            Returns boolean value to signify if 
+                the update operatation was Completed(True) or failed(False)
     """
     if conn is not None:
         try:
@@ -251,7 +254,8 @@ def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out
             update_timesheet_query = """ UPDATE timesheet SET time_out = ?, total_time = ? where discord_id = ? and time_id = ?"""
             c.execute(update_timesheet_query,
                       (time_out, total_time, discord_id, time_id))
-            print(f"User {discord_id} has been updated with checkout ")
+            print(
+                f"User {discord_id} has been updated with checkout entry @ {time_out}. Total hours worked: {total_time} ")
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
@@ -261,4 +265,3 @@ def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out
     else:
         print("Error! Cannot create database connection.")
         return False
-
