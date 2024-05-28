@@ -228,6 +228,7 @@ def insert_user_help(conn, remark: str, pomo_id: int) -> int:
         # this check should be redundunt
         print("Error! Cannot create database connection")
 
+
 def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out: str, total_time: float) -> bool:
     """
         Takes the arguments to update an existing record in the timesheet Table
@@ -247,7 +248,7 @@ def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out
             Returns boolean value to signify if 
                 the update operatation was Completed(True) or failed(False)
      """
-     if conn is not None:
+    if conn is not None:
         try:
             c = conn.cursor()
             update_timesheet_query = """ UPDATE timesheet SET time_out = ?, total_time = ? where discord_id = ? and time_id = ?"""
@@ -264,16 +265,18 @@ def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out
     else:
         print("Error! Cannot create database connection.")
         return False
-      
+
+
 def get_timesheet_id(conn, discord_id: str):
     """
     Given a Discord ID, find the timesheet ID that has been opened by that user
-    
+
     Args:
         conn: Connection object returned by the `create_connection` function
         discord_id (str): A Discord user ID
     Outputs:
-        timesheet_id (int): the timesheet ID open for a particular user"""
+        timesheet_id (int): the timesheet ID open for a particular user
+    """
     if conn is not None:
         try:
             c = conn.cursor()
@@ -283,11 +286,11 @@ def get_timesheet_id(conn, discord_id: str):
 
             timesheet = c.fetchall()
 
-            if(len(timesheet) > 1):
+            if (len(timesheet) > 1):
                 print("Error! Multiple open timesheets for user.")
                 return None
-            elif(len(timesheet) != 1):
-                print("Error! No timesheet open for user.") 
+            elif (len(timesheet) != 1):
+                print("Error! No timesheet open for user.")
             else:
                 return timesheet[0][0]
         except sqlite3.Error as e:
@@ -296,3 +299,7 @@ def get_timesheet_id(conn, discord_id: str):
             return None
     else:
         print("Error! Cannot create database connection")
+
+
+a = create_connection("CSEdiscord.db")
+print(update_timesheet(a, 4, "jake", "8762213894", "9817238972", 7867))
