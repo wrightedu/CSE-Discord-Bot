@@ -8,6 +8,12 @@ from utils.utils import *
 
 
 async def setup(bot):
+    """
+    Set up the FAQ cog by reading channel names from a file and adding it to the bot.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     channels_path = r"assets/FAQ/channels.txt"
     path = Path(channels_path)
     channel_names = []
