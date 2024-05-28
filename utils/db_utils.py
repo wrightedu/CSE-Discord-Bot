@@ -120,7 +120,7 @@ def insert_user(conn, discord_id: str, discord_name: str,
             conn.rollback()
             return "Error"
         conn.commit()
-        return None # No error
+        return None  # No error
     else:
         # this check should be redundunt
         print("Error! Cannot create database connection")
@@ -137,7 +137,7 @@ def insert_timesheet(conn, discord_id: str, time_in: str, time_out: str = None, 
         discord_id (str): The discord user id of the user
         time_in (str): The datetime object converted into String of when the user checks-in
         time_out (str): The datetime object converted into String of when the user checks-out
-        time_out (float): The time delta of time in and time out from user checks in and check out
+        time_out (float): The time delta of time in and time out when the user checks out
 
     Output:
         Returns timesheet_id of the last/current inserted record
@@ -227,3 +227,38 @@ def insert_user_help(conn, remark: str, pomo_id: int) -> int:
     else:
         # this check should be redundunt
         print("Error! Cannot create database connection")
+
+
+def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out: str, total_time: float) -> bool:
+    """
+        Takes the arguments to update an existing record in the timesheet Table
+        discord_id and time_in are NOT NULL in the database and must be provided
+
+        Args:
+            conn: Connection object returned by the `create_connection` function
+            time_id (int): The timesheed id of the user that needs to be updated
+            discord_id (str): The discord id of the user
+            time_in (str): The datetime object coverted into String of when the user checks-in. Not used when updating the record
+            time_out (str): The datetime object converted into String of when the user checks-out
+            total_time (float): The time delta of time in and time out obtained after user checks out
+
+        Output:
+            Returns boolean value to signify if the update operatation was Completed(True) or failed(False)
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+            update_timesheet_query = """ UPDATE timesheet SET time_out = ?, total_time = ? where discord_id = ? and time_id = ?"""
+            c.execute(update_timesheet_query,
+                      (time_out, total_time, discord_id, time_id))
+            print(f"User {discord_id} has been updated with checkout ")
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return False
+        conn.commit()
+        return True
+    else:
+        print("Error! Cannot create database connection.")
+        return False
+
