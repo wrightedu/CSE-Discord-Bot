@@ -227,3 +227,33 @@ def insert_user_help(conn, remark: str, pomo_id: int) -> int:
     else:
         # this check should be redundunt
         print("Error! Cannot create database connection")
+
+def get_timesheet_id(conn, discord_id: str):
+    """
+    Given a Discord ID, find the timesheet ID that has been opened by that user
+    
+    Args:
+        conn: Connection object returned by the `create_connection` function
+        discord_id (str): A Discord user ID
+    Outputs:
+        timesheet_id (int): the timesheet ID open for a particular user
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+            timesheet_query = """SELECT time_id FROM timesheet WHERE discord_id = ? AND time_out is NULL AND total_time is NULL"""
+            c.execute(timesheet_query, (discord_id,))
+
+            timesheet = c.fetchall()
+
+            if(len(timesheet) != 1):
+                print("Error! Multiple open timesheets for user. Please kick rocks.")
+                return None
+            else:
+                return timesheet[0][0]
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+    else:
+        print("Error! Cannot create database connection")
