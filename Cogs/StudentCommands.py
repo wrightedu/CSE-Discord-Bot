@@ -35,7 +35,7 @@ class StudentCommands(commands.Cog):
 
     @app_commands.command(description="Get a cute picture of some corgis!") 
     async def corgme(self, interaction:discord.Interaction, number:int =-1):
-        """
+        """Sends a picture of a corgi
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
         Loop through all images in the directory containing pictures and place them in a list of images.
         If no number was input by user, select a random image from the list and send it in chat. If the user
@@ -78,9 +78,7 @@ class StudentCommands(commands.Cog):
 
     @app_commands.command(description='Displays the code needed to print "hello world" to the console')
     async def helloworld(self, interaction:discord.Interaction, language: str ='random'):
-        """
-        Displays the code needed to print 'hello world' to the console in a variety of different programming languages
-        
+        """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
         Take in user input for a programming language. If input is ls, list all the languages that the command
         can give code for. If input is not listed in the keys for output or is 'random', pick a random language
         to display. If input is valid, display example code for the language of choice in chat and create a log
@@ -190,9 +188,7 @@ class StudentCommands(commands.Cog):
 
     @app_commands.command(description="Rolls dice based on input") 
     async def roll(self, interaction:discord.Interaction, roll:str):
-        """
-        Rolls dice based on input
-
+        """Rolls dice based on input
         Check to see if the input is an appropriate size and quantity. Call imported dice parse module and store in
         'output'. 'output'[0] is the raw roll, and 'output'[1] is the roll with all modifiers included. If the length
         of the raw roll exceeds 100, the final tally is displayed to the chat. Otherwise, both the raw roll and final
