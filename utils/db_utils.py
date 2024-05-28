@@ -299,7 +299,3 @@ def get_timesheet_id(conn, discord_id: str):
             return None
     else:
         print("Error! Cannot create database connection")
-
-
-a = create_connection("CSEdiscord.db")
-print(update_timesheet(a, 4, "jake", "8762213894", "9817238972", 7867))
