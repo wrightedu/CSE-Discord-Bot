@@ -246,9 +246,11 @@ def get_timesheet_id(conn, discord_id: str):
 
             timesheet = c.fetchall()
 
-            if(len(timesheet) != 1):
-                print("Error! Multiple open timesheets for user. Please kick rocks.")
+            if(len(timesheet) > 1):
+                print("Error! Multiple open timesheets for user.")
                 return None
+            elif(len(timesheet) != 1):
+                print("Error! No timesheet open for user.") 
             else:
                 return timesheet[0][0]
         except sqlite3.Error as e:
