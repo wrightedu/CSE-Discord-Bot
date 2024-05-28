@@ -4,14 +4,14 @@ import sqlite3
 
 def initialize_db(db_location) -> None:
     """
-    Create a new database file in SQLITE3 with Tables. 
+    Create a new database file in SQLITE3 with Tables.
     The tables created are empty when first initialized
 
-    Args: 
-        db_location(string): Path to where the database file is stored. 
+    Args:
+        db_location(string): Path to where the database file is stored.
             Usually project directory
 
-    Output: 
+    Output:
         An error if raised
     """
     conn = sqlite3.connect(db_location)
@@ -38,7 +38,7 @@ def initialize_db(db_location) -> None:
     pomo_id INTEGER PRIMARY KEY AUTOINCREMENT,
     timesheet_id INTEGER NOT NULL,
     issue TEXT NOT NULL,
-    time_start TEXT NOT NULL, 
+    time_start TEXT NOT NULL,
     time_finish TEXT,
     time_delta REAL,
     status INTEGER,
@@ -48,7 +48,7 @@ def initialize_db(db_location) -> None:
 
     create_u_help_table_query = """ CREATE TABLE IF NOT EXISTS u_help(
     u_help_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    remark TEXT, 
+    remark TEXT,
     pomo_id INTEGER,
     FOREIGN KEY(pomo_id) REFERENCES pomodoro(pomo_id)
     )"""
@@ -207,7 +207,7 @@ def insert_user_help(conn, remark: str, pomo_id: int) -> int:
     Args:
         conn: Connection object returned by the `create_connection` function
         remark (str): Remarks for help as entered by the user
-        pomo_id (str): References to the of when the user 
+        pomo_id (str): References to the of when the user
     Output:
         Returns pomo_id of the last/current inserted record
     """
@@ -238,14 +238,14 @@ def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out
             conn: Connection object returned by the `create_connection` function
             time_id (int): The timesheed id of the user that needs to be updated
             discord_id (str): The discord id of the user
-            time_in (str): The datetime object coverted into String of when the user checks-in. 
+            time_in (str): The datetime object coverted into String of when the user checks-in.
                             Not used when updating the record
             time_out (str): The datetime object converted into String of when the user checks-out
-            total_time (float): The time delta of time in and time out 
+            total_time (float): The time delta of time in and time out
                                 obtained after user checks out
 
         Output:
-            Returns boolean value to signify if 
+            Returns boolean value to signify if
                 the update operatation was Completed(True) or failed(False)
      """
     if conn is not None:
@@ -299,3 +299,44 @@ def get_timesheet_id(conn, discord_id: str):
             return None
     else:
         print("Error! Cannot create database connection")
+
+
+def update_pomodoro(conn, pomo_id: int,  timesheet_id: int, issue: str, time_start: str, time_finish: str = None,
+                    time_delta: float = None, status: int = None, help_count: float = None):
+    """
+        Takes the arguments to update an existing record in the pomoodoro Table
+        timesheet_id, issue, and time_start are NOT NULL in the database and must be provided
+
+    Args:
+        conn: Connection object returned by the `create_connection` function
+        pomo_id (int): The `int` pomodoro_id of the pomodoro user is working through
+        timesheet_id (int): The current timesheet_id of the user who's invoking the pomodoro function for a given day
+        issue (str): Description of the issue the user is having as entered by the user.
+        time_start (str): The datetime object converted into String of when the user starts pomodoro
+        time_finish (str): The datetime object converted into String of when the user stops pomo
+        time_delta (float): The time delta of time start and time finish from when user starts the pomodoro and stops it
+        status (int): 1 or 0 as flag for completion of the pomodoro
+        help_count (float): number of times the user has requested help/hit the help buttonime out
+                                obtained after user checks out
+
+        Output:
+            Returns boolean value to signify if
+                the update operatation was Completed(True) or failed(False)
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+            update_pomodoro_query = """ UPDATE pomodoro SET time_finish = ?, time_delta = ?, status = ?, help_count = ? where pomo_id = ? and timesheet_id = ?"""
+            c.execute(update_pomodoro_query,
+                      (time_finish, time_delta, status, help_count, pomo_id, timesheet_id))
+            print(
+                f"Pomodoro {pomo_id} has been updated for timesheet {timesheet_id}")
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return False
+        conn.commit()
+        return True
+    else:
+        print("Error! Cannot create database connection.")
+        return False
