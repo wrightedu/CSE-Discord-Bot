@@ -51,3 +51,6 @@ venv/
 
 # Ignore Visual Studio Code settings directory
 .vscode
+
+# Ignore lockfiles
+.~lock.*.csv#
