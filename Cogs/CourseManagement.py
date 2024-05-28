@@ -12,10 +12,22 @@ from utils.utils import *
 
 
 async def setup(bot:commands.Bot):
+    """
+    Setup function to initialize the CourseManagement cog.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     await bot.add_cog(CourseManagement(bot))
 
 
 class CourseManagement(commands.Cog):
+    """
+    A class representing commands for managing courses.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     def __init__(self, bot):
         self.bot = bot
 
