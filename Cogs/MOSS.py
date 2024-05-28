@@ -1,4 +1,4 @@
-# imports Discord 
+# imports Discord
 import asyncio
 from discord import app_commands
 from discord.ext import commands
@@ -9,27 +9,36 @@ import subprocess
 import pandas as pd
 
 
-# adds my cog to the bot
 async def setup(bot:commands.Bot):
-    # Might want to make this a global class variable at some point(?)
+    """
+    Setup function to initialize the MOSS cog.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     csv_filepath = "assets/moss_ids.csv"
 
     # If the moss_ids.csv does not exist on startup, create it
     if not os.path.exists(csv_filepath):
-        with open(csv_filepath, 'w') as file:
+        with open(csv_filepath, 'w', encoding='utf=8') as file:
             # Add the header for the df
             file.write("discord_id,moss_id\n")
     await bot.add_cog(MOSS(bot))
 
 
-# constructor method that passes in Cog commands
 class MOSS(commands.Cog):
+    """
+    A class representing MOSS commands for the bot.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     def __init__(self, bot):
         self.bot = bot
 
 
-    def get_moss_id(discord_id):
-        """Gets a user's MossID
+    def get_moss_id(self, discord_id):
+        """        
         Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
 
         Args:
@@ -50,8 +59,8 @@ class MOSS(commands.Cog):
             return None
 
 
-    async def delete_all(dir_path):
-        """Delete all files and directories
+    async def delete_all(self, dir_path):
+        """
         Delete's all files and directories below the directory specified by the path
         passed into the function.
 
@@ -61,23 +70,25 @@ class MOSS(commands.Cog):
         Outputs:
             An error if raised.
         """
+
         try:
             for file in os.listdir(dir_path):
                 file_path = os.path.join(dir_path, file)
                 if os.path.isdir(file_path):
                     try:
                         os.rmdir(file_path)
-                    except Exception as e:
-                        await MOSS.delete_all(file_path)
+                    except OSError:
+                        await self.delete_all(file_path)    # Recursively delete directories
                         os.rmdir(file_path)
                 elif os.path.isfile(file_path):
                     os.remove(file_path)
-        except Exception as e:
+        except OSError as e:
             print(f"Could not delete {file}. Error: {e}")
 
 
-    async def check_moss_folder(dir_path):
-        """If a folder for the moss user does not exist, creates one at the specified path. If one already exists but
+    async def check_moss_folder(self, dir_path):
+        """
+        If a folder for the moss user does not exist, creates one at the specified path. If one already exists but
         has contents, deletes all contents.
 
         Args:
@@ -87,13 +98,13 @@ class MOSS(commands.Cog):
             os.mkdir(dir_path)
         
         if len(os.listdir(dir_path)) > 0:
-            await MOSS.delete_all(dir_path)
+            await self.delete_all(dir_path) # Call delete_all method from self
 
 
-    @app_commands.command(description="This will check if students are cheaters") #they ALL are
+    @app_commands.command(description="This will check if students are cheaters")
     @app_commands.default_permissions(administrator=True)
     async def moss(self, interaction:discord.Interaction):
-        """ Run MOSS command
+        """ 
         Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 
         Args:
@@ -103,35 +114,34 @@ class MOSS(commands.Cog):
             MOSS URL
         """
 
-        moss_id = MOSS.get_moss_id(interaction.user.id)
+        moss_id = self.get_moss_id(interaction.user.id)
         if moss_id is None:
             await interaction.response.send_message("You do not have a MossID associated with your account. Please register your MossID with /moss_register first")
             return
 
         mosspath = f"/tmp/{moss_id}"
-        await MOSS.check_moss_folder(mosspath)
+        await self.check_moss_folder(mosspath)
 
-        # copied and pasted - needs fixed
         await interaction.response.send_message("Please attach a .zip file of all student code!")
 
         try:
-            # saves file to the name of the .ZIP file that is given by the user
-            # waits for 1 minute for the file to be uploaded
+            # Saves file to the name of the .ZIP file that is given by the user
+            # Saits for 1 minute for the file to be uploaded
             file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
         except asyncio.TimeoutError:
-            # if the user takes too long, the process will timeout and this message will be returned back
+            # If the user takes too long, the process will timeout and this message will be returned back
             await interaction.followup.send("Took too long to upload file. Please try again.")
             return
         
-        # gives the user the ability to cancel the program if they want to
+        # Gives the user the ability to cancel the program if they want to
         if file.content.lower() in ["cancel", "exit", "stop"]:
             await interaction.followup.send("/moss cancelled")
             return
 
         zip_filepath = f"{mosspath}/bob.zip"
 
-        # if there are more than 0 attachments, the code will continue
-        # if it's not, the bot will yell at the user
+        # If there are more than 0 attachments, the code will continue
+        # If it's not, the bot will yell at the user
         if len(file.attachments) > 0:
             if not file.attachments[0].filename.endswith(".zip"):
                 await interaction.followup.send("Please attach a .zip file. Please rerun.")
@@ -140,7 +150,7 @@ class MOSS(commands.Cog):
             await interaction.followup.send("Please attach a populated .zip file. Please rerun.")
             return
 
-        # saves .zip file
+        # Saves .zip file
         await file.attachments[0].save(zip_filepath)
 
         moss_command = f'python3 ./utils/WSU_mossScript.py --id {moss_id}'
@@ -161,7 +171,7 @@ class MOSS(commands.Cog):
     @app_commands.command(description="Register a new MossID")
     @app_commands.checks.has_any_role("Teaching Assistant", "Faculty", "cse-devteam", "cse-support")
     async def moss_register(self, interaction:discord.Interaction, moss_id:str):
-        """Adds new user's DiscordID and MossID to the CSV
+        """
         Allows a user to register their MossID and associate it to their DiscordID in the CSV. If the user already has a MossID
         associated with their DiscordID, they will be given the option to update their MossID. If they do not wish to update
         their MossID, command execution will terminate.
