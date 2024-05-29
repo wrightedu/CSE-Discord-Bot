@@ -1,7 +1,6 @@
 import csv
 import os
 import pandas as pd
-import math
 
 from discord.ui import View
 from discord.ext import commands
