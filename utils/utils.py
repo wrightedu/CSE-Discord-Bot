@@ -238,6 +238,6 @@ async def get_string_from_epoch(time):
     if hours >= 1:
         string_return = f"{hours} hour" + ("s, " if hours > 1 else ", ")
 
-    string_return += f"{minutes} minute" + ("s" if minutes > 1 else "")
+    string_return += f"{minutes} minute" + ("s" if (minutes > 1 or minutes == 0) else "")
 
     return string_return

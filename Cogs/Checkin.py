@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -41,7 +41,7 @@ class Checkin(commands.Cog):
                 await interaction.response.send_message("You have checked in!", ephemeral=True)
             elif 'checkedin_pomo_btn' in interaction.data['custom_id']:
                 modal = discord.ui.Modal(title="Pomodoro Creation", custom_id=f"checkedin_pomo_create_{interaction.message.id}")
-                modal.add_item(discord.ui.TextInput(label="What issue are you working on", required=True))
+                modal.add_item(discord.ui.TextInput(label="What issue are you working on?", required=True))
 
                 await interaction.response.send_modal(modal)
             elif 'checkedin_pomo_create' in interaction.data['custom_id']:
@@ -74,6 +74,51 @@ class Checkin(commands.Cog):
                     await interaction.response.send_message(f"You have now been clocked out. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                 else:
                     await interaction.response.send_message("Error while checking out", ephemeral=True)
+            elif 'pomo_done_btn' in interaction.data['custom_id'] or 'pomo_not_done_btn' in interaction.data['custom_id']:
+                conn = create_connection("cse_discord.db")
+                pomo_id = get_pomodoro_id(conn, interaction.user.id)
+                time_id = get_timesheet_id(conn, interaction.user.id)
+                pomo = get_pomodoro(conn, pomo_id, time_id)
+
+                if pomo is not None:
+                    time_start = float(pomo[3])
+                    time_end = await get_time_epoch()
+                    total_time = time_end - time_start
+
+                    pomodoro = update_pomodoro(conn, pomo_id, time_id, pomo[2], time_start, time_end, total_time,
+                                                str(1 if 'pomo_done_btn' in interaction.data['custom_id'] else 0), pomo[7])
+
+                    if pomodoro is not None:
+                        await update_view(interaction, Checkin.checkedInView())
+                        await interaction.response.send_message(f"You have now completed your pomodoro. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
+                    else:
+                        await interaction.response.send_message(f"Error! Unable to close pomodoro", ephemeral=True)
+            elif 'pomo_blocked_btn' in interaction.data['custom_id']:
+                conn = create_connection("cse_discord.db")
+                pomo_id = get_pomodoro_id(conn, interaction.user.id)
+                time_id = get_timesheet_id(conn, interaction.user.id)
+                pomo = get_pomodoro(conn, pomo_id, time_id)
+
+                if pomo is not None:
+                    modal = discord.ui.Modal(title="Pomodoro Blocked", custom_id="pomo_blocked_create")
+                    modal.add_item(discord.ui.TextInput(label="What issue are you having?", required=True))
+
+                    await interaction.response.send_modal(modal)
+            elif 'pomo_blocked_create' in interaction.data['custom_id']:
+                conn = create_connection("cse_discord.db")
+                pomo_id = get_pomodoro_id(conn, interaction.user.id)
+                time_id = get_timesheet_id(conn, interaction.user.id)
+                pomo = get_pomodoro(conn, pomo_id, time_id)
+
+                if pomo is not None:
+                    pomodoro = update_pomodoro(conn, pomo_id, time_id, pomo[2], pomo[3], None, None, None, str(1 if pomo[7] is None else int(pomo[7]) + 1))
+                    remark = interaction.data['components'][0]['components'][0]['value']
+                    help = insert_user_help(conn, remark, pomo_id)
+
+                    if help is not None:
+                        await interaction.response.send_message(f"Your issue has been recorded", ephemeral=True)
+                    else:
+                        await interaction.response.send_message(f"Error!", ephemeral=True)
 
 
 
