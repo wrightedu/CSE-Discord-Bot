@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, get_timesheet_id
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -58,6 +58,23 @@ class Checkin(commands.Cog):
                 await message.edit(view=Checkin.pomoView())
 
                 await interaction.response.send_message("You have started a pomodoro. I will check with you in 20 minutes", ephemeral=True)
+            elif 'checkedin_checkout_btn' in interaction.data['custom_id']:
+                conn = create_connection("cse_discord.db")
+                time_id = get_timesheet_id(conn, interaction.user.id)
+                timesheet = get_timesheet(conn, time_id, interaction.user.id)
+
+                time_in = float(timesheet[2])
+                time_out = await get_time_epoch()
+                total_time = time_out - time_in
+
+                timesheet = update_timesheet(conn, time_id, interaction.user.id, time_in, time_out, total_time)
+                
+                if timesheet is True:
+                    await update_view(interaction, Checkin.checkInView())
+                    await interaction.response.send_message(f"You have now been clocked out. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
+                else:
+                    await interaction.response.send_message("Error while checking out", ephemeral=True)
+
 
 
     def checkInView():

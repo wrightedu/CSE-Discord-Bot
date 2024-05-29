@@ -255,7 +255,7 @@ def update_timesheet(conn, time_id: int, discord_id: str, time_in: str, time_out
             c.execute(update_timesheet_query,
                       (time_out, total_time, discord_id, time_id))
             print(
-                f"User {discord_id} has been updated with checkout entry @ {time_out}. Total hours worked: {total_time} ")
+                f"User {discord_id} has been updated with checkout entry @ {time_out}")
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
@@ -340,3 +340,37 @@ def update_pomodoro(conn, pomo_id: int,  timesheet_id: int, issue: str, time_sta
     else:
         print("Error! Cannot create database connection.")
         return False
+
+def get_timesheet(conn, timesheet_id: int, discord_id: str):
+    """
+    Given a Discord ID, find the timesheet ID that has been opened by that user
+
+    Args:
+        conn: Connection object returned by the `create_connection` function
+        timesheet_id (int): A timesheet ID
+        discord_id (str): A Discord user ID
+    Outputs:
+        timesheet (list): the timesheet open for a particular user
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+
+            timesheet_query = """SELECT * FROM timesheet WHERE time_id = ? AND discord_id = ?"""
+            c.execute(timesheet_query, (timesheet_id, discord_id,))
+
+            timesheet = c.fetchall()
+
+            if (len(timesheet) > 1):
+                print("Error! Multiple open timesheets for user.")
+                return None
+            elif (len(timesheet) != 1):
+                print("Error! No timesheet open for user.")
+            else:
+                return timesheet[0]
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+    else:
+        print("Error! Cannot create database connection")
