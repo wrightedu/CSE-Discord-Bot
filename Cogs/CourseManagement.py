@@ -1,5 +1,6 @@
 import os
 import re
+import discord
 import pandas as pd
 
 from discord.ext import commands
