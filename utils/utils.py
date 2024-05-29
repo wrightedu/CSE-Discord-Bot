@@ -220,3 +220,24 @@ async def get_time_epoch():
     current_time = datetime.datetime.now()
 
     return current_time.timestamp()
+
+async def get_string_from_epoch(time):
+    """ Function that takes a total epoch time and converts it to so many minutes or hours
+
+    Args:
+        time (float): total epoch timestamp
+
+    Returns:
+        prompt (string): string equivalent of total epoch
+    """
+
+    string_return = ""
+    hours = int((time) // 3600 % 24)
+    minutes = int(time % 3600 // 60)
+
+    if hours >= 1:
+        string_return = f"{hours} hour" + ("s, " if hours > 1 else ", ")
+
+    string_return += f"{minutes} minute" + ("s" if minutes > 1 else "")
+
+    return string_return
