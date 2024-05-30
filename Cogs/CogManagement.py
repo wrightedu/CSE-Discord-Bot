@@ -33,6 +33,38 @@ class CogManagement(commands.Cog):
         self.bot = bot
         self.choices = choices
 
+
+    @app_commands.command(description="Load all cogs")
+    @app_commands.default_permissions(administrator=True)
+    async def load_all(self, interaction:discord.Interaction):
+        """Load all cogs
+        Load all cogs from the 'Cogs' directory
+
+        Outputs:
+            Message user informing them that all cogs are being loaded,
+            and when the action is done.
+        """
+        await interaction.response.send_message('Loading all cogs...')
+
+        cogs_directory = 'Cogs'
+        for filename in os.listdir(cogs_directory):
+            if filename.endswith('.py'):
+                cog_name = filename[:-3] # Remove the .py extension
+                try:
+                    await self.bot.load_extension(f'Cogs.{cog_name}')
+                    await interaction.channel.send(f'Cog {cog_name} has been loaded')
+                except:
+                    await interaction.channel.send(f'Cog {cog_name} is already loaded')
+                    return
+                await interaction.channel.send(f'Cog {cog_name} has been loaded')
+                await log(self.bot, f'{interaction.user} loaded the {cog_name} cog.')
+            else:
+                    await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
+                    await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
+
+        await log(self.bot, f'{interaction.user} loaded all cogs.')
+
+
     @app_commands.command(description="Load a specific cog")
     @app_commands.default_permissions(administrator=True)
     async def load(self, interaction:discord.Interaction, cog_name:str):
@@ -66,6 +98,37 @@ class CogManagement(commands.Cog):
         else:
             await interaction.response.send_message(f'Cog {cog_name} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog_name} cog, but failed.')
+
+
+    @app_commands.command(description="Reload all cogs")
+    @app_commands.default_permissions(administrator=True)
+    async def reload_all(self, interaction:discord.Interaction):
+        """Reload all cogs
+        Run /load_all. Send a message confirming the action, and call load_extension
+        command from Discord.ext, passing in all cog names. Must call load_server_management
+        from CogManagment.py when cog is ServerManagment.
+
+        Outputs:
+            Message to user informing them of what cog is being loaded, and when the action is done.
+        """
+        await interaction.response.send_message('Reloading all cogs...')
+
+        # Iterate through all loaded cogs and reload each one
+        for cog in list(self.bot.extensions.keys()):
+            try:
+                await self.bot.reload_extension(cog)
+                await interaction.channel.send(f'Cog {cog} has been reloaded')
+            except:
+                await interaction.channel.send(f'Cog {cog} is unloaded')
+                return
+            await interaction.channel.send(f'Cog {cog} has been reloaded')
+            await log(self.bot, f'{interaction.user} reloaded the {cog} cog.')
+        else:
+            await interaction.response.send_message(f'Cog {cog} does not exist. Please be sure you spelled it correctly.')
+            await log(self.bot, f'{interaction.user} attempted to reload the {cog} cog, but failed.')
+
+        await log(self.bot, f'{interaction.user} reloaded all cogs.')
+
 
     @app_commands.command(description="Reload a specific cog")
     @app_commands.default_permissions(administrator=True)
