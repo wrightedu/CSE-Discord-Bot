@@ -442,3 +442,32 @@ def get_pomodoro(conn, pomodoro_id: int, timesheet_id: int):
             return None
     else:
         print("Error! Cannot create database connection")
+
+def get_all_open_pomodoros(conn):
+    """
+    Return all open pomodors for comparison
+
+    Args:
+        conn: Connection object returned by the `create_connection` function
+    Outputs:
+        pomodoros (list): a list of all open pomodoros
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+
+            pomodoro_query = """SELECT pomodoro.*, timesheet.discord_id FROM pomodoro INNER JOIN timesheet ON pomodoro.timesheet_id = timesheet.time_id WHERE pomodoro.time_finish IS NULL and pomodoro.time_delta IS NULL and pomodoro.status IS NULL"""
+            c.execute(pomodoro_query)
+
+            pomodoros = c.fetchall()
+
+            if (len(pomodoros) < 1):
+                return None
+            else:
+                return pomodoros
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+    else:
+        print("Error! Cannot create database connection")

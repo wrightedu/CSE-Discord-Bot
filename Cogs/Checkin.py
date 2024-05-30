@@ -3,11 +3,11 @@ import os
 import pandas as pd
 
 from discord.ui import View
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help, get_all_open_pomodoros
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -23,6 +23,10 @@ async def setup(bot):
 class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.check_pomodoros.start()
+
+    def cog_unload(self):
+        self.check_pomodoros.cancel()
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
@@ -209,3 +213,19 @@ class Checkin(commands.Cog):
 
         await channel.send(view=view)
         await interaction.response.send_message("A DM has been sent to you", ephemeral=True)
+
+    @tasks.loop(minutes=2.0)
+    async def check_pomodoros(self):
+        conn = create_connection("cse_discord.db")
+        pomodoros = get_all_open_pomodoros(conn)
+
+        if pomodoros is not None:
+            for pomodoro in pomodoros:
+                time = str(await get_time_epoch())
+                if float(time) >= (float(pomodoro[3]) + (1*60)):
+                    user = self.bot.get_user(int(pomodoro[8]))
+
+                    if user is not None:
+                        channel = await user.create_dm()
+
+                        await channel.send("According to my watch, 20 minutes has passed. How are things going?")
