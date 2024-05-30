@@ -90,7 +90,7 @@ class Checkin(commands.Cog):
                     total_time = time_end - time_start
 
                     pomodoro = update_pomodoro(conn, pomo_id, time_id, pomo[2], time_start, time_end, total_time,
-                                                str(1 if 'pomo_done_btn' in interaction.data['custom_id'] else 0), pomo[7])
+                                                str(3 if 'pomo_done_btn' in interaction.data['custom_id'] else 2), pomo[7])
 
                     if pomodoro is not None:
                         await update_view(interaction, Checkin.checkedInView())
@@ -228,6 +228,6 @@ class Checkin(commands.Cog):
                     user = self.bot.get_user(int(pomodoro[8]))
 
                     if user is not None:
+                        update_pomodoro(conn, pomodoro[0], pomodoro[1], pomodoro[2], pomodoro[3], pomodoro[4], pomodoro[5], 1, pomodoro[7])
                         channel = await user.create_dm()
-
                         await channel.send("According to my watch, 20 minutes has passed. How are things going?")

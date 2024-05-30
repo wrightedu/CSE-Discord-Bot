@@ -315,7 +315,7 @@ def update_pomodoro(conn, pomo_id: int,  timesheet_id: int, issue: str, time_sta
         time_start (str): The datetime object converted into String of when the user starts pomodoro
         time_finish (str): The datetime object converted into String of when the user stops pomo
         time_delta (float): The time delta of time start and time finish from when user starts the pomodoro and stops it
-        status (int): 1 or 0 as flag for completion of the pomodoro
+        status (int): 0 for not checked, 1 for checked, 2 for completed as "not done", 3 for completed as "done"
         help_count (float): number of times the user has requested help/hit the help buttonime out
                                 obtained after user checks out
 
@@ -456,7 +456,7 @@ def get_all_open_pomodoros(conn):
         try:
             c = conn.cursor()
 
-            pomodoro_query = """SELECT pomodoro.*, timesheet.discord_id FROM pomodoro INNER JOIN timesheet ON pomodoro.timesheet_id = timesheet.time_id WHERE pomodoro.time_finish IS NULL and pomodoro.time_delta IS NULL and pomodoro.status IS NULL"""
+            pomodoro_query = """SELECT pomodoro.*, timesheet.discord_id FROM pomodoro INNER JOIN timesheet ON pomodoro.timesheet_id = timesheet.time_id WHERE pomodoro.time_finish IS NULL and pomodoro.time_delta IS NULL and pomodoro.status IS NULL AND (pomodoro.status IS 0 OR pomodoro.status IS NULL)"""
             c.execute(pomodoro_query)
 
             pomodoros = c.fetchall()
