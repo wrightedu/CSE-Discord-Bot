@@ -93,7 +93,7 @@ class CogManagement(commands.Cog):
             await interaction.channel.send(f'Cog {cog} has been reloaded')
             await log(self.bot, f'{interaction.user} reloaded the {cog} cog.')
         else:
-            await interaction.response.send_message(f'Cog {cog} does not exist. Please be sure you spelled it correctly.')
+            await interaction.channel.send(f'Cog {cog} does not exist. Please be sure you spelled it correctly.')
             await log(self.bot, f'{interaction.user} attempted to reload the {cog} cog, but failed.')
 
         await log(self.bot, f'{interaction.user} reloaded all cogs.')
