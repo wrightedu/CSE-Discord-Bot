@@ -216,6 +216,8 @@ class Checkin(commands.Cog):
 
     @tasks.loop(minutes=2.0)
     async def check_pomodoros(self):
+        """ A task that checks open pomodoros every two minutes looking for pomodoros that need reminders
+        """
         conn = create_connection("cse_discord.db")
         pomodoros = get_all_open_pomodoros(conn)
 
