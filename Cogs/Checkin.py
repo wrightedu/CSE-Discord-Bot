@@ -28,13 +28,15 @@ class Checkin(commands.Cog):
     def cog_unload(self):
         self.check_pomodoros.cancel()
 
+    check_in_group = app_commands.Group(name="checkin", description="...")
+
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
         """ An event listener to check for different checkin button presses.
             Verifies that the interaction includes a custom_id. Each individual statement
             checks to make sure that the interaction contains a specific custom_id.
         """
-        if interaction.data is not None and 'custom_id' in interaction.data and interaction.data['custom_id'] is not None:
+        if interaction.data is not None and 'custom_id' in interaction.data and interaction.data['custom_id'] is not None and not interaction.response.is_done():
             if 'checkin_checkin_btn' in interaction.data['custom_id']:
                 time = str(await get_time_epoch())
                 conn = create_connection("cse_discord.db")
@@ -92,7 +94,13 @@ class Checkin(commands.Cog):
                     pomodoro = update_pomodoro(conn, pomo_id, time_id, pomo[2], time_start, time_end, total_time,
                                                 str(3 if 'pomo_done_btn' in interaction.data['custom_id'] else 2), pomo[7])
 
-                    if pomodoro is not None:
+                    if True is not None:
+                        if pomo[6] == 1:
+                            async for message in interaction.channel.history(limit=10):
+                                if message.author.id == self.bot.user.id:
+                                    await message.delete()
+                                    break
+                        
                         await update_view(interaction, Checkin.checkedInView())
                         await interaction.response.send_message(f"You have now completed your pomodoro. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                     else:
@@ -180,7 +188,7 @@ class Checkin(commands.Cog):
 
         return view
 
-    @app_commands.command(name="checkin-register", description="Register for checkin/timesheets!")
+    @check_in_group.command(name="register", description="Register for checkin/timesheets!")
     async def checkin_register(self, interaction:discord.Interaction):
         """Allows a user to register for a check-in
         This function will insert the user into the database and send a DM to the user
@@ -214,6 +222,54 @@ class Checkin(commands.Cog):
         await channel.send(view=view)
         await interaction.response.send_message("A DM has been sent to you", ephemeral=True)
 
+    @check_in_group.command(name="clear", description="Clear your messages from the bot and reset timesheets")
+    async def checkin_clear(self, interaction:discord.Interaction):
+        """Allows a user to clear their DMs with the bot and reset their checkin states.
+        This command will also send a new checkin embed
+        
+        Outputs:
+            A new embed for timesheets
+        """
+        channel = await interaction.user.create_dm()
+        if channel.id == interaction.channel_id:
+            async for message in interaction.channel.history(limit=10):
+                if message.author.id == self.bot.user.id:
+                    await message.delete()
+            
+            conn = create_connection("cse_discord.db")
+
+            # Clear timesheet if open
+            time_id = get_timesheet_id(conn, interaction.user.id)
+            if time_id is not None:
+                timesheet = get_timesheet(conn, time_id, interaction.user.id)
+
+                time_in = float(timesheet[2])
+                time_out = await get_time_epoch()
+                total_time = time_out - time_in
+
+                print(f"Conn: {conn}\nTime ID: {time_id}\nUser: {interaction.user.id}\nTime in: {time_in}\nTime out: {time_out}\nTotal time: {total_time}\n")
+                update_timesheet(conn, time_id, interaction.user.id, time_in, time_out, total_time)
+
+            # End pomodoro if open
+            pomo_id = get_pomodoro_id(conn, interaction.user.id)
+            if pomo_id is not None:
+                pomodoro = get_pomodoro(conn, pomo_id, time_id)
+
+                time_start = float(pomodoro[3])
+                time_end = await get_time_epoch()
+                total_time = time_end - time_start
+
+                update_pomodoro(conn, pomo_id, time_id, "", time_start, time_end, total_time, 2)
+
+            conn.close()
+
+            # Send new view
+            await interaction.channel.send(view=Checkin.checkInView())
+
+            await interaction.response.send_message("Up to 10 direct messages cleared. If you were clocked in, you've also been clocked out", ephemeral=True)
+        else:
+            await interaction.response.send_message("Cannot clear outside of your DMs", ephemeral=True)
+
     @tasks.loop(minutes=2.0)
     async def check_pomodoros(self):
         """ A task that checks open pomodoros every two minutes looking for pomodoros that need reminders
@@ -224,7 +280,7 @@ class Checkin(commands.Cog):
         if pomodoros is not None:
             for pomodoro in pomodoros:
                 time = str(await get_time_epoch())
-                if float(time) >= (float(pomodoro[3]) + (20*60)):
+                if float(time) >= (float(pomodoro[3]) + (0*60)):
                     user = self.bot.get_user(int(pomodoro[8]))
 
                     if user is not None:
