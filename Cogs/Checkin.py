@@ -280,7 +280,7 @@ class Checkin(commands.Cog):
         if pomodoros is not None:
             for pomodoro in pomodoros:
                 time = str(await get_time_epoch())
-                if float(time) >= (float(pomodoro[3]) + (0*60)):
+                if float(time) >= (float(pomodoro[3]) + (20*60)):
                     user = self.bot.get_user(int(pomodoro[8]))
 
                     if user is not None:
