@@ -12,10 +12,22 @@ from utils.utils import *
 
 
 async def setup(bot:commands.Bot):
+    """
+    Setup function to initialize the AdminCommands cog.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     await bot.add_cog(AdminCommands(bot))
 
 
 class AdminCommands(commands.Cog):
+    """
+    A class representing commands for administrative actions.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -48,7 +60,7 @@ class AdminCommands(commands.Cog):
 
             # ensures the channels exist
             channel = discord.utils.get(interaction.guild.text_channels, id=int(channel_mention[2:-1]))
-            if (channel == None):
+            if (channel is None):
                 await interaction.response.send_message(f"The '{channel_mention}' channel could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`).")
                 await log(self.bot, f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)")
                 return
@@ -96,7 +108,7 @@ class AdminCommands(commands.Cog):
             if not await confirmation(self.bot, interaction):
                 await interaction.followup.send("Command not confirmed")
                 return
-            await interaction.channel.send(f'Clearing all messages from this channel')
+            await interaction.channel.send('Clearing all messages from this channel')
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
             amount = 999999999999999999999999999999999999999999
 
@@ -129,7 +141,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="removes a specified role from each member of a guild.")
     @app_commands.default_permissions(administrator=True)
-    async def clearrole(self, interaction:discord.Interaction, role_mention:str):
+    async def clear_role(self, interaction:discord.Interaction, role_mention:str):
         """Remove a role from each member of a guild.
         Remove the extra characters from the ID number of the guild obtained from the role_mention. Search through every
         member of a guild to see if they have the role that matches the ID in question. If the member has the role,
@@ -143,7 +155,7 @@ class AdminCommands(commands.Cog):
             Message to chat regarding what role was removed and how many users were stripped of it
         """
 
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral = True)
         await interaction.followup.send("Removing role")
         guild = interaction.guild
 
@@ -155,7 +167,7 @@ class AdminCommands(commands.Cog):
             return
 
         role = discord.utils.get(guild.roles, id=int(role_mention[3:-1]))
-        if role == None:
+        if role is None:
             await interaction.channel.send(f"The '{role_mention}' role could not be found. The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
             await log(self.bot, f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it could not be found")
             return
@@ -185,7 +197,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="downloads a given number of corgi pictures")
     @app_commands.default_permissions(administrator=True)
-    async def downloadcorgis(self, interaction:discord.Interaction, amount:int):
+    async def download_corgis(self, interaction:discord.Interaction, amount:int):
         """Downloads a given number of corgi pictures.
         Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
         Call the download_corgies method from utils.py. Log the user and number of images downloaded.
@@ -223,7 +235,7 @@ class AdminCommands(commands.Cog):
         except discord.errors.NotFound:
             message = None
 
-        if message == None:
+        if message is None:
             await interaction.followup.send(f"The message with the ID {message_id} could not be found. Make sure you are in same channel as the message you wish to edit.")
             await log(self.bot, f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because the message could not be found")
             return
@@ -232,7 +244,7 @@ class AdminCommands(commands.Cog):
             await log(self.bot, f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because it was not a message sent by the bot")
             return
 
-        bot_message = await interaction.followup.send(f"Please enter the new message. Type 'cancel' to cancel.")
+        bot_message = await interaction.followup.send("Please enter the new message. Type 'cancel' to cancel.")
 
         try:
             new_message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user, timeout=60.0)
@@ -252,7 +264,7 @@ class AdminCommands(commands.Cog):
 
 
     @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
-    @app_commands.default_permissions(administrator=True)
+    @app_commands.default_permissions(administrator = True)
     async def history(self, interaction:discord.Interaction, username:str):
         """Outputs all messages from a specified user after a specified date with some metadata to a file
         Prompts user for username and date. Outputs messages authored by that username and sent after that date
@@ -265,7 +277,7 @@ class AdminCommands(commands.Cog):
             a link to those messages, and all reactions to those messages.
         """
 
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral = True)
 
         guild = interaction.guild
 
@@ -276,13 +288,13 @@ class AdminCommands(commands.Cog):
                 break
 
         if not member_found:
-            await interaction.channel.send(f"That user is no longer active in the server. Would you like to continue this search query anyway?")
+            await interaction.channel.send("That user is no longer active in the server. Would you like to continue this search query anyway?")
             if not await confirmation(self.bot, interaction, confirm_string="yes"):
                 await interaction.followup.send("command not confirmed")
                 return
         that_day = months_ago(4)
         
-        history_file = open("/tmp/history.txt", "w")
+        history_file = open("/tmp/history.txt", "w", encoding="utf-8")
         channel = interaction.channel
         # gets 250 most recent messages posted less than 4 months ago
         messages = [message async for message in channel.history(limit=250, after=that_day, oldest_first=False)]
@@ -291,23 +303,23 @@ class AdminCommands(commands.Cog):
             if message.author.name == username and message.type is MessageType.default:
                 history_file.write(f"{message.content}\n")
                 if message.reference:
-                    history_file.write(f"a reply\n")
+                    history_file.write("a reply\n")
                 else:
-                    history_file.write(f"not a reply\n")
+                    history_file.write("not a reply\n")
                 history_file.write(f"{message.jump_url}\n")
                 for reaction in message.reactions:
                     history_file.write(f"{reaction}\n")
-                history_file.write(f"\n")
+                history_file.write("\n")
 
         history_file.close()
 
         size = os.path.getsize("/tmp/history.txt")
         if size == 0:
-            await interaction.channel.send(f"No messages were found.")
+            await interaction.channel.send("No messages were found.")
         elif size <= 4194304:
             await interaction.channel.send(file=discord.File("/tmp/history.txt"))
         else:
-            await interaction.channel.send(f"Error: The file is greater than 4 MB and will therefore not be output.")
+            await interaction.channel.send("Error: The file is greater than 4 MB and will therefore not be output.")
 
         os.remove("/tmp/history.txt")
         await interaction.followup.send("History gathered")
@@ -375,7 +387,7 @@ class AdminCommands(commands.Cog):
         num_classes = 0
         for category in guild.categories:
             class_name = re.search("^\w{2,3} \d{4}", category.name)
-            if class_name != None:
+            if class_name is not None:
                 num_classes += 1
 
         embed.add_field(name="Total Channels: ", value=total_channels)
