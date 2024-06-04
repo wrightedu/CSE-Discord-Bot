@@ -7,7 +7,7 @@ from discord.ext import commands, tasks
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help, get_all_open_pomodoros
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help, get_all_open_pomodoros, get_all_open_timesheets, close_all_pomodoros
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -24,9 +24,11 @@ class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.check_pomodoros.start()
+        self.check_timesheets.start()
 
     def cog_unload(self):
         self.check_pomodoros.cancel()
+        self.check_timesheets.cancel()
 
     check_in_group = app_commands.Group(name="checkin", description="...")
 
@@ -232,43 +234,47 @@ class Checkin(commands.Cog):
         """
         channel = await interaction.user.create_dm()
         if channel.id == interaction.channel_id:
-            async for message in interaction.channel.history(limit=10):
-                if message.author.id == self.bot.user.id:
-                    await message.delete()
-            
-            conn = create_connection("cse_discord.db")
+            await interaction.response.defer(ephemeral=True)
+            await Checkin.clear_checkin_messages(self, channel, interaction.user)
 
-            # Clear timesheet if open
-            time_id = get_timesheet_id(conn, interaction.user.id)
-            if time_id is not None:
-                timesheet = get_timesheet(conn, time_id, interaction.user.id)
-
-                time_in = float(timesheet[2])
-                time_out = await get_time_epoch()
-                total_time = time_out - time_in
-
-                print(f"Conn: {conn}\nTime ID: {time_id}\nUser: {interaction.user.id}\nTime in: {time_in}\nTime out: {time_out}\nTotal time: {total_time}\n")
-                update_timesheet(conn, time_id, interaction.user.id, time_in, time_out, total_time)
-
-            # End pomodoro if open
-            pomo_id = get_pomodoro_id(conn, interaction.user.id)
-            if pomo_id is not None:
-                pomodoro = get_pomodoro(conn, pomo_id, time_id)
-
-                time_start = float(pomodoro[3])
-                time_end = await get_time_epoch()
-                total_time = time_end - time_start
-
-                update_pomodoro(conn, pomo_id, time_id, "", time_start, time_end, total_time, 2)
-
-            conn.close()
-
-            # Send new view
-            await interaction.channel.send(view=Checkin.checkInView())
-
-            await interaction.response.send_message("Up to 10 direct messages cleared. If you were clocked in, you've also been clocked out", ephemeral=True)
+            await interaction.followup.send("Up to 10 direct messages cleared. If you were clocked in, you've also been clocked out", ephemeral=True)
         else:
             await interaction.response.send_message("Cannot clear outside of your DMs", ephemeral=True)
+
+    async def clear_checkin_messages(self, channel: discord.TextChannel, user: discord.User):
+        async for message in channel.history(limit=10):
+            if message.author.id == self.bot.user.id:
+                await message.delete()
+        
+        conn = create_connection("cse_discord.db")
+
+        # Clear timesheet if open
+        time_id = get_timesheet_id(conn, user.id)
+        if time_id is not None:
+            timesheet = get_timesheet(conn, time_id, user.id)
+
+            time_in = float(timesheet[2])
+            time_out = await get_time_epoch()
+            total_time = time_out - time_in
+ 
+            print(f"Conn: {conn}\nTime ID: {time_id}\nUser: {user.id}\nTime in: {time_in}\nTime out: {time_out}\nTotal time: {total_time}\n")
+            update_timesheet(conn, time_id, user.id, time_in, time_out, total_time)
+
+        # End pomodoro if open
+        pomo_id = get_pomodoro_id(conn, user.id)
+        if pomo_id is not None and time_id is not None:
+            pomodoro = get_pomodoro(conn, pomo_id, time_id)
+
+            time_start = float(pomodoro[3])
+            time_end = await get_time_epoch()
+            total_time = time_end - time_start
+
+            update_pomodoro(conn, pomo_id, time_id, "", time_start, time_end, total_time, 2)
+
+        conn.close()
+
+        # Send new view
+        await channel.send(view=Checkin.checkInView())
 
     @tasks.loop(minutes=2.0)
     async def check_pomodoros(self):
@@ -280,10 +286,38 @@ class Checkin(commands.Cog):
         if pomodoros is not None:
             for pomodoro in pomodoros:
                 time = str(await get_time_epoch())
-                if float(time) >= (float(pomodoro[3]) + (20*60)):
+                if float(time) >= (float(pomodoro[3]) + (20*60)) and (pomodoro[6] == 0 or pomodoro[6] == None):
                     user = self.bot.get_user(int(pomodoro[8]))
 
                     if user is not None:
                         update_pomodoro(conn, pomodoro[0], pomodoro[1], pomodoro[2], pomodoro[3], pomodoro[4], pomodoro[5], 1, pomodoro[7])
                         channel = await user.create_dm()
                         await channel.send("According to my watch, 20 minutes has passed. How are things going?")
+                elif float(time) >= (float(pomodoro[3]) + (8 * 60 * 60)) and pomodoro[6] == 1:
+                    # Do things here if we ever want to change the automatic close time for pomodoros separately.
+                    # Change the time delta above
+                    while False:
+                        user = self.bot.get_user(int(pomodoro[8]))
+
+    @tasks.loop(minutes=5.0)
+    async def check_timesheets(self):
+        """ A task that checks open timesheets every five minutes looking for timesheets that need closed
+        """
+        conn = create_connection("cse_discord.db")
+        timesheets = get_all_open_timesheets(conn)
+
+        if timesheets is not None:
+            for timesheet in timesheets:
+                time = await get_time_epoch()
+                
+                if time >= (float(timesheet[2]) + (0 * 60 * 60)):
+                    user = self.bot.get_user(int(timesheet[1]))
+
+                    if user is not None:
+                        total_time = time - float(timesheet[2])
+                        update_timesheet(conn, timesheet[0], timesheet[1], timesheet[2], time, total_time)
+
+                        close_all_pomodoros(conn, timesheet[0], time)
+
+                        channel = await user.create_dm()
+                        await Checkin.clear_checkin_messages(self, channel, user)
