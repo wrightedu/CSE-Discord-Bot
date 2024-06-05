@@ -400,6 +400,7 @@ def get_pomodoro_id(conn, discord_id: str):
                 return None
             elif (len(timesheet) != 1):
                 print("Error! No pomodoro open for user.")
+                return None
             else:
                 return timesheet[0][0]
         except sqlite3.Error as e:
@@ -456,7 +457,7 @@ def get_all_open_pomodoros(conn):
         try:
             c = conn.cursor()
 
-            pomodoro_query = """SELECT pomodoro.*, timesheet.discord_id FROM pomodoro INNER JOIN timesheet ON pomodoro.timesheet_id = timesheet.time_id WHERE pomodoro.time_finish IS NULL and pomodoro.time_delta IS NULL and pomodoro.status IS NULL AND (pomodoro.status IS 0 OR pomodoro.status IS NULL)"""
+            pomodoro_query = """SELECT pomodoro.*, timesheet.discord_id FROM pomodoro INNER JOIN timesheet ON pomodoro.timesheet_id = timesheet.time_id WHERE pomodoro.time_finish IS NULL and pomodoro.time_delta IS NULL and pomodoro.status IS NULL AND (pomodoro.status IS 0 OR pomodoro.status IS 1 OR pomodoro.status IS NULL)"""
             c.execute(pomodoro_query)
 
             pomodoros = c.fetchall()
@@ -465,6 +466,66 @@ def get_all_open_pomodoros(conn):
                 return None
             else:
                 return pomodoros
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+    else:
+        print("Error! Cannot create database connection")
+
+def get_all_open_timesheets(conn):
+    """
+    Return all open timesheets for comparison
+
+    Args:
+        conn: Connection object returned by the `create_connection` function
+    Outputs:
+        timesheets (list): a list of all open timesheets
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+
+            timesheet_query = """SELECT * FROM timesheet WHERE time_out IS NULL and total_time IS NULL"""
+            c.execute(timesheet_query)
+
+            timesheets = c.fetchall()
+
+            if (len(timesheets) < 1):
+                return None
+            else:
+                return timesheets
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+    else:
+        print("Error! Cannot create database connection")
+
+def close_all_pomodoros(conn, time_id: str, end_time: float):
+    """
+    Close all open pomodoros for a provided time_id
+    
+    Args:
+        conn: Connection object returned by the `create_connection` function
+        time_id: Timesheet ID to close all pomodoros associated with
+        end_time: Time epoch of end time
+    """
+    if conn is not None:
+        try:
+            c = conn.cursor()
+
+            pomodoro_query = """SELECT * FROM pomodoro WHERE timesheet_id = ? AND time_finish is NULL AND time_delta IS NULL"""
+            c.execute(pomodoro_query, (time_id,))
+
+            pomodoros = c.fetchall()
+
+            if (len(pomodoros) > 0):
+                for pomodoro in pomodoros:
+                    start_time = float(pomodoro[3])
+                    total_time = end_time - start_time
+
+                    update_pomodoro(conn, pomodoro[0], pomodoro[1], pomodoro[2], pomodoro[3], end_time, total_time, 2)
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
