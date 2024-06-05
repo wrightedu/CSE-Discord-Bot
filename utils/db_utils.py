@@ -504,7 +504,7 @@ def get_all_open_timesheets(conn):
 
 def close_all_pomodoros(conn, time_id: str, end_time: float):
     """
-    Close all pomodoros for a provided time_id
+    Close all open pomodoros for a provided time_id
     
     Args:
         conn: Connection object returned by the `create_connection` function
@@ -515,7 +515,7 @@ def close_all_pomodoros(conn, time_id: str, end_time: float):
         try:
             c = conn.cursor()
 
-            pomodoro_query = """SELECT * FROM pomodoro WHERE timesheet_id = ?"""
+            pomodoro_query = """SELECT * FROM pomodoro WHERE timesheet_id = ? AND time_finish is NULL AND time_delta IS NULL"""
             c.execute(pomodoro_query, (time_id,))
 
             pomodoros = c.fetchall()
