@@ -310,7 +310,7 @@ class Checkin(commands.Cog):
             for timesheet in timesheets:
                 time = await get_time_epoch()
                 
-                if time >= (float(timesheet[2]) + (0 * 60 * 60)):
+                if time >= (float(timesheet[2]) + (8 * 60 * 60)):
                     user = self.bot.get_user(int(timesheet[1]))
 
                     if user is not None:
