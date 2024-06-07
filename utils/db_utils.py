@@ -532,3 +532,27 @@ def close_all_pomodoros(conn, time_id: str, end_time: float):
             return None
     else:
         print("Error! Cannot create database connection")
+
+
+def get_report(conn, start_date: str, end_date: str):
+    """
+    Returns a report containing total hours worked, number of pomdoro complete and average time taken for a pomodoro including other details for a report
+
+    Args: 
+        conn: Connection object returned by the `create_connection` function
+        start_date: The desired start date for the report
+        end_date: The desired end date for the report
+    """
+    print(start_date, end_date)
+    if conn is not None:
+        try:
+            c = conn.cursor()
+            report_query = """ """
+            # SELECT * timesheet JOIN user ON user.discord_id = timesheet.discord_id where user.discord_id = ?
+            c.execute(report_query, ())
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
+    else:
+        print("Error! Cannot create database connection")
