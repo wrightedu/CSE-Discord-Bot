@@ -543,7 +543,7 @@ def close_all_pomodoros(conn, time_id: str, end_time: float):
 
 def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
     """
-    Returns a report containing total hours worked, number of pomdoro complete and average time taken for a pomodoro including other details for a report
+    Returns all timesheet record, total hours worked, complete pomodor records.
 
     Args: 
         conn: Connection object returned by the `create_connection` function
