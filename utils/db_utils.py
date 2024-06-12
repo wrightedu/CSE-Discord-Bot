@@ -556,20 +556,18 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
             c = conn.cursor()
             record_query = """SELECT * FROM timesheet WHERE discord_id = ? AND time_in BETWEEN ? and ?;"""
             sum_query = """SELECT SUM(total_time) as total_worked FROM timesheet WHERE discord_id = ? AND time_in BETWEEN ? and ?;"""
-            complete_pomodoro_query = """SELECT p.timesheet, p.pomo_id, p.status, p.time_delta FROM pomodoro AS p
-                                    JOIN timesheet AS t on p.timesheet_id =  t.time_id WHERE t.discord_id = ? and status = 1"""
+            complete_pomodoro_query = """SELECT pomodoro.timesheet_id, pomodoro.pomo_id, pomodoro.status, pomodoro.time_delta 
+                                            FROM pomodoro JOIN timesheet on pomodoro.timesheet_id=timesheet.time_id WHERE timesheet.discord_id = ? AND status = 1"""
             c.execute(record_query, (discord_id, start_date, end_date))
             all_records = c.fetchall()
 
             c.execute(sum_query, (discord_id, start_date, end_date))
             total_hours = c.fetchall()
 
-            c.execute(complete_pomodoro_query, (discord_id))
+            c.execute(complete_pomodoro_query, (discord_id,))
             complete_pomodoros = c.fetchall()
 
-            print(all_records, total_hours, complete_pomodoros)
-
-            return all_records, total_hours
+            return all_records, total_hours, complete_pomodoros
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
@@ -577,6 +575,3 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
     else:
         print("Error! Cannot create database connection")
 
-
-conn = create_connection('cse_discord.db')
-get_user_report(conn, '767411910542622783', '1681696898', '1681821336')
