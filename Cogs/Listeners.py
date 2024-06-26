@@ -3,12 +3,23 @@ from discord.ext import commands
 
 from utils.utils import *
 
-
 async def setup(bot:commands.Bot):
+    """
+    Setup function to initialize the Listeners cog.
+    
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     await bot.add_cog(Listeners(bot))
 
 
 class Listeners(commands.Cog):
+    """
+    A class representing listeners for handling various events in the bot.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -24,7 +35,7 @@ class Listeners(commands.Cog):
         """
 
         # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
-        if type(ctx.channel) == discord.TextChannel:
+        if isinstance(ctx.channel, discord.TextChannel):
             if ctx.channel.name == 'i-made-a-pr' and ctx.author != self.bot.user:
                 await ctx.add_reaction("💩")
 
@@ -57,7 +68,7 @@ class Listeners(commands.Cog):
         """
 
         # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
-        if type(before.channel) == discord.TextChannel:
+        if isinstance(before.channel, discord.TextChannel):
             # Get the channel to send the message to
             message_log_channel = discord.utils.get(before.guild.channels, name='message-log')
 
@@ -86,7 +97,7 @@ class Listeners(commands.Cog):
         """
 
         # Checks if the channel is type of TextChannel to avoid errors from ephemeral messages
-        if type(message.channel) == discord.TextChannel:
+        if isinstance(message.channel, discord.TextChannel):
             # Get the channel to send the message to
             message_log_channel = discord.utils.get(message.guild.channels, name='message-log')
 
