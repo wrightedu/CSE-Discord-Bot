@@ -1,6 +1,6 @@
 aiofiles>=0.8.0
 bing-image-downloader>=1.1.2
-discord.py @ git+https://github.com/Rapptz/discord.py@903e2e64e9182b8d3330ef565af7bb46ff9f04da
+discord.py==2.0
 pandas>=1.4.2
 python-dotenv>=0.20.0
 PyYAML>=6.0
