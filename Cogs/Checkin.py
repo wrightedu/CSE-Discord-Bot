@@ -241,7 +241,7 @@ class Checkin(commands.Cog):
         else:
             await interaction.response.send_message("Cannot clear outside of your DMs", ephemeral=True)
 
-    async def clear_checkin_messages(self, channel: discord.TextChannel, user: discord.User):
+    async def clear_checkin_messages(self, channel:  discord.TextChannel, user: discord.User):
         async for message in channel.history(limit=10):
             if message.author.id == self.bot.user.id:
                 await message.delete()
@@ -321,3 +321,18 @@ class Checkin(commands.Cog):
 
                         channel = await user.create_dm()
                         await Checkin.clear_checkin_messages(self, channel, user)
+
+    @check_in_group.command(name='report', description='Report for a specific user')
+    async def get_report(self, interaction: discord.Interaction, start_time:str = None, end_time:str = None):
+        """
+            Gets report of the user for a given time frame. 
+            handle through param? 
+            handle inside?
+        """
+        conn = create_connection("cse_discord.db")
+
+        if start_time is None and end_time is None:
+            # current_start_time = # get current week time
+            # two_weeks_
+            pass
+        pass
