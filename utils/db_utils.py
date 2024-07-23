@@ -554,18 +554,25 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
     if conn is not None:
         try:
             c = conn.cursor()
-            record_query = """SELECT * FROM timesheet WHERE discord_id = ? AND time_in BETWEEN ? and ?;"""
-            sum_query = """SELECT SUM(total_time) as total_worked FROM timesheet WHERE discord_id = ? AND time_in BETWEEN ? and ?;"""
-            complete_pomodoro_query = """SELECT pomodoro.timesheet_id, pomodoro.pomo_id, pomodoro.status, pomodoro.time_delta 
-                                            FROM pomodoro JOIN timesheet on pomodoro.timesheet_id=timesheet.time_id WHERE timesheet.discord_id = ? AND status = 1;"""
+            record_query = """SELECT * FROM timesheet WHERE discord_id = ?
+                                AND time_in BETWEEN ? and ?;"""
+            sum_query = """SELECT SUM(total_time) as total_worked FROM timesheet
+                            WHERE discord_id = ? AND time_in BETWEEN ? and ?;"""
+            complete_pomodoro_query = """SELECT pomodoro.timesheet_id, pomodoro.pomo_id,
+                                            pomodoro.status,pomodoro.time_delta 
+                                            FROM pomodoro JOIN timesheet ON pomodoro.timesheet_id=timesheet.time_id 
+                                            WHERE timesheet.discord_id = ? AND status = 1;"""
             c.execute(record_query, (discord_id, start_date, end_date))
             all_records = c.fetchall()
+            print(all_records)
 
             c.execute(sum_query, (discord_id, start_date, end_date))
             total_hours = c.fetchall()
+            print(total_hours)
 
             c.execute(complete_pomodoro_query, (discord_id,))
             complete_pomodoros = c.fetchall()
+            print(complete_pomodoros)
 
             return all_records, total_hours, complete_pomodoros
         except sqlite3.Error as e:
@@ -574,4 +581,5 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
             return None
     else:
         print("Error! Cannot create database connection")
-
+conn = create_connection('cse_discord.db')
+get_user_report(conn, '767411910542622781', '1681941889', '1682466860' )

@@ -265,8 +265,10 @@ def get_last_pay_period(current_date:str):
         #return unix time from monday of the week before
 
 def get_monday(date_now):
-    """takes a datetime object date_now and gets the difference between the day and starting day(monday of the week) and returns the date for monday"""
-    weekday = date_now.isoweekday() 
+    """takes a datetime object date_now and gets the difference between the day 
+    and starting day(monday of the week) and returns the date for monday"""
+
+    weekday = date_now.isoweekday()
     days_to_substract = weekday - 1
     first_iso_monday = date_now - datetime.timedelta(days= days_to_substract)
     return first_iso_monday.date()
