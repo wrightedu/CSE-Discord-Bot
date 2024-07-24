@@ -241,28 +241,32 @@ async def get_string_from_epoch(time):
 
     return string_return
 
-def get_last_pay_period(current_date:str):
+def get_last_pay_period_monday(current_date:str):
     """
     Takes unix date in string format and returns the week day
     current_date = unixtime
     datetime object
+
+    returns the first monday's date of the last pay period
     """
     dt =  datetime.datetime.fromtimestamp(current_date)
     current_week_number= dt.isocalendar().week
+    monday_date = None
     if current_week_number % 2 == 0:
         # print(current_week_number)
 
         # print("today's date", dt)
         # print(dt.isocalendar())
         monday_date = get_monday(dt) #should be iso monday
-        print(monday_date)
+        # print(monday_date)
         #convert monday to unix time
         #return unix time from monday of the even week
     else:
         one_week_before = dt - datetime.timedelta(weeks=1)
         monday_date = get_monday(one_week_before)
-        print(monday_date)
+        # print(monday_date)
         #return unix time from monday of the week before
+    return monday_date
 
 def get_monday(date_now):
     """takes a datetime object date_now and gets the difference between the day 
@@ -274,5 +278,5 @@ def get_monday(date_now):
     return first_iso_monday.date()
 
 
-import time
-get_last_pay_period(time.time())
+# import time
+# print(get_last_pay_period(time.time()))

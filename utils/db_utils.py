@@ -581,5 +581,6 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
             return None
     else:
         print("Error! Cannot create database connection")
-conn = create_connection('cse_discord.db')
-get_user_report(conn, '767411910542622781', '1681941889', '1682466860' )
+
+# conn = create_connection('cse_discord.db')
+# get_user_report(conn, '767411910542622781', '1681941889', '1682466860' )
