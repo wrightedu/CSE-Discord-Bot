@@ -253,19 +253,10 @@ def get_last_pay_period_monday(current_date:str):
     current_week_number= dt.isocalendar().week
     monday_date = None
     if current_week_number % 2 == 0:
-        # print(current_week_number)
-
-        # print("today's date", dt)
-        # print(dt.isocalendar())
-        monday_date = get_monday(dt) #should be iso monday
-        # print(monday_date)
-        #convert monday to unix time
-        #return unix time from monday of the even week
+        monday_date = get_monday(dt)
     else:
         one_week_before = dt - datetime.timedelta(weeks=1)
         monday_date = get_monday(one_week_before)
-        # print(monday_date)
-        #return unix time from monday of the week before
     return monday_date
 
 def get_monday(date_now):
@@ -278,5 +269,9 @@ def get_monday(date_now):
     return first_iso_monday.date()
 
 
-# import time
-# print(get_last_pay_period(time.time()))
+def get_unix_time(desired_date: str):
+    """takes in a Data MM-DD-YYYY format and returns a Unix time stamp"""
+
+    datetime_obj = datetime.datetime.strptime(desired_date, "%m-%d-%Y")
+    unix_desired_date = datetime_obj.timestamp()
+    return unix_desired_date
