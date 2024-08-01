@@ -564,15 +564,15 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
                                             WHERE timesheet.discord_id = ? AND status = 1;"""
             c.execute(record_query, (discord_id, start_date, end_date))
             all_records = c.fetchall()
-            print(all_records)
+            # print(all_records)
 
             c.execute(sum_query, (discord_id, start_date, end_date))
             total_hours = c.fetchall()
-            print(total_hours)
+            # print(total_hours)
 
             c.execute(complete_pomodoro_query, (discord_id,))
             complete_pomodoros = c.fetchall()
-            print(complete_pomodoros)
+            # print(complete_pomodoros)
 
             return all_records, total_hours, complete_pomodoros
         except sqlite3.Error as e:
@@ -581,3 +581,5 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
             return None
     else:
         print("Error! Cannot create database connection")
+
+
