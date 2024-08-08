@@ -1,4 +1,5 @@
 import itertools
+import os
 import random
 import yaml
 from os.path import exists
@@ -211,3 +212,50 @@ class StudentCommands(commands.Cog):
         else:
             await interaction.response.send_message('Too large of an input')
             await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was too large')
+
+
+    @app_commands.command(description="Get some random lyrics!")
+    async def sing_to_me(self, interaction:discord.Interaction, number:int =-1):
+        """Sends a random song lyric
+        Check to see if the lyrics directory exists. If not, it notifies the user and makes a log of the event.
+        Loops through all images in the directory containing the text files and place them in a list.
+        Selects a random file from the list and send it in chat.
+
+        Args:
+            number (int): ID number of the text file.
+
+        Outputs:
+            text: the lyrics to a random song.
+        """
+        await interaction.response.defer()
+
+        lyrics_dir = 'lyrics/songs'
+
+        # Check if lyrics dir exists
+        if not os.path.exists(lyrics_dir):
+            await log(self.bot, f'{interaction.user} attempted to run /sing_to_me, but the songs directory was not found.')
+            await interaction.followup.send("Songs directory not found.")
+            return
+
+        # Get text files from directory
+        songs = [str(path) for path in Path(lyrics_dir).rglob('*.txt')]
+
+        if not songs:
+            await interaction.followup.send("No songs found in the directory.")
+            return
+
+        # Generates a random number if no number is given
+        if number < 0 or number >= len(songs):
+            number = random.randint(0, len(songs) - 1)
+
+        selected_song = songs[number]
+
+        with open(selected_song, 'r', encoding="utf-8") as file:
+            lyrics = file.read()
+
+        # Send song
+        await interaction.followup.send(f'Song #{number}:\n{lyrics}')
+
+        # Log command usage
+        await log(self.bot, f'{interaction.user} ran /sing_to_me in #{interaction.channel}')
+

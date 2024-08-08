@@ -344,12 +344,42 @@ class Checkin(commands.Cog):
             new_end_time = time.time()
             all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
             print(all_records, total_hours, complete_pomodoros)
-            await interaction.response.send_message("Look at the terminal log now, replace this later", ephemeral=True) #TODO replace this later
+            response = []
+            for record in all_records:
+                start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
+                end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S')
+                response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}")
+
+            # Convert total seconds to hours and minutes
+            total_seconds = int(total_hours[0][0])
+            hours, remainder = divmod(total_seconds, 3600)
+            minutes = remainder // 60
+            total_hours_formatted = f"{hours}h {minutes}m"
+
+            response_message = "\n\n".join(response)
+            response_message += f"\n\nTotal Hours: {total_hours_formatted}\nComplete Pomodoros: {complete_pomodoros}"
+
+            await interaction.response.send_message(response_message, ephemeral=True)
 
         elif start_time is not None and end_time is not None:
             all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
             print("with data",all_records, total_hours, complete_pomodoros)
-            await interaction.response.send_message("Look at the terminal log now, replace this later", ephemeral=True) #TODO replace this later
+            response = []
+            for record in all_records:
+                start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
+                end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S')
+                response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}")
+
+            # Convert total seconds to hours and minutes
+            total_seconds = int(total_hours[0][0])
+            hours, remainder = divmod(total_seconds, 3600)
+            minutes = remainder // 60
+            total_hours_formatted = f"{hours}h {minutes}m"
+
+            response_message = "\n\n".join(response)
+            response_message += f"\n\nTotal Hours: {total_hours_formatted}\nComplete Pomodoros: {complete_pomodoros}"
+
+            await interaction.response.send_message(response_message, ephemeral=True)
         else:
             await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
 
