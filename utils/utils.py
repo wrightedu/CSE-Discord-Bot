@@ -1,5 +1,4 @@
 import datetime
-
 import aiofiles
 import discord
 from bing_image_downloader import downloader
@@ -241,3 +240,38 @@ async def get_string_from_epoch(time):
     string_return += f"{minutes} minute" + ("s" if (minutes > 1 or minutes == 0) else "")
 
     return string_return
+
+def get_last_pay_period_monday(current_date:str):
+    """
+    Takes unix date in string format and returns the week day
+    current_date = unixtime
+    datetime object
+
+    returns the first monday's date of the last pay period
+    """
+    dt =  datetime.datetime.fromtimestamp(current_date)
+    current_week_number= dt.isocalendar().week
+    monday_date = None
+    if current_week_number % 2 == 0:
+        monday_date = get_monday(dt)
+    else:
+        one_week_before = dt - datetime.timedelta(weeks=1)
+        monday_date = get_monday(one_week_before)
+    return monday_date
+
+def get_monday(date_now):
+    """takes a datetime object date_now and gets the difference between the day 
+    and starting day(monday of the week) and returns the date for monday"""
+
+    weekday = date_now.isoweekday()
+    days_to_substract = weekday - 1
+    first_iso_monday = date_now - datetime.timedelta(days= days_to_substract)
+    return first_iso_monday.date()
+
+
+def get_unix_time(desired_date: str):
+    """takes in a Data MM-DD-YYYY format and returns a Unix time stamp"""
+
+    datetime_obj = datetime.datetime.strptime(desired_date, "%m-%d-%Y")
+    unix_desired_date = datetime_obj.timestamp()
+    return unix_desired_date

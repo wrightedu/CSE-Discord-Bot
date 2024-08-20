@@ -1,13 +1,15 @@
 import csv
 import os
+from datetime import time
 import pandas as pd
+import time
 
 from discord.ui import View
 from discord.ext import commands, tasks
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help, get_all_open_pomodoros, get_all_open_timesheets, close_all_pomodoros
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help, get_all_open_pomodoros, get_all_open_timesheets, close_all_pomodoros, get_user_report
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -241,7 +243,7 @@ class Checkin(commands.Cog):
         else:
             await interaction.response.send_message("Cannot clear outside of your DMs", ephemeral=True)
 
-    async def clear_checkin_messages(self, channel: discord.TextChannel, user: discord.User):
+    async def clear_checkin_messages(self, channel:  discord.TextChannel, user: discord.User):
         async for message in channel.history(limit=10):
             if message.author.id == self.bot.user.id:
                 await message.delete()
@@ -321,3 +323,72 @@ class Checkin(commands.Cog):
 
                         channel = await user.create_dm()
                         await Checkin.clear_checkin_messages(self, channel, user)
+
+    #TODO The get_report and get_montly_report function needs to be changed such that the output is presented to the user in a suitable and formatted fashion
+    #Currently, it is set to output the SQL data to the terminal.
+
+    # @check_in_group.command(name='report', description="Generate Report of the user's timesheet. Date Format should be in MM-DD-YYYY")
+    # async def get_report(self, interaction: discord.Interaction, start_time:str = None, end_time:str = None):
+    #     """
+    #         Generates user report when requested by a USER
+            
+    #     """
+    #     conn = create_connection("cse_discord.db")
+    #     new_start_time = None if start_time is None else get_unix_time(start_time)
+    #     new_end_time = None if end_time is None else get_unix_time(end_time)
+
+    #     if start_time is None and end_time is None:
+    #         #get the last pay period
+    #         todays_date = time.time()
+    #         monday = str(get_last_pay_period_monday(todays_date))
+    #         datetime_obj = datetime.datetime.strptime(monday, '%Y-%m-%d')
+    #         new_start_time = datetime_obj.timestamp()
+
+    #         new_end_time = time.time()
+    #         all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
+    #         print(all_records, total_hours, complete_pomodoros)
+    #         await interaction.response.send_message("Look at the terminal log now, replace this later", ephemeral=True) #TODO replace this later
+
+    #     elif start_time is not None and end_time is not None:
+    #         all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
+    #         print("with data",all_records, total_hours, complete_pomodoros)
+    #         await interaction.response.send_message("Look at the terminal log now, replace this later", ephemeral=True) #TODO replace this later
+    #     else:
+    #         await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
+
+
+    # @check_in_group.command(name='report-monthly', description="Generate report of multiple user for the month. Date Format should be in MM-DD-YYYY")
+    # # @app_commands.default_permissions(administrator=True)
+    # async def get_montly_report(self, interaction: discord.Interaction, role:discord.Role, start_time:str, end_time:str):
+    #     """
+    #         Generates report for multiple user for admin level user
+
+    #     """
+    #     conn = create_connection("cse_discord.db")
+    #     new_start_time = None if start_time is None else get_unix_time(start_time)
+    #     new_end_time = None if end_time is None else get_unix_time(end_time)
+    #     report = {}
+    #     for member in role.members:
+    #         if start_time is None and end_time is None:
+    #             #get the last pay period
+    #             todays_date = time.time()
+    #             monday = str(get_last_pay_period_monday(todays_date))
+    #             datetime_obj = datetime.datetime.strptime(monday, '%Y-%m-%d')
+    #             new_start_time = datetime_obj.timestamp()
+
+    #             new_end_time = time.time()
+    #             all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
+    #             print(all_records, total_hours, complete_pomodoros)
+    #             print("error when parsing date. Date Should NOT BE NONE and should be provided")
+
+    #         elif start_time is not None and end_time is not None:
+    #             all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
+    #             if not all_records and not complete_pomodoros:
+    #                 print("No record found for ", member.id)
+    #             else:
+    #                 report[member.id] = [all_records, total_hours, complete_pomodoros]
+                
+    #         else:
+    #             await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
+        
+    #     print("printing report for now \n", report)
