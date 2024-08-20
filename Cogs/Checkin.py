@@ -47,7 +47,7 @@ class Checkin(commands.Cog):
 
                 timesheet = insert_timesheet(conn, interaction.user.id, time)
 
-                await update_view(interaction, Checkin.checkedInView())
+                await update_view(interaction, Checkin.checked_in_view())
                 await interaction.response.send_message("You have checked in!", ephemeral=True)
             elif 'checkedin_pomo_btn' in interaction.data['custom_id']:
                 modal = discord.ui.Modal(title="Pomodoro Creation", custom_id=f"checkedin_pomo_create_{interaction.message.id}")
@@ -65,7 +65,7 @@ class Checkin(commands.Cog):
                 message_id = int(interaction.data['custom_id'].replace("checkedin_pomo_create_", ""))
 
                 message = await channel.fetch_message(message_id)
-                await message.edit(view=Checkin.pomoView())
+                await message.edit(view=Checkin.pomo_view())
 
                 await interaction.response.send_message("You have started a pomodoro. I will check with you in 20 minutes", ephemeral=True)
             elif 'checkedin_checkout_btn' in interaction.data['custom_id']:
@@ -80,7 +80,7 @@ class Checkin(commands.Cog):
                 timesheet = update_timesheet(conn, time_id, interaction.user.id, time_in, time_out, total_time)
                 
                 if timesheet is True:
-                    await update_view(interaction, Checkin.checkInView())
+                    await update_view(interaction, Checkin.checkin_view())
                     await interaction.response.send_message(f"You have now been clocked out. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                 else:
                     await interaction.response.send_message("Error while checking out", ephemeral=True)
@@ -105,7 +105,7 @@ class Checkin(commands.Cog):
                                     await message.delete()
                                     break
                         
-                        await update_view(interaction, Checkin.checkedInView())
+                        await update_view(interaction, Checkin.checked_in_view())
                         await interaction.response.send_message(f"You have now completed your pomodoro. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                     else:
                         await interaction.response.send_message(f"Error! Unable to close pomodoro", ephemeral=True)
@@ -138,7 +138,7 @@ class Checkin(commands.Cog):
 
 
 
-    def checkInView():
+    def checkin_view():
         """Function that returns the check in view upon registration
         The Check-in View will contain a button to allow a user to check-in
 
@@ -153,7 +153,7 @@ class Checkin(commands.Cog):
 
         return view
 
-    def checkedInView():
+    def checked_in_view():
         """Function that returns the checked-in view
         The Checked-in View will contain a button to allow a user to check-out, as well as a button
         for a user to start a pomodoro
@@ -172,7 +172,7 @@ class Checkin(commands.Cog):
 
         return view
     
-    def pomoView():
+    def pomo_view():
         """ Function that returns the pomo view
         The pomo View will contain buttons to finish your pomodoro, report that you are blocked, and not done.
 
@@ -220,7 +220,7 @@ class Checkin(commands.Cog):
             await interaction.response.send_message("Error registering for checkin", ephemeral=True)
             return
 
-        view = Checkin.checkInView()
+        view = Checkin.checkin_view()
         channel = await interaction.user.create_dm()
 
         await channel.send(view=view)
@@ -276,7 +276,7 @@ class Checkin(commands.Cog):
         conn.close()
 
         # Send new view
-        await channel.send(view=Checkin.checkInView())
+        await channel.send(view=Checkin.checkin_view())
 
     @tasks.loop(minutes=2.0)
     async def check_pomodoros(self):
