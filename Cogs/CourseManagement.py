@@ -25,18 +25,31 @@ class CourseManagement(commands.Cog):
             Verifies that the interaction includes a custom_id. Each individual statement
             checks to make sure that the interaction contains a specific custom_id.
         """
+
+        # If custom_id is defined
         if interaction.data is not None and 'custom_id' in interaction.data and interaction.data['custom_id'] is not None and not interaction.response.is_done():
+            # If custom_id is a role select
             if 'select_role_' in interaction.data['custom_id']:
                 try:
-                    name = re.search("^select_role_(.*)_\d+", interaction.data['custom_id']).group(1).replace("_", " ")
+                    # If class, search for non-greedy role
+                    if 'select_role_class_' in interaction.data['custom_id']:
+                        name = re.search("^select_role_class_(\w+_\d+)_.*", interaction.data['custom_id']).group(1).replace("_", " ")
+                    # If not class, search for greedy role
+                    else:
+                        name = re.search("^select_role_(.*)", interaction.data['custom_id']).group(1).replace("_", " ")
+
+                    # Get role from guild's roles
                     role = discord.utils.get(interaction.guild.roles, name=name)
                 except ValueError:
                     role = None
                 
+                # If role was found, add/remove role
                 if role is not None:
+                    # If user has role, remove it
                     if role in interaction.user.roles:
                         await interaction.user.remove_roles(role)
                         await interaction.response.send_message(f"The {role.mention} role has been removed from you.", ephemeral=True)
+                    # If user does not have role, add it
                     else:
                         await interaction.user.add_roles(role)
                         await interaction.response.send_message(f"The {role.mention} role has been given to you.", ephemeral=True)
@@ -305,7 +318,6 @@ class CourseManagement(commands.Cog):
                 message += f"{channel_name} can't be found.\n"
                 continue
             view = View(timeout=None)
-            print(role_names)
             for i in range(len(role_names)):
                 # ensure prefix matches the course name (CEG, CS, EE)
                 if re.match(prefix, category_names[i]):
@@ -314,7 +326,7 @@ class CourseManagement(commands.Cog):
                         message = await channel.send(view=view)
                         view = View(timeout=None)
                     name = str(role_names[i]).replace(" ", "_")
-                    this_button = discord.ui.Button(label=f"{category_names[i]} - {long_names[i]}", style=discord.ButtonStyle.gray, custom_id=f"select_role_{name}_{i}")
+                    this_button = discord.ui.Button(label=f"{category_names[i]} - {long_names[i]}", style=discord.ButtonStyle.gray, custom_id=f"select_role_class_{name}_{i}")
                     view.add_item(this_button)
             if not len(view.children):
                 message += f"No buttons were built for: {prefix}\n"
@@ -396,7 +408,7 @@ class CourseManagement(commands.Cog):
 
         # create the button
         view = View(timeout=None)
-        this_button = discord.ui.Button(label=button_name, style=discord.ButtonStyle.gray, custom_id=f"select_role_{role_name}")
+        this_button = discord.ui.Button(label=button_name, style=discord.ButtonStyle.gray, custom_id=f"select_role_{role_name.replace(' ', '_')}")
         if emoji != 'None':
             this_button.emoji = emoji
         
