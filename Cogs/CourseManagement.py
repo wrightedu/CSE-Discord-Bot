@@ -26,9 +26,9 @@ class CourseManagement(commands.Cog):
             checks to make sure that the interaction contains a specific custom_id.
         """
         if interaction.data is not None and 'custom_id' in interaction.data and interaction.data['custom_id'] is not None and not interaction.response.is_done():
-            if 'class_select_' in interaction.data['custom_id']:
+            if 'select_role_' in interaction.data['custom_id']:
                 try:
-                    name = interaction.data['custom_id'].split("class_select_", 1)[1]
+                    name = re.search("^select_role_(.*)_\d+", interaction.data['custom_id']).group(1).replace("_", " ")
                     role = discord.utils.get(interaction.guild.roles, name=name)
                 except ValueError:
                     role = None
@@ -305,14 +305,16 @@ class CourseManagement(commands.Cog):
                 message += f"{channel_name} can't be found.\n"
                 continue
             view = View(timeout=None)
+            print(role_names)
             for i in range(len(role_names)):
                 # ensure prefix matches the course name (CEG, CS, EE)
                 if re.match(prefix, category_names[i]):
                     # limit of 25 components per view
                     if len(view.children) % 25 == 0 and len(view.children) != 0:
-                        await channel.send(view=view)
+                        message = await channel.send(view=view)
                         view = View(timeout=None)
-                    this_button = discord.ui.Button(label=f"{category_names[i]} - {long_names[i]}", style=discord.ButtonStyle.gray, custom_id=f"class_select_{role_names[i]}")
+                    name = str(role_names[i]).replace(" ", "_")
+                    this_button = discord.ui.Button(label=f"{category_names[i]} - {long_names[i]}", style=discord.ButtonStyle.gray, custom_id=f"select_role_{name}_{i}")
                     view.add_item(this_button)
             if not len(view.children):
                 message += f"No buttons were built for: {prefix}\n"
@@ -394,7 +396,7 @@ class CourseManagement(commands.Cog):
 
         # create the button
         view = View(timeout=None)
-        this_button = discord.ui.Button(label=button_name, style=discord.ButtonStyle.gray, custom_id=f"class_select_{role_name}")
+        this_button = discord.ui.Button(label=button_name, style=discord.ButtonStyle.gray, custom_id=f"select_role_{role_name}")
         if emoji != 'None':
             this_button.emoji = emoji
         
