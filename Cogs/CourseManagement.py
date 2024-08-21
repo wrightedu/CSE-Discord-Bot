@@ -21,7 +21,7 @@ class CourseManagement(commands.Cog):
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
-        """ An event listener to check for different checkin button presses.
+        """ An event listener to check for different role button presses.
             Verifies that the interaction includes a custom_id. Each individual statement
             checks to make sure that the interaction contains a specific custom_id.
         """
@@ -34,9 +34,14 @@ class CourseManagement(commands.Cog):
                     role = None
                 
                 if role is not None:
-                    print(role.id)
+                    if role in interaction.user.roles:
+                        await interaction.user.remove_roles(role)
+                        await interaction.response.send_message(f"The {role.mention} role has been removed from you.", ephemeral=True)
+                    else:
+                        await interaction.user.add_roles(role)
+                        await interaction.response.send_message(f"The {role.mention} role has been given to you.", ephemeral=True)
                 else:
-                    print("No role to add")
+                    await interaction.response.send_message("Could not find role to add", ephemeral=True)
 
     async def get_category(self, interaction, category_names):
         """Verifies categories to be destroyed
