@@ -19,6 +19,25 @@ class CourseManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: discord.Interaction):
+        """ An event listener to check for different checkin button presses.
+            Verifies that the interaction includes a custom_id. Each individual statement
+            checks to make sure that the interaction contains a specific custom_id.
+        """
+        if interaction.data is not None and 'custom_id' in interaction.data and interaction.data['custom_id'] is not None and not interaction.response.is_done():
+            if 'class_select_' in interaction.data['custom_id']:
+                try:
+                    name = interaction.data['custom_id'].split("class_select_", 1)[1]
+                    role = discord.utils.get(interaction.guild.roles, name=name)
+                except ValueError:
+                    role = None
+                
+                if role is not None:
+                    print(role.id)
+                else:
+                    print("No role to add")
+
     async def get_category(self, interaction, category_names):
         """Verifies categories to be destroyed
         Looks through all categories and verifies if the list of category names is on the server
@@ -282,12 +301,13 @@ class CourseManagement(commands.Cog):
                 continue
             view = View(timeout=None)
             for i in range(len(role_names)):
-                if re.match(prefix, category_names[i]):         # ensure prefix matches the course name (CEG, CS, EE)
-                    if len(view.children) % 25 == 0 and len(view.children) != 0:          # limit of 25 components per view
+                # ensure prefix matches the course name (CEG, CS, EE)
+                if re.match(prefix, category_names[i]):
+                    # limit of 25 components per view
+                    if len(view.children) % 25 == 0 and len(view.children) != 0:
                         await channel.send(view=view)
                         view = View(timeout=None)
-                    this_button = RoleButton(button_name=f"{category_names[i]} - {long_names[i]}", role_name=role_names[i])
-                    this_button.callback = this_button.on_click
+                    this_button = discord.ui.Button(label=f"{category_names[i]} - {long_names[i]}", style=discord.ButtonStyle.gray, custom_id=f"class_select_{role_names[i]}")
                     view.add_item(this_button)
             if not len(view.children):
                 message += f"No buttons were built for: {prefix}\n"
@@ -369,13 +389,10 @@ class CourseManagement(commands.Cog):
 
         # create the button
         view = View(timeout=None)
-        this_button = RoleButton(button_name=button_name, role_name=role_name)
+        this_button = discord.ui.Button(label=button_name, style=discord.ButtonStyle.gray, custom_id=f"class_select_{role_name}")
         if emoji != 'None':
             this_button.emoji = emoji
-            
-        # If there is not a url give it a callback otherwise continue
-        if not this_button.url:
-            this_button.callback = this_button.on_click
+        
         view.add_item(this_button)
 
         # send button to user and log command ran
