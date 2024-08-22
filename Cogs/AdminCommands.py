@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 from time import sleep
@@ -156,12 +157,12 @@ class AdminCommands(commands.Cog):
         role = discord.utils.get(guild.roles, id=int(role_mention[3:-1]))
         if role == None:
             await interaction.channel.send(f"The '{role_mention}' role could not be found. The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
-            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because it could not be found")
+            await log(self.bot, f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it could not be found")
             return
 
         if role >= interaction.guild.me.top_role:
             await interaction.channel.send(f"I cannot remove the {role_mention} role from members because it is equal to or higher than my top role.")
-            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because it is equal to or higher than the bot's top role")
+            await log(self.bot, f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it is equal to or higher than the bot's top role")
             return
 
         cleared_members = []
@@ -198,7 +199,57 @@ class AdminCommands(commands.Cog):
         """
 
         await download_corgis(self.bot, interaction, amount)
-    
+
+
+    @app_commands.command(description="edit a specified message sent by the bot")
+    @app_commands.default_permissions(administrator=True)
+    async def edit_message(self, interaction:discord.Interaction, message_id:str):
+        """Edit a specified message sent by the bot
+        Take in user input for the message ID of the message they would like to edit. If the message is not found,
+        it responds stating that the message could not be found. If the message is found, send a message
+        to chat stating that the message has been edited and log it. Edit the message with the user's input.
+
+        Args:
+            message_id (str): ID of the message to be edited
+
+        Outputs:
+            States the message being edited or, if invalid input, help on how to use the command
+        """
+
+        await interaction.response.defer(ephemeral=True)
+        
+        try:
+            message = await interaction.channel.fetch_message(int(message_id))
+        except discord.errors.NotFound:
+            message = None
+
+        if message == None:
+            await interaction.followup.send(f"The message with the ID {message_id} could not be found. Make sure you are in same channel as the message you wish to edit.")
+            await log(self.bot, f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because the message could not be found")
+            return
+        elif message.author != self.bot.user:
+            await interaction.followup.send(f"The message with the ID {message_id} is not a message sent by the bot.")
+            await log(self.bot, f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because it was not a message sent by the bot")
+            return
+
+        bot_message = await interaction.followup.send(f"Please enter the new message. Type 'cancel' to cancel.")
+
+        try:
+            new_message = await self.bot.wait_for("message", check=lambda message: message.author == interaction.user, timeout=60.0)
+            
+            if new_message.content == 'cancel':
+                await bot_message.edit(content="Message edit cancelled")
+                await new_message.delete()
+                await log(self.bot, f"{interaction.user} cancelled the edit of the message in #{interaction.channel}")
+                return
+            else:
+                await message.edit(content=new_message.content)
+                await new_message.delete()
+                await log(self.bot, f"{interaction.user} edited the message with the ID `{message_id}` in #{interaction.channel}")
+        except asyncio.TimeoutError:
+            await interaction.followup.send("You took too long to respond. Exiting command...")
+            return
+
 
     @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
     @app_commands.default_permissions(administrator=True)

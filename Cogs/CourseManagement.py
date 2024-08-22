@@ -19,6 +19,43 @@ class CourseManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: discord.Interaction):
+        """ An event listener to check for different role button presses.
+            Verifies that the interaction includes a custom_id. Each individual statement
+            checks to make sure that the interaction contains a specific custom_id.
+        """
+
+        # If custom_id is defined
+        if interaction.data is not None and 'custom_id' in interaction.data and interaction.data['custom_id'] is not None and not interaction.response.is_done():
+            # If custom_id is a role select
+            if 'select_role_' in interaction.data['custom_id']:
+                try:
+                    # If class, search for non-greedy role
+                    if 'select_role_class_' in interaction.data['custom_id']:
+                        name = re.search("^select_role_class_(\w+_\d+)_.*", interaction.data['custom_id']).group(1).replace("_", " ")
+                    # If not class, search for greedy role
+                    else:
+                        name = re.search("^select_role_(.*)", interaction.data['custom_id']).group(1).replace("_", " ")
+
+                    # Get role from guild's roles
+                    role = discord.utils.get(interaction.guild.roles, name=name)
+                except ValueError:
+                    role = None
+                
+                # If role was found, add/remove role
+                if role is not None:
+                    # If user has role, remove it
+                    if role in interaction.user.roles:
+                        await interaction.user.remove_roles(role)
+                        await interaction.response.send_message(f"The {role.mention} role has been removed from you.", ephemeral=True)
+                    # If user does not have role, add it
+                    else:
+                        await interaction.user.add_roles(role)
+                        await interaction.response.send_message(f"The {role.mention} role has been given to you.", ephemeral=True)
+                else:
+                    await interaction.response.send_message("Could not find role to add", ephemeral=True)
+
     async def get_category(self, interaction, category_names):
         """Verifies categories to be destroyed
         Looks through all categories and verifies if the list of category names is on the server
@@ -282,12 +319,14 @@ class CourseManagement(commands.Cog):
                 continue
             view = View(timeout=None)
             for i in range(len(role_names)):
-                if re.match(prefix, category_names[i]):         # ensure prefix matches the course name (CEG, CS, EE)
-                    if len(view.children) % 25 == 0 and len(view.children) != 0:          # limit of 25 components per view
-                        await channel.send(view=view)
+                # ensure prefix matches the course name (CEG, CS, EE)
+                if re.match(prefix, category_names[i]):
+                    # limit of 25 components per view
+                    if len(view.children) % 25 == 0 and len(view.children) != 0:
+                        message = await channel.send(view=view)
                         view = View(timeout=None)
-                    this_button = RoleButton(button_name=f"{category_names[i]} - {long_names[i]}", role_name=role_names[i])
-                    this_button.callback = this_button.on_click
+                    name = str(role_names[i]).replace(" ", "_")
+                    this_button = discord.ui.Button(label=f"{category_names[i]} - {long_names[i]}", style=discord.ButtonStyle.gray, custom_id=f"select_role_class_{name}_{i}")
                     view.add_item(this_button)
             if not len(view.children):
                 message += f"No buttons were built for: {prefix}\n"
@@ -350,24 +389,36 @@ class CourseManagement(commands.Cog):
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
 
-        # create the role if it does not exist
-        if not get(interaction.guild.roles, name=role_name):
-            role = await interaction.guild.create_role(name=role_name, permissions=permissions)
-            role.mentionable = True
+        # if a user entered a role mention, get the role object + name
+        if role_name.startswith("<@&") and role_name.endswith(">"):
+            role_name = role_name[3:-1]
 
+            try:
+                role = interaction.guild.get_role(int(role_name))
+            except ValueError:
+                role = None
+
+            if role:
+                role_name = role.name
+
+            # create the role if it does not exist
+            if not get(interaction.guild.roles, name=role_name):
+                role = await interaction.guild.create_role(name=role_name, permissions=permissions)
+                role.mentionable = True
 
         # create the button
         view = View(timeout=None)
-        this_button = RoleButton(button_name=button_name, role_name=role_name)
+
+        # If role_name contains a link, create a URL button
+        if "http" in role_name:
+            this_button = discord.ui.Button(label=button_name, style=discord.ButtonStyle.url, url=role_name)
+        else:
+            this_button = discord.ui.Button(label=button_name, style=discord.ButtonStyle.gray, custom_id=f"select_role_{role_name.replace(' ', '_')}")
         if emoji != 'None':
             this_button.emoji = emoji
-            
-        # If there is not a url give it a callback otherwise continue
-        if not this_button.url:
-            this_button.callback = this_button.on_click
+        
         view.add_item(this_button)
 
-        
         # send button to user and log command ran
         try:
             await interaction.channel.send(view=view)
