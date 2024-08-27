@@ -31,9 +31,9 @@ class CourseManagement(commands.Cog):
             # If custom_id is a role select
             if 'select_role_' in interaction.data['custom_id']:
                 try:
-                    # If class, search for non-greedy role
+                    # If class, search for non-greedy role (includes special topics)
                     if 'select_role_class_' in interaction.data['custom_id']:
-                        name = re.search("^select_role_class_(\w+_\d+)_.*", interaction.data['custom_id']).group(1).replace("_", " ")
+                        name = re.search("^select_role_class_(\w+_\d+(?:_\(.*\))?)_.*", interaction.data['custom_id']).group(1).replace("_", " ")
                     # If not class, search for greedy role
                     else:
                         name = re.search("^select_role_(.*)", interaction.data['custom_id']).group(1).replace("_", " ")
