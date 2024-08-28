@@ -275,3 +275,23 @@ def get_unix_time(desired_date: str):
     datetime_obj = datetime.datetime.strptime(desired_date, "%m-%d-%Y")
     unix_desired_date = datetime_obj.timestamp()
     return unix_desired_date
+
+def get_response_message(all_records, total_hours, complete_pomodoros):
+    """takes in a Data MM-DD-YYYY format and returns the timesheet info in a pretty way
+        NOTE FOR FUTURE DEV: ONLY USE DURING THE REPORT FUNCTION"""
+    response = []
+    for record in all_records:
+        start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
+        end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S')
+        response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}")
+
+    # Convert total seconds to hours and minutes
+    total_seconds = int(total_hours[0][0])
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes = remainder // 60
+    total_hours_formatted = f"{hours}h {minutes}m"
+
+    response_message = "\n\n".join(response)
+    response_message += f"\n\nTotal Hours: {total_hours_formatted}\nComplete Pomodoros: {complete_pomodoros}"
+    
+    return response_message

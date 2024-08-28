@@ -258,7 +258,7 @@ class Checkin(commands.Cog):
             time_in = float(timesheet[2])
             time_out = await get_time_epoch()
             total_time = time_out - time_in
- 
+
             print(f"Conn: {conn}\nTime ID: {time_id}\nUser: {user.id}\nTime in: {time_in}\nTime out: {time_out}\nTotal time: {total_time}\n")
             update_timesheet(conn, time_id, user.id, time_in, time_out, total_time)
 
@@ -344,40 +344,22 @@ class Checkin(commands.Cog):
             new_end_time = time.time()
             all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
             print(all_records, total_hours, complete_pomodoros)
-            response = []
-            for record in all_records:
-                start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
-                end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S')
-                response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}")
-
-            # Convert total seconds to hours and minutes
-            total_seconds = int(total_hours[0][0])
-            hours, remainder = divmod(total_seconds, 3600)
-            minutes = remainder // 60
-            total_hours_formatted = f"{hours}h {minutes}m"
-
-            response_message = "\n\n".join(response)
-            response_message += f"\n\nTotal Hours: {total_hours_formatted}\nComplete Pomodoros: {complete_pomodoros}"
+            
+            if all_records is None or complete_pomodoros is None or total_hours is None:
+                response_message = "No records found."
+            else:
+                response_message = get_response_message(all_records, total_hours, complete_pomodoros)
 
             await interaction.response.send_message(response_message, ephemeral=True)
 
         elif start_time is not None and end_time is not None:
             all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
             print("with data",all_records, total_hours, complete_pomodoros)
-            response = []
-            for record in all_records:
-                start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
-                end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S')
-                response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}")
-
-            # Convert total seconds to hours and minutes
-            total_seconds = int(total_hours[0][0])
-            hours, remainder = divmod(total_seconds, 3600)
-            minutes = remainder // 60
-            total_hours_formatted = f"{hours}h {minutes}m"
-
-            response_message = "\n\n".join(response)
-            response_message += f"\n\nTotal Hours: {total_hours_formatted}\nComplete Pomodoros: {complete_pomodoros}"
+            
+            if all_records is None or complete_pomodoros is None or total_hours is None:
+                response_message = "No records found."
+            else:
+                response_message = get_response_message(all_records, total_hours, complete_pomodoros)
 
             await interaction.response.send_message(response_message, ephemeral=True)
         else:
