@@ -83,7 +83,7 @@ class Checkin(commands.Cog):
                     await update_view(interaction, Checkin.checkin_view())
                     await interaction.response.send_message(f"You have now been clocked out. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                 else:
-                    await interaction.response.send_message("Error while checking out", ephemeral=True)
+                    await interaction.response(all_records, total_hours, complete_pomodoros).send_message("Error while checking out", ephemeral=True)
             elif 'pomo_done_btn' in interaction.data['custom_id'] or 'pomo_not_done_btn' in interaction.data['custom_id']:
                 conn = create_connection("cse_discord.db")
                 pomo_id = get_pomodoro_id(conn, interaction.user.id)
@@ -159,7 +159,8 @@ class Checkin(commands.Cog):
         for a user to start a pomodoro
 
         Outputs:
-            view (discord.ui.View) - The view containing the checkout and pomo buttons
+            view (discord.ui.View) - The view c
+
         """
 
         view = View()
@@ -258,7 +259,7 @@ class Checkin(commands.Cog):
             time_in = float(timesheet[2])
             time_out = await get_time_epoch()
             total_time = time_out - time_in
- 
+
             print(f"Conn: {conn}\nTime ID: {time_id}\nUser: {user.id}\nTime in: {time_in}\nTime out: {time_out}\nTotal time: {total_time}\n")
             update_timesheet(conn, time_id, user.id, time_in, time_out, total_time)
 
@@ -300,7 +301,7 @@ class Checkin(commands.Cog):
                     # Change the time delta above
                     while False:
                         user = self.bot.get_user(int(pomodoro[8]))
-
+    
     @tasks.loop(minutes=5.0)
     async def check_timesheets(self):
         """ A task that checks open timesheets every five minutes looking for timesheets that need closed
@@ -327,68 +328,82 @@ class Checkin(commands.Cog):
     #TODO The get_report and get_montly_report function needs to be changed such that the output is presented to the user in a suitable and formatted fashion
     #Currently, it is set to output the SQL data to the terminal.
 
-    # @check_in_group.command(name='report', description="Generate Report of the user's timesheet. Date Format should be in MM-DD-YYYY")
-    # async def get_report(self, interaction: discord.Interaction, start_time:str = None, end_time:str = None):
-    #     """
-    #         Generates user report when requested by a USER
+    @check_in_group.command(name='report', description="Generate Report of the user's timesheet. Date Format should be in MM-DD-YYYY")
+    async def get_report(self, interaction: discord.Interaction, start_time:str = None, end_time:str = None):
+        """
+            Generates user report when requested by a USER
+        """
+        conn = create_connection("cse_discord.db")
+        new_start_time = None if start_time is None else get_unix_time(start_time)
+        new_end_time = None if end_time is None else get_unix_time(end_time)
+
+        if start_time is None and end_time is None:
+            #get the last pay period
+            todays_date = time.time()
+            monday = str(get_last_pay_period_monday(todays_date))
+            datetime_obj = datetime.datetime.strptime(monday, '%Y-%m-%d')
+            new_start_time = datetime_obj.timestamp()
+
+            new_end_time = time.time()
+            all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
+            print(all_records, total_hours, complete_pomodoros)
+
+            if all_records is None or complete_pomodoros is None or total_hours is None:
+                response_message = "No records found."
+            else:
+                response_message = result_parser(all_records, total_hours, complete_pomodoros)
             
-    #     """
-    #     conn = create_connection("cse_discord.db")
-    #     new_start_time = None if start_time is None else get_unix_time(start_time)
-    #     new_end_time = None if end_time is None else get_unix_time(end_time)
+            await interaction.response.send_message(response_message, ephemeral=True)
 
-    #     if start_time is None and end_time is None:
-    #         #get the last pay period
-    #         todays_date = time.time()
-    #         monday = str(get_last_pay_period_monday(todays_date))
-    #         datetime_obj = datetime.datetime.strptime(monday, '%Y-%m-%d')
-    #         new_start_time = datetime_obj.timestamp()
+        elif start_time is not None and end_time is not None:
+            all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
+            print("with data",all_records, total_hours, complete_pomodoros)
 
-    #         new_end_time = time.time()
-    #         all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
-    #         print(all_records, total_hours, complete_pomodoros)
-    #         await interaction.response.send_message("Look at the terminal log now, replace this later", ephemeral=True) #TODO replace this later
+            if all_records is None or complete_pomodoros is None or total_hours is None:
+                response_message = "No records found."
+            else:
+                response_message = result_parser(all_records, total_hours, complete_pomodoros)
 
-    #     elif start_time is not None and end_time is not None:
-    #         all_records, total_hours, complete_pomodoros = get_user_report(conn, interaction.user.id, new_start_time,new_end_time)
-    #         print("with data",all_records, total_hours, complete_pomodoros)
-    #         await interaction.response.send_message("Look at the terminal log now, replace this later", ephemeral=True) #TODO replace this later
-    #     else:
-    #         await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
+            await interaction.response.send_message(response_message, ephemeral=True)
+        else:
+            await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
+
+            response_message = result_parser(all_records, total_hours, complete_pomodoros)
+
+            await interaction.response.send_message(response_message, ephemeral=True)
 
 
-    # @check_in_group.command(name='report-monthly', description="Generate report of multiple user for the month. Date Format should be in MM-DD-YYYY")
-    # # @app_commands.default_permissions(administrator=True)
-    # async def get_montly_report(self, interaction: discord.Interaction, role:discord.Role, start_time:str, end_time:str):
-    #     """
-    #         Generates report for multiple user for admin level user
+    @check_in_group.command(name='report-monthly', description="Generate report of multiple user for the month. Date Format should be in MM-DD-YYYY")
+    # @app_commands.default_permissions(administrator=True)
+    async def get_montly_report(self, interaction: discord.Interaction, role:discord.Role, start_time:str, end_time:str):
+        """
+            Generates report for multiple user for admin level user
+        """
+        conn = create_connection("cse_discord.db")
+        new_start_time = None if start_time is None else get_unix_time(start_time)
+        new_end_time = None if end_time is None else get_unix_time(end_time)
+        report = {}
+        for member in role.members:
+            if start_time is None and end_time is None:
+                #get the last pay period
+                todays_date = time.time()
+                monday = str(get_last_pay_period_monday(todays_date))
+                datetime_obj = datetime.datetime.strptime(monday, '%Y-%m-%d')
+                new_start_time = datetime_obj.timestamp()
 
-    #     """
-    #     conn = create_connection("cse_discord.db")
-    #     new_start_time = None if start_time is None else get_unix_time(start_time)
-    #     new_end_time = None if end_time is None else get_unix_time(end_time)
-    #     report = {}
-    #     for member in role.members:
-    #         if start_time is None and end_time is None:
-    #             #get the last pay period
-    #             todays_date = time.time()
-    #             monday = str(get_last_pay_period_monday(todays_date))
-    #             datetime_obj = datetime.datetime.strptime(monday, '%Y-%m-%d')
-    #             new_start_time = datetime_obj.timestamp()
+                new_end_time = time.time()
+                all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
+                print(all_records, total_hours, complete_pomodoros)
+                print("error when parsing date. Date Should NOT BE NONE and should be provided")
 
-    #             new_end_time = time.time()
-    #             all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
-    #             print(all_records, total_hours, complete_pomodoros)
-    #             print("error when parsing date. Date Should NOT BE NONE and should be provided")
+            elif start_time is not None and end_time is not None:
+                all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
+                if not all_records and not complete_pomodoros:
+                    print("No record found for ", member.id)
+                else:
+                    report[member.id] = [all_records, total_hours, complete_pomodoros]
 
-    #         elif start_time is not None and end_time is not None:
-    #             all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
-    #             if not all_records and not complete_pomodoros:
-    #                 print("No record found for ", member.id)
-    #             else:
-    #                 report[member.id] = [all_records, total_hours, complete_pomodoros]
-                
-    #         else:
-    #             await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
-        
-    #     print("printing report for now \n", report)
+            else:
+                await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
+
+        print("printing report for now \n", report)

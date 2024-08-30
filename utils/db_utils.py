@@ -582,4 +582,3 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
     else:
         print("Error! Cannot create database connection")
 
-
