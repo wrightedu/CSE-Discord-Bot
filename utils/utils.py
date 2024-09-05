@@ -2,7 +2,7 @@ import datetime
 import aiofiles
 import discord
 from bing_image_downloader import downloader
-
+# import time
 
 async def confirmation(bot, interaction:discord.Interaction, confirm_string='confirm'):
     """Add a layer of security to sensitive commands by adding a confirmation step
@@ -278,25 +278,36 @@ def get_unix_time(desired_date: str):
 
 
 def result_parser(all_records, total_hours, complete_pomodoros):
-    """takes in a Data MM-DD-YYYY format and returns the timesheet info in a pretty way
+    """takes in a Data MM-DD-YYYY format and returns the timesheet info in a pretty way. Returns completed pomodoros in pretty format.
         NOTE FOR FUTURE DEV: ONLY USE DURING THE REPORT FUNCTION"""
-    response = []
+    # Formatting all_records
+    timesheet_response = []
     for record in all_records:
+        # print(record[2],  record[3])
         start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
-        end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S')
-        response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}")
+        end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S') if record[3] is not None else 0
+        timesheet_response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}")
 
-# Convert total seconds to hours and minutes
+    # Fomatting total_hours
     if total_hours[0][0] is None:
         total_seconds = 0
     else:
         total_seconds = int(total_hours[0][0])
+        # print(total_secods)
 
     hours, remainder = divmod(total_seconds, 3600)
     minutes = remainder // 60
     total_hours_formatted = f"{hours}h {minutes}m"
 
-    response_message = "\n\n".join(response)
-    response_message += f"\n\nTotal Hours: {total_hours_formatted}\nComplete Pomodoros: {complete_pomodoros}"
+    # Formatting complete_pomodoros
+    pomodoro_response = []
+    for pomodoro in complete_pomodoros:
+        # print(pomodoro[2], pomodoro[3])
+        time_spent_formatted = datetime.datetime.fromtimestamp(float(pomodoro[3])).strftime('%H:%M:%S') if pomodoro[3] is not None else 0
+        pomodoro_response.append(f"Issue: {pomodoro[2]}\nTime Spent: {time_spent_formatted}\n")
+
+    response_message = "\n\n".join(timesheet_response)
+    response_message += f"\n\nTotal Hours: {total_hours_formatted}\n"
+    response_message += f"\nComplete Pomodoros:\n".join(pomodoro_response)
     
     return response_message

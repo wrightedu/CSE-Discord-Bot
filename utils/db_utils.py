@@ -558,10 +558,10 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
                                 AND time_in BETWEEN ? and ?;"""
             sum_query = """SELECT SUM(total_time) as total_worked FROM timesheet
                             WHERE discord_id = ? AND time_in BETWEEN ? and ?;"""
-            complete_pomodoro_query = """SELECT pomodoro.timesheet_id, pomodoro.pomo_id,
+            complete_pomodoro_query = """SELECT pomodoro.timesheet_id, pomodoro.pomo_id, pomodoro.issue,
                                             pomodoro.status,pomodoro.time_delta 
                                             FROM pomodoro JOIN timesheet ON pomodoro.timesheet_id=timesheet.time_id 
-                                            WHERE timesheet.discord_id = ? AND status = 1;"""
+                                            WHERE timesheet.discord_id = ? AND status = 3;"""
             c.execute(record_query, (discord_id, start_date, end_date))
             all_records = c.fetchall()
             # print(all_records)
