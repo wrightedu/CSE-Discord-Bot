@@ -9,6 +9,16 @@ from tika import parser
 import pandas as pd
 import re
 
+# Crosslists (course number in key actually points to class in value)
+crosslists = {
+    "CEG 5350": "CEG 4350",
+    "CEG 6424": "CEG 4424",
+    "EE 2011": "EE 2010",
+    "EE 4910": "CEG 4980",
+    "EE 4920": "CEG 4981",
+    "EE 7840": "CEG 7550",
+}
+
 if __name__ == '__main__':
     text = parser.from_file('Look_Up_Classes.pdf')['content']
     # In order to get the PDF you must zoom out to 20% while printing the page
@@ -28,11 +38,13 @@ if __name__ == '__main__':
     # Duncan (P)
     # ---
     sections = text.split('\n\n')
+
     # Find sections that contain class names
     class_rows = []
     for section in sections:
         # If the select column has nothing in it
         match = re.search(r'^\d{5}\s', section)
+
         # Select Column: Select the box in front of the CRN then choose Register or Add to Worksheet. You may see the following in place of the box. A blank means already registered, C means a
         # closed class, NR means not available for registration and SR means a student restriction (i.e. time ticket has not started, holds, or academic standing restrictions).
         if section.startswith('C ') or section.startswith('NR ') or section.startswith('SR ') or match:
@@ -73,7 +85,7 @@ if __name__ == '__main__':
                 # If not already added to classes
                 if (class_department, class_number, class_name) not in classes:
                     # Add to class
-                    classes.append((class_department, class_number, class_name.replace("&", "and")))
+                    classes.append((class_department, class_number, class_name))
 
     # Create CSV as PD dataframes
     df = pd.DataFrame(classes, columns=('department', 'number', 'name'))
@@ -89,6 +101,14 @@ if __name__ == '__main__':
         row['long_name'] = row['name']
         lowercase_number = row['text'].replace(' ', '').lower()
         row['create_channels'] = f'#{lowercase_number},0#Student Voice,2#TA Voice'
+        
+        # If class crosslisted
+        if row['text'] in crosslists:
+            # Set role/link to be crosslisted class
+            row['role/link'] = crosslists[row['text']]
+
+            # Don't create any new channels
+            row['create_channels'] = ''
 
     # Handle duplicate class numbers
     text_occurances = df.groupby(['text']).size()
