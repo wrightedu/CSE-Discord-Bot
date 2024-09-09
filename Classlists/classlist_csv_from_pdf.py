@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # run these first:
-# sudo apt install python3-pip
+#ll python3-pip
 # pip install tika
 # pip install pandas
 
@@ -66,26 +66,16 @@ if __name__ == '__main__':
                     class_name += word.strip() + ' '
             class_name = class_name.strip().replace('\n', ' ')
 
-        # Add to class list if all the following conditions are true:
-        # If not a lab
-        if not class_number.endswith('L'):
-            # If not a recitation
-            if not class_number.endswith('R'):
-                # If not an independent study
-                if 'Independent Study' not in class_name:
-                    # If not a thesis
-                    if 'Thesis' not in class_name:
-                        # If not a PhD Dissertation or PhD Dissertation Research
-                        if 'PhD Dissertation' not in class_name:
-                            # If not an honors section of a course:
-                            if 'HON' not in class_name:
-                                # If not whatever CPT is
-                                if 'CPT' not in class_name:
-                                    # If not already added
-                                    if (class_department, class_number, class_name) not in classes:
-                                        classes.append((class_department, class_number, class_name))
+        # If not a lab or recitation
+        if not any(x in ['L', 'R'] for x in class_number[-1]):
+            # If not a reserved category
+            if not any(x in class_name for x in ['Independent Study', 'Thesis', 'PhD Dissertation', 'HON', 'CPT', 'Internship']):
+                # If not already added to classes
+                if (class_department, class_number, class_name) not in classes:
+                    # Add to class
+                    classes.append((class_department, class_number, class_name.replace("&", "and")))
 
-    # Create CSV as PD dataframe
+    # Create CSV as PD dataframes
     df = pd.DataFrame(classes, columns=('department', 'number', 'name'))
     df['text'] = ''
     df['emoji'] = ''
