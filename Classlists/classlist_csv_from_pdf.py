@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # run these first:
-#ll python3-pip
+# sudo apt install python3-pip
 # pip install tika
 # pip install pandas
 
