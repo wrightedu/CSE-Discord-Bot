@@ -383,9 +383,12 @@ class Checkin(commands.Cog):
         new_start_time = None if start_time is None else get_unix_time(start_time)
         new_end_time = None if end_time is None else get_unix_time(end_time)
         report = {}
-        for member in role.members:
-            if start_time is None and end_time is None:
-                #get the last pay period
+        response_message = ""
+
+        # for member in role.members:
+        if start_time is None and end_time is None:
+            for member in role.members:
+            #get the last pay period
                 todays_date = time.time()
                 monday = str(get_last_pay_period_monday(todays_date))
                 datetime_obj = datetime.datetime.strptime(monday, '%Y-%m-%d')
@@ -394,26 +397,33 @@ class Checkin(commands.Cog):
                 new_end_time = time.time()
                 all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
                 print(all_records)
+
                 if not all_records:
-                    response_message = 'No records found'
+                    response_message += f"No records found for {str(member)}\n."
                 else:
-                    print(str(member)+" :\n")
-                    print(all_records)
+                    response_message = f"{str(member)} :\n"
+                    response_message += result_parser(all_records, total_hours, complete_pomodoros)
 
+            await interaction.response.send_message(response_message, ephemeral=True)
 
-            elif start_time is not None and end_time is not None:
+        elif start_time is not None and end_time is not None:
+            for member in role.members:
                 all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
-                if not all_records and not complete_pomodoros:
-                    print("No record found for ", member.id)
+                
+                if not all_records:
+                    response_message += f"No records found for {str(member)}.\n"
                 else:
-                    report[member.id] = [all_records, total_hours, complete_pomodoros]
-                    #response_message = result_parser(all_records, total_hours, complete_pomodoros)
+                    print(member)
+                    response_message += f"{str(member)} :\n"
+                    response_message += result_parser(all_records, total_hours, complete_pomodoros)
 
-            else:
-                await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
+            await interaction.response.send_message(response_message, ephemeral=True)
 
-                # response_message = result_parser(all_records, total_hours, complete_pomodoros)
+        else:
+            await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
 
-                # await interaction.response.send_message(response_message, ephemeral=True)
+            # response_message = result_parser(all_records, total_hours, complete_pomodoros)
+
+            # await interaction.response.send_message(response_message, ephemeral=True)
 
         # print("printing report for now \n", report)
