@@ -291,7 +291,60 @@ async def change_checkin_status(bot: commands.Bot, interaction: discord.Interact
         # Get role object
         role = discord.utils.get(guild.roles, name="cse-devteam")
 
-        if role in member.roles:
-            print("This")
-        else:
-            print("That")
+        # See if user has role
+        if role is not None and role in member.roles:
+            status_emojis = {
+                "checkin": "🟢",
+                "pomodoro": "🟠",
+                "checkout": "🔴",
+            }
+
+            # Get checkin channel
+            channel = discord.utils.get(guild.channels, name='checkin')
+
+            # If channel is found
+            if channel is not None:
+                # Set message to assign
+                message = None
+
+                # Loop through ten most recent messages
+                async for temp_message in channel.history(limit=10, oldest_first=False):
+                    # If message has embeds
+                    if len(temp_message.embeds) == 1:
+                        # If embed is the embed we're looking for, set message
+                        if temp_message.embeds[0].title == 'CSE Development Team Status':
+                            message = temp_message
+                            break
+                
+                # If message was not found, create it
+                embed = discord.Embed(title="CSE Development Team Status")
+                if message is None:
+                    # Update description of new embed
+                    embed.description = f"```{interaction.user.name} - {status_emojis[status]}```"
+
+                    await channel.send(embed=embed)
+                # If message found, update it
+                else:
+                    # Update description of embed
+                    embed.description = message.embeds[0].description
+
+                    # If user is inside of embed already, update them
+                    if interaction.user.display_name in embed.description:
+                        print("Update status")
+                    # If user isn't in embed, add them
+                    else:
+                        # Remove trailing characters
+                        embed.description = embed.description.rstrip("`")
+
+                        # Remove placeholder if necessary
+                        embed.description = embed.description.replace("No members currently logged in", "")
+
+                        # Add spacing if needed
+                        if embed.description != '```':
+                            embed.description += "\n"
+
+                        # Add user and end code block
+                        embed.description += f"{interaction.user.display_name} - {status_emojis[status]}```"
+
+                        # Update message
+                        await message.edit(embed=embed)
