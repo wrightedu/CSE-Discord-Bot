@@ -1,6 +1,7 @@
 import datetime
 import aiofiles
 import discord
+from discord.ext import commands
 from bing_image_downloader import downloader
 
 
@@ -275,3 +276,22 @@ def get_unix_time(desired_date: str):
     datetime_obj = datetime.datetime.strptime(desired_date, "%m-%d-%Y")
     unix_desired_date = datetime_obj.timestamp()
     return unix_desired_date
+
+async def change_checkin_status(bot: commands.Bot, interaction: discord.Interaction, status: str):
+    # Find CSE Discord
+    guild = None
+    for temp_guild in bot.guilds:
+        if any(name in temp_guild.name for name in ['WSU CSE-EE Department', 'CSE Testing Server']):
+            guild = temp_guild
+
+    if guild is not None:
+        # Get member object
+        member = guild.get_member(interaction.user.id)
+
+        # Get role object
+        role = discord.utils.get(guild.roles, name="cse-devteam")
+
+        if role in member.roles:
+            print("This")
+        else:
+            print("That")
