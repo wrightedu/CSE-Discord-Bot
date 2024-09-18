@@ -1,3 +1,4 @@
+import re
 import datetime
 import aiofiles
 import discord
@@ -278,12 +279,21 @@ def get_unix_time(desired_date: str):
     return unix_desired_date
 
 async def change_checkin_status(bot: commands.Bot, interaction: discord.Interaction, status: str):
-    # Find CSE Discord
+    """ Function that changes the status of a CSE Dev Team member in checkin
+
+    Args:
+        bot (commands.Bot): a Discord bot object
+        interaction (discord.Interaction): Discord interaction to trigger change
+        status (str): The status to set
+    """
+
+    # Find Guilds to watch
     guild = None
     for temp_guild in bot.guilds:
         if any(name in temp_guild.name for name in ['WSU CSE-EE Department', 'CSE Testing Server']):
             guild = temp_guild
 
+    # If guild was found
     if guild is not None:
         # Get member object
         member = guild.get_member(interaction.user.id)
@@ -330,7 +340,17 @@ async def change_checkin_status(bot: commands.Bot, interaction: discord.Interact
 
                     # If user is inside of embed already, update them
                     if interaction.user.display_name in embed.description:
-                        print("Update status")
+                        # Remove all markdown ticks
+                        embed.description = embed.description.replace("```", "")
+
+                        # Replace description
+                        embed.description = re.sub(fr"({interaction.user.display_name} - )\S+(\s*$)", rf"\1{status_emojis[status]}\2", embed.description, flags=re.MULTILINE)
+
+                        # Readd markdown ticks
+                        embed.description = "```" + embed.description + "```"
+
+                        # Edit message
+                        await message.edit(embed=embed)
                     # If user isn't in embed, add them
                     else:
                         # Remove trailing characters
