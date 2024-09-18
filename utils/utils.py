@@ -278,7 +278,7 @@ def get_unix_time(desired_date: str):
     unix_desired_date = datetime_obj.timestamp()
     return unix_desired_date
 
-async def change_checkin_status(bot: commands.Bot, interaction: discord.Interaction, status: str):
+async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: str, status: str):
     """ Function that changes the status of a CSE Dev Team member in checkin
 
     Args:
@@ -296,7 +296,7 @@ async def change_checkin_status(bot: commands.Bot, interaction: discord.Interact
     # If guild was found
     if guild is not None:
         # Get member object
-        member = guild.get_member(interaction.user.id)
+        member = guild.get_member(user_id)
 
         # Get role object
         role = discord.utils.get(guild.roles, name="cse-devteam")
@@ -330,7 +330,7 @@ async def change_checkin_status(bot: commands.Bot, interaction: discord.Interact
                 embed = discord.Embed(title="CSE Development Team Status")
                 if message is None:
                     # Update description of new embed
-                    embed.description = f"```{interaction.user.name} - {status_emojis[status]}```"
+                    embed.description = f"```{display_name} - {status_emojis[status]}```"
 
                     await channel.send(embed=embed)
                 # If message found, update it
@@ -339,12 +339,12 @@ async def change_checkin_status(bot: commands.Bot, interaction: discord.Interact
                     embed.description = message.embeds[0].description
 
                     # If user is inside of embed already, update them
-                    if interaction.user.display_name in embed.description:
+                    if display_name in embed.description:
                         # Remove all markdown ticks
                         embed.description = embed.description.replace("```", "")
 
                         # Replace description
-                        embed.description = re.sub(fr"({interaction.user.display_name} - )\S+(\s*$)", rf"\1{status_emojis[status]}\2", embed.description, flags=re.MULTILINE)
+                        embed.description = re.sub(fr"({display_name} - )\S+(\s*$)", rf"\1{status_emojis[status]}\2", embed.description, flags=re.MULTILINE)
 
                         # Readd markdown ticks
                         embed.description = "```" + embed.description + "```"
@@ -364,7 +364,7 @@ async def change_checkin_status(bot: commands.Bot, interaction: discord.Interact
                             embed.description += "\n"
 
                         # Add user and end code block
-                        embed.description += f"{interaction.user.display_name} - {status_emojis[status]}```"
+                        embed.description += f"{display_name} - {status_emojis[status]}```"
 
                         # Update message
                         await message.edit(embed=embed)
