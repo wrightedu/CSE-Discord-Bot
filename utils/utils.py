@@ -283,7 +283,8 @@ async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: s
 
     Args:
         bot (commands.Bot): a Discord bot object
-        interaction (discord.Interaction): Discord interaction to trigger change
+        user_id (int): ID of Discord user that triggered change
+        display_name (str): Display name of user that triggered change
         status (str): The status to set
     """
 
