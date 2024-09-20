@@ -48,6 +48,7 @@ class Checkin(commands.Cog):
                 timesheet = insert_timesheet(conn, interaction.user.id, time)
 
                 await update_view(interaction, Checkin.checked_in_view())
+                await change_checkin_status(self.bot, interaction.user.id, interaction.user.display_name, 'checkin')
                 await interaction.response.send_message("You have checked in!", ephemeral=True)
             elif 'checkedin_pomo_btn' in interaction.data['custom_id']:
                 modal = discord.ui.Modal(title="Pomodoro Creation", custom_id=f"checkedin_pomo_create_{interaction.message.id}")
@@ -67,6 +68,7 @@ class Checkin(commands.Cog):
                 message = await channel.fetch_message(message_id)
                 await message.edit(view=Checkin.pomo_view())
 
+                await change_checkin_status(self.bot, interaction.user.id, interaction.user.display_name, 'pomodoro')
                 await interaction.response.send_message("You have started a pomodoro. I will check with you in 20 minutes", ephemeral=True)
             elif 'checkedin_checkout_btn' in interaction.data['custom_id']:
                 conn = create_connection("cse_discord.db")
@@ -81,6 +83,7 @@ class Checkin(commands.Cog):
                 
                 if timesheet is True:
                     await update_view(interaction, Checkin.checkin_view())
+                    await change_checkin_status(self.bot, interaction.user.id, interaction.user.display_name, 'checkout')
                     await interaction.response.send_message(f"You have now been clocked out. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                 else:
                     await interaction.response.send_message("Error while checking out", ephemeral=True)
@@ -105,6 +108,7 @@ class Checkin(commands.Cog):
                                     await message.delete()
                                     break
                         
+                        await change_checkin_status(self.bot, interaction.user.id, interaction.user.display_name, 'checkin')
                         await update_view(interaction, Checkin.checked_in_view())
                         await interaction.response.send_message(f"You have now completed your pomodoro. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                     else:
@@ -135,8 +139,6 @@ class Checkin(commands.Cog):
                         await interaction.response.send_message(f"Your issue has been recorded", ephemeral=True)
                     else:
                         await interaction.response.send_message(f"Error!", ephemeral=True)
-
-
 
     def checkin_view():
         """Function that returns the check in view upon registration
@@ -322,6 +324,7 @@ class Checkin(commands.Cog):
                         close_all_pomodoros(conn, timesheet[0], time)
 
                         channel = await user.create_dm()
+                        await change_checkin_status(self.bot, user.id, user.display_name, 'checkout')
                         await Checkin.clear_checkin_messages(self, channel, user)
 
     #TODO The get_report and get_montly_report function needs to be changed such that the output is presented to the user in a suitable and formatted fashion
