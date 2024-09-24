@@ -4,6 +4,7 @@ import discord
 from bing_image_downloader import downloader
 # import time
 
+
 async def confirmation(bot, interaction:discord.Interaction, confirm_string='confirm'):
     """Add a layer of security to sensitive commands by adding a confirmation step
     Send message to user informing what confirmation code is. Ensure the next message received is by the author

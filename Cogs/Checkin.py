@@ -396,7 +396,6 @@ class Checkin(commands.Cog):
 
                 new_end_time = time.time()
                 all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
-                print(all_records)
 
                 if not all_records:
                     response_message += f"No records found for {str(member)}\n."
@@ -404,7 +403,12 @@ class Checkin(commands.Cog):
                     response_message = f"{str(member)} :\n"
                     response_message += result_parser(all_records, total_hours, complete_pomodoros)
 
-            await interaction.response.send_message(response_message, ephemeral=True)
+            with open("assets/admin_user_report.txt", "w") as admin_report:
+                # assets
+                # Cogs/Checkin.py
+                admin_report.write(response_message)
+
+            await interaction.channel.send(file=discord.File('assets/admin_user_report.txt'))
 
         elif start_time is not None and end_time is not None:
             for member in role.members:
@@ -417,7 +421,10 @@ class Checkin(commands.Cog):
                     response_message += f"{str(member)} :\n"
                     response_message += result_parser(all_records, total_hours, complete_pomodoros)
 
-            await interaction.response.send_message(response_message, ephemeral=True)
+            with open("assets/admin_user_report.txt", "w") as admin_report:
+                admin_report.write(response_message)
+
+            await interaction.channel.send(file=discord.File('assets/admin_user_report.txt'))
 
         else:
             await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
