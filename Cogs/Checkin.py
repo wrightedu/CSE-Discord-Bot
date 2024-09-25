@@ -398,14 +398,12 @@ class Checkin(commands.Cog):
                 all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
 
                 if not all_records:
-                    response_message += f"No records found for {str(member)}\n."
+                    response_message += f"\nNo records found for {str(member)}.\n\n"
                 else:
-                    response_message = f"{str(member)} :\n"
+                    response_message = f"{str(member)} :\n\n"
                     response_message += result_parser(all_records, total_hours, complete_pomodoros)
 
             with open("assets/admin_user_report.txt", "w") as admin_report:
-                # assets
-                # Cogs/Checkin.py
                 admin_report.write(response_message)
 
             await interaction.channel.send(file=discord.File('assets/admin_user_report.txt'))
@@ -415,10 +413,10 @@ class Checkin(commands.Cog):
                 all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
                 
                 if not all_records:
-                    response_message += f"No records found for {str(member)}.\n"
+                    response_message += f"\nNo records found for {str(member)}.\n\n"
                 else:
                     print(member)
-                    response_message += f"{str(member)} :\n"
+                    response_message += f"{str(member)} :\n\n"
                     response_message += result_parser(all_records, total_hours, complete_pomodoros)
 
             with open("assets/admin_user_report.txt", "w") as admin_report:

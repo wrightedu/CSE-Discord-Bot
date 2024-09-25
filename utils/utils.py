@@ -288,7 +288,7 @@ def result_parser(all_records, total_hours, complete_pomodoros):
         start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
         end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S') if record[3] is not None else 0
         total_hours_logged = record[4]/3600 if record[4] is not None else 0
-        timesheet_response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}\n Hours Logged: {total_hours_logged:.3f}")
+        timesheet_response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}\nHours Logged: {total_hours_logged:.3f}")
 
     # Fomatting total_hours
     if total_hours[0][0] is None:
@@ -303,10 +303,13 @@ def result_parser(all_records, total_hours, complete_pomodoros):
 
     # Formatting complete_pomodoros
     pomodoro_response = []
-    for pomodoro in complete_pomodoros:
-        # print(pomodoro[2], pomodoro[3])
-        time_spent_formatted = datetime.datetime.fromtimestamp(float(pomodoro[3])).strftime('%H:%M:%S') if pomodoro[3] is not None else 0
-        pomodoro_response.append(f"Issue: {pomodoro[2]}\nTime Spent: {time_spent_formatted}\n")
+
+    if not complete_pomodoros:
+        pomodoro_response.append("No records found.\n")
+    else: 
+        for pomodoro in complete_pomodoros:
+            time_spent_formatted = datetime.datetime.fromtimestamp(float(pomodoro[3])).strftime('%H:%M:%S') if pomodoro[3] is not None else 0
+            pomodoro_response.append(f"Issue: {pomodoro[2]}\nTime Spent: {time_spent_formatted}\n")
 
     response_message = "Timesheets:\n"
     response_message += "\n\n".join(timesheet_response)
