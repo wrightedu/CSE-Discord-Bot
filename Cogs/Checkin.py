@@ -371,8 +371,6 @@ class Checkin(commands.Cog):
             await interaction.response.send_message(response_message, ephemeral=True)
 
 
-    # TODO generate monthly report for admin levels only
-
     @check_in_group.command(name='report-monthly', description="Generate report of multiple user for the month. Date Format should be in MM-DD-YYYY")
     @app_commands.default_permissions(administrator=True)
     async def get_montly_report(self, interaction: discord.Interaction, role:discord.Role, start_time:str = None, end_time:str = None):
@@ -419,6 +417,8 @@ class Checkin(commands.Cog):
                     response_message += f"{str(member)} :\n\n"
                     response_message += result_parser(all_records, total_hours, complete_pomodoros)
 
+                response_message += "===================================\n\n"
+
             with open("assets/admin_user_report.txt", "w") as admin_report:
                 admin_report.write(response_message)
 
@@ -426,9 +426,3 @@ class Checkin(commands.Cog):
 
         else:
             await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
-
-            # response_message = result_parser(all_records, total_hours, complete_pomodoros)
-
-            # await interaction.response.send_message(response_message, ephemeral=True)
-
-        # print("printing report for now \n", report)
