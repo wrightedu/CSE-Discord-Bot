@@ -143,7 +143,7 @@ class MOSS(commands.Cog):
         # saves .zip file
         await file.attachments[0].save(zip_filepath)
 
-        moss_command = f'python3 ./utils/WSU_mossScript.py --id {moss_id}'
+        moss_command = f"python3 ./utils/WSU_mossScript.py --id {moss_id}"
 
         process = subprocess.Popen(
             moss_command, stdout = subprocess.PIPE, shell=True)
