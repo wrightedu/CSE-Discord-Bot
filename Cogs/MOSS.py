@@ -142,7 +142,9 @@ class MOSS(commands.Cog):
 
         # saves .zip file
         await file.attachments[0].save(zip_filepath)
-
+        
+        # This is the bain of my existence. Change this to "python" instead of "python3"
+        # if running on the development SIF. Will complain to Matt about this. God speed.
         moss_command = f"python3 ./utils/WSU_mossScript.py --id {moss_id}"
 
         process = subprocess.Popen(
