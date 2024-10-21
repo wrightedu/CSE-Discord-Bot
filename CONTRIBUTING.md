@@ -18,6 +18,10 @@ This Discord bot requires the dependencies listed in [REQUIREMENTS.txt](REQUIREM
 
 You can `pip install -r REQUIREMENTS.txt` to install all dependencies in one command. We recommend using an environment, either a Python built-in environment or [Anaconda](https://www.anaconda.com/products/individual).
 
+### Python Linking
+
+This Discord bot requires that the `python3` and `python` commands be linked if you use `python` as your main run command. Without this, features like MOSS will not work.
+
 ### Discord Bot Authentication
 
 Create a file `.env` in the same directory as `bot.py` with the following contents:

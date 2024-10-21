@@ -1,6 +1,8 @@
+import re
 import datetime
 import aiofiles
 import discord
+from discord.ext import commands
 from bing_image_downloader import downloader
 
 
@@ -275,3 +277,95 @@ def get_unix_time(desired_date: str):
     datetime_obj = datetime.datetime.strptime(desired_date, "%m-%d-%Y")
     unix_desired_date = datetime_obj.timestamp()
     return unix_desired_date
+
+async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: str, status: str):
+    """ Function that changes the status of a CSE Dev Team member in checkin
+
+    Args:
+        bot (commands.Bot): a Discord bot object
+        user_id (int): ID of Discord user that triggered change
+        display_name (str): Display name of user that triggered change
+        status (str): The status to set
+    """
+
+    # Find Guilds to watch
+    guild = None
+    for temp_guild in bot.guilds:
+        if any(name in temp_guild.name for name in ['WSU CSE-EE Department', 'CSE Testing Server']):
+            guild = temp_guild
+
+    # If guild was found
+    if guild is not None:
+        # Get member object
+        member = guild.get_member(user_id)
+
+        # Get role object
+        role = discord.utils.get(guild.roles, name="cse-devteam")
+
+        # See if user has role
+        if role is not None and role in member.roles:
+            status_emojis = {
+                "checkin": "🟢",
+                "pomodoro": "🟠",
+                "checkout": "🔴",
+            }
+
+            # Get checkin channel
+            channel = discord.utils.get(guild.channels, name='checkin')
+
+            # If channel is found
+            if channel is not None:
+                # Set message to assign
+                message = None
+
+                # Loop through ten most recent messages
+                async for temp_message in channel.history(limit=10, oldest_first=False):
+                    # If message has embeds
+                    if len(temp_message.embeds) == 1:
+                        # If embed is the embed we're looking for, set message
+                        if temp_message.embeds[0].title == 'CSE Development Team Status':
+                            message = temp_message
+                            break
+                
+                # If message was not found, create it
+                embed = discord.Embed(title="CSE Development Team Status")
+                if message is None:
+                    # Update description of new embed
+                    embed.description = f"```{display_name} - {status_emojis[status]}```"
+
+                    await channel.send(embed=embed)
+                # If message found, update it
+                else:
+                    # Update description of embed
+                    embed.description = message.embeds[0].description
+
+                    # If user is inside of embed already, update them
+                    if display_name in embed.description:
+                        # Remove all markdown ticks
+                        embed.description = embed.description.replace("```", "")
+
+                        # Replace description
+                        embed.description = re.sub(fr"({display_name} - )\S+(\s*$)", rf"\1{status_emojis[status]}\2", embed.description, flags=re.MULTILINE)
+
+                        # Readd markdown ticks
+                        embed.description = "```" + embed.description + "```"
+
+                        # Edit message
+                        await message.edit(embed=embed)
+                    # If user isn't in embed, add them
+                    else:
+                        # Remove trailing characters
+                        embed.description = embed.description.rstrip("`")
+
+                        # Remove placeholder if necessary
+                        embed.description = embed.description.replace("No members currently logged in", "")
+
+                        # Add spacing if needed
+                        if embed.description != '```':
+                            embed.description += "\n"
+
+                        # Add user and end code block
+                        embed.description += f"{display_name} - {status_emojis[status]}```"
+
+                        # Update message
+                        await message.edit(embed=embed)

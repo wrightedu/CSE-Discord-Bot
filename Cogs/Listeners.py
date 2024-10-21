@@ -35,11 +35,11 @@ class Listeners(commands.Cog):
             # Only react if its in the help room channel and if the user has the TA role
             if ctx.channel.name == 'cs-help-room' and ta_role in ctx.author.roles:
                 # Establishes a list of keywords to check for in the message
-                keywords = ['greetings', 'hi', 'hello', 'hey', 'howdy', 'yo', 'sup', 'office hours', 'help room', 'helproom', 'russ', 'joshi']
+                keywords = ['greetings', 'hi', 'hi!', 'hello', 'hello!', 'hey', 'howdy', 'yo', 'sup', 'office hours', 'help room', 'helproom', 'russ', 'joshi']
                 message = ctx.content
 
                 # Add the reaction if any keywords are found in the message
-                if any(keyword in message.lower() for keyword in keywords):
+                if any(keyword in message.lower().split() for keyword in keywords):
                     await ctx.add_reaction("👋")
 
 
