@@ -370,13 +370,15 @@ class Checkin(commands.Cog):
 
             await interaction.response.send_message(response_message, ephemeral=True)
 
-
     @check_in_group.command(name='report-monthly', description="Generate report of multiple user for the month. Date Format should be in MM-DD-YYYY")
     @app_commands.default_permissions(administrator=True)
     async def get_montly_report(self, interaction: discord.Interaction, role:discord.Role, start_time:str = None, end_time:str = None):
         """
             Generates report for multiple user for admin level user
         """
+        # Defer interaction
+        await interaction.response.defer(ephemeral=True)
+
         conn = create_connection("cse_discord.db")
         new_start_time = None if start_time is None else get_unix_time(start_time)
         new_end_time = None if end_time is None else get_unix_time(end_time)
@@ -404,8 +406,7 @@ class Checkin(commands.Cog):
             with open("assets/admin_user_report.txt", "w") as admin_report:
                 admin_report.write(response_message)
 
-            await interaction.channel.send(file=discord.File('assets/admin_user_report.txt'))
-
+            await interaction.followup.send("Here are the results:", file=discord.File('assets/admin_user_report.txt'), ephemeral=True)
         elif start_time is not None and end_time is not None:
             for member in role.members:
                 all_records, total_hours, complete_pomodoros = get_user_report(conn, member.id, new_start_time,new_end_time)
@@ -422,7 +423,6 @@ class Checkin(commands.Cog):
             with open("assets/admin_user_report.txt", "w") as admin_report:
                 admin_report.write(response_message)
 
-            await interaction.channel.send(file=discord.File('assets/admin_user_report.txt'))
-
+            await interaction.followup.send("Here are the results:", file=discord.File('assets/admin_user_report.txt'), ephemeral=True)
         else:
-            await interaction.response.send_message("Please provide both dates for a given range or leave empty for your last pay period", ephemeral=True)
+            await interaction.followup.send("Please provide both dates for a given range or leave empty for the last pay period", ephemeral=True)
