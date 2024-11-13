@@ -9,7 +9,7 @@ from discord.ext import commands, tasks
 from discord import app_commands
 
 from utils.utils import *
-from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help, get_all_open_pomodoros, get_all_open_timesheets, close_all_pomodoros, get_user_report
+from utils.db_utils import initialize_db, insert_user, create_connection, insert_timesheet, insert_pomodoro, update_timesheet, get_timesheet_id, get_timesheet, get_pomodoro_id, get_pomodoro, update_pomodoro, insert_user_help, get_all_open_pomodoros, get_all_open_timesheets, close_all_pomodoros, get_user_report, update_pomo_rewards
 
 async def setup(bot):
     cwd = (os.path.dirname(os.path.abspath(__file__)))
@@ -110,6 +110,7 @@ class Checkin(commands.Cog):
                         
                         await change_checkin_status(self.bot, interaction.user.id, interaction.user.display_name, 'checkin')
                         await update_view(interaction, Checkin.checked_in_view())
+                        await update_pomo_rewards(conn, interaction.user.id)
                         await interaction.response.send_message(f"You have now completed your pomodoro. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                     else:
                         await interaction.response.send_message(f"Error! Unable to close pomodoro", ephemeral=True)

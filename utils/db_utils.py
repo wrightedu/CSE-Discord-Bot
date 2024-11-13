@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import datetime
 
 
 def initialize_db(db_location) -> None:
@@ -582,4 +583,5 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
     else:
         print("Error! Cannot create database connection")
 
-
+async def update_pomo_rewards(conn, discord_id: str):
+    today = datetime.datetime.today().timestamp()
