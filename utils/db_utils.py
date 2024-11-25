@@ -584,4 +584,18 @@ def get_user_report(conn, discord_id: str, start_date: str, end_date: str):
         print("Error! Cannot create database connection")
 
 async def update_pomo_rewards(conn, discord_id: str):
-    today = datetime.datetime.today().timestamp()
+    beginning = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
+    end = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999).timestamp()
+
+    if conn is not None:
+        try:
+            c = conn.cursor()
+            pomodo_query = """SELECT COUNT(*) FROM pomodoro WHERE status = 3 AND time_start >= ? AND time_finish <= ?"""
+            c.execute(pomodo_query, (str(beginning), str(end)))
+            num_pomos = c.fetchone()[0]
+
+            return num_pomos
+        except sqlite3.Error as e:
+            print(e)
+            conn.rollback()
+            return None
