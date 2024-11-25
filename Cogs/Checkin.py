@@ -129,7 +129,7 @@ class Checkin(commands.Cog):
                         await change_checkin_status(self.bot, interaction.user.id, interaction.user.display_name, 'checkin')
                         await update_view(interaction, Checkin.checked_in_view())
                         if "pomo_done_btn" in interaction.data['custom_id']:
-                            await update_pomo_rewards(conn, interaction.user.id)
+                            message = await update_pomo_rewards(conn, interaction.user.id)
                         await interaction.response.send_message(f"You have now completed your pomodoro. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                     else:
                         await interaction.response.send_message(f"Error! Unable to close pomodoro", ephemeral=True)

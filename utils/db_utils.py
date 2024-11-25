@@ -592,9 +592,20 @@ async def update_pomo_rewards(conn, discord_id: str):
             c = conn.cursor()
             pomodo_query = """SELECT COUNT(*) FROM pomodoro WHERE status = 3 AND time_start >= ? AND time_finish <= ?"""
             c.execute(pomodo_query, (str(beginning), str(end)))
+            
             num_pomos = c.fetchone()[0]
+            message = None
 
-            return num_pomos
+            if num_pomos == 3:
+                message = "Kilimanjaro"
+            elif num_pomos == 10:
+                message = "Killionaire"
+            elif num_pomos == 20:
+                message = "Ran out of medals"
+            elif num_pomos >= 30:
+                message = "Just go home, nerdd"
+
+            return message
         except sqlite3.Error as e:
             print(e)
             conn.rollback()
