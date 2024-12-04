@@ -3,6 +3,7 @@ import os
 from datetime import time
 import pandas as pd
 import time
+import re
 
 from discord.ui import View
 from discord.ext import commands, tasks
@@ -130,6 +131,23 @@ class Checkin(commands.Cog):
                         await update_view(interaction, Checkin.checked_in_view())
                         if "pomo_done_btn" in interaction.data['custom_id']:
                             message = await update_pomo_rewards(conn, interaction.user.id)
+
+                            if message is not None:
+                                guild = None
+                                for temp_guild in self.bot.guilds:
+                                    if any(name in temp_guild.name for name in ['WSU CSE-EE Department', 'CSE Testing Server']):
+                                        guild = temp_guild
+
+                                # If guild was found
+                                if guild is not None:
+                                    role = discord.utils.get(guild.roles, name=message)
+                                    
+                                    member = await guild.fetch_member(interaction.user.id)
+
+                                    await member.add_roles(role)
+                                else:
+                                    print("Guild none")
+
                         await interaction.response.send_message(f"You have now completed your pomodoro. Total time: **{await get_string_from_epoch(total_time)}**", ephemeral=True)
                     else:
                         await interaction.response.send_message(f"Error! Unable to close pomodoro", ephemeral=True)

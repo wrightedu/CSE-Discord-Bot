@@ -596,14 +596,14 @@ async def update_pomo_rewards(conn, discord_id: str):
             num_pomos = c.fetchone()[0]
             message = None
 
-            if num_pomos == 3:
+            if num_pomos >= 3 and num_pomos < 10:
                 message = "Kilimanjaro"
-            elif num_pomos == 10:
+            elif num_pomos >= 10 and num_pomos < 20:
                 message = "Killionaire"
-            elif num_pomos == 20:
+            elif num_pomos >= 20 and num_pomos < 30:
                 message = "Ran out of medals"
             elif num_pomos >= 30:
-                message = "Just go home, nerdd"
+                message = "Just go home nerddd"
 
             return message
         except sqlite3.Error as e:
