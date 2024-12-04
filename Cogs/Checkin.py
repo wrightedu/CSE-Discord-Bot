@@ -44,10 +44,12 @@ async def setup(bot):
 class Checkin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.remove_reward_roles.start()
         self.check_pomodoros.start()
         self.check_timesheets.start()
 
     def cog_unload(self):
+        self.remove_reward_roles.cancel()
         self.check_pomodoros.cancel()
         self.check_timesheets.cancel()
 
@@ -315,6 +317,12 @@ class Checkin(commands.Cog):
 
         # Send new view
         await channel.send(view=Checkin.checkin_view())
+    
+    # Run this everyday at X time
+    # In UTC, so -5 hours for EST (or -4 hours for EDT)
+    @tasks.loop(time = datetime.time(hour=5, minute=0, second=0))
+    async def remove_reward_roles(self):
+        print("Removing role")
 
     @tasks.loop(minutes=2.0)
     async def check_pomodoros(self):
