@@ -320,9 +320,12 @@ class Checkin(commands.Cog):
     
     # Run this everyday at X time
     # In UTC, so -5 hours for EST (or -4 hours for EDT)
+    # IE: take EST (or EDT) and add 5 or 4 respectively
     @tasks.loop(time = datetime.time(hour=5, minute=0, second=0))
     async def remove_reward_roles(self):
-        print("Removing role")
+        print("Checking roles to remove")
+
+        # TODO Loop through all pomodoro roles and remove them
 
     @tasks.loop(minutes=2.0)
     async def check_pomodoros(self):
