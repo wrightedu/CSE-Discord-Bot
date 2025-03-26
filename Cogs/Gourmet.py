@@ -28,13 +28,20 @@ class Gourmet(commands.Cog):
             super().__init__(timeout=timeout)
             self.cog = cog
             self.restaurants = copy.deepcopy(cog.restaurants).sample(frac=1).reset_index(drop=True)
+            self.choice_count = 0
 
         @discord.ui.button(label="Random", style=discord.ButtonStyle.blurple, emoji='\U0001F3B1')
         async def random(self, interaction:discord.Interaction, button:discord.ui.Button):
             """Returns a random restaurant"""
 
-            if not len(self.restaurants) == 0:
+            if not len(self.restaurants) == 0 and self.choice_count < 8:
+                # Increment number of choices made
+                self.choice_count += 1
+
+                # Get top restaurant from randomized list
                 restaurant = self.restaurants.head(1)
+
+                # Remove element from already selected restaurants
                 self.restaurants = self.restaurants.drop(restaurant.index)
 
                 await interaction.response.edit_message(content='**' + restaurant.iloc[0]['name'] + '**', view=self)
@@ -61,13 +68,13 @@ class Gourmet(commands.Cog):
                 return
 
             # Create new row
-            resturant = pd.DataFrame({'name': [msg.content]})
+            restaurant = pd.DataFrame({'name': [msg.content]})
 
             # Append new restaurant into restaurants
-            self.cog.restaurants = pd.concat([self.cog.restaurants, resturant], ignore_index=True)
+            self.cog.restaurants = pd.concat([self.cog.restaurants, restaurant], ignore_index=True)
 
             # Append new restaurants into current list of restuarants
-            self.restaurants = pd.concat([self.restaurants, resturant], ignore_index=True)
+            self.restaurants = pd.concat([self.restaurants, restaurant], ignore_index=True)
 
             # Write restaurants into csv
             await self.cog.write_restaurants()
@@ -89,15 +96,19 @@ class Gourmet(commands.Cog):
             # Waiting for the user's response (with interactons!)
             msg = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
-            # Turning msg to lowercase
-            msg.content = msg.content.casefold()
+            # Get restaurant
+            restaurant = self.cog.restaurants[self.cog.restaurants['name'] == msg.content]
 
-            # If the restaurant is not in the list it responds with an error
-            for rest in self.main_list:
-                if msg.content == rest.casefold():
-                    self.main_list.remove(rest)
-                    await interaction.message.edit(content=f'**__{msg.content} has been removed.__**', view=self)
-                    return
+            if len(restaurant) == 1:
+                # Remove restaurant
+                self.cog.restaurants = self.cog.restaurants.drop(restaurant.index)
+
+                # Update restaurants
+                await self.cog.write_restaurants()
+
+                # Edit message
+                await interaction.message.edit(content=f'**__{msg.content} has been removed.__**', view=self)
+                return
             await interaction.message.edit(content=f'**__Error: {msg.content} is not in the list.__**', view=self)
 
             self.normal_restaurant = self.main_list
