@@ -4,7 +4,7 @@ import aiofiles
 import discord
 from discord.ext import commands
 from bing_image_downloader import downloader
-
+# import time
 
 async def confirmation(bot, interaction:discord.Interaction, confirm_string='confirm'):
     """Add a layer of security to sensitive commands by adding a confirmation step
@@ -277,6 +277,45 @@ def get_unix_time(desired_date: str):
     datetime_obj = datetime.datetime.strptime(desired_date, "%m-%d-%Y")
     unix_desired_date = datetime_obj.timestamp()
     return unix_desired_date
+
+
+def result_parser(all_records, total_hours, complete_pomodoros):
+    """takes in a Data MM-DD-YYYY format and returns the timesheet info in a pretty way. Returns completed pomodoros in pretty format.
+        NOTE FOR FUTURE DEV: ONLY USE DURING THE REPORT FUNCTION"""
+    # Formatting all_records
+    timesheet_response = []
+    for record in all_records:
+        # print(record[2],  record[3])
+        start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
+        end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S') if record[3] is not None else 0
+        total_hours_logged = record[4]/3600 if record[4] is not None else 0
+        timesheet_response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}\n Hours Logged: {total_hours_logged:.3f}")
+
+    # Fomatting total_hours
+    if total_hours[0][0] is None:
+        total_seconds = 0
+    else:
+        total_seconds = int(total_hours[0][0])
+        # print(total_secods)
+
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes = remainder // 60
+    total_hours_formatted = f"{hours}h {minutes}m"
+
+    # Formatting complete_pomodoros
+    pomodoro_response = []
+    for pomodoro in complete_pomodoros:
+        # print(pomodoro[2], pomodoro[3])
+        time_spent_formatted = datetime.datetime.fromtimestamp(float(pomodoro[3])).strftime('%H:%M:%S') if pomodoro[3] is not None else 0
+        pomodoro_response.append(f"Issue: {pomodoro[2]}\nTime Spent: {time_spent_formatted}\n")
+
+    response_message = "Timesheets:\n"
+    response_message += "\n\n".join(timesheet_response)
+    response_message += f"\n\n\nTotal Hours: {total_hours_formatted}\n\n\n"
+    response_message += f'Complete Pomodoros:\n'
+    response_message += f"\n".join(pomodoro_response)
+    
+    return response_message
 
 async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: str, status: str):
     """ Function that changes the status of a CSE Dev Team member in checkin
