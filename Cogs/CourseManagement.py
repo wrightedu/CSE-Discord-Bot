@@ -1,5 +1,6 @@
 import os
 import re
+import discord
 import pandas as pd
 
 from discord.ext import commands
@@ -12,10 +13,22 @@ from utils.utils import *
 
 
 async def setup(bot:commands.Bot):
+    """
+    Setup function to initialize the CourseManagement cog.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     await bot.add_cog(CourseManagement(bot))
 
 
 class CourseManagement(commands.Cog):
+    """
+    A class representing commands for managing courses.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -75,7 +88,7 @@ class CourseManagement(commands.Cog):
             category = get(interaction.guild.categories, name=category_name)
 
             # If the category was not found it adds it to the missing_categories message
-            if category == None:
+            if category is None:
                 missing_categories += f'{category_name}\n'
             else:
                 categories.append(category)
@@ -105,7 +118,7 @@ class CourseManagement(commands.Cog):
             role = get(interaction.guild.roles, name=role_name)
 
             # If the role was not found it adds it to the missing_roles message
-            if role == None:
+            if role is None:
                 missing_roles += f'{role_name}\n'
             else:
                 roles.append(role)
@@ -118,7 +131,7 @@ class CourseManagement(commands.Cog):
 
     @app_commands.command(description="Create course channels")
     @app_commands.default_permissions(administrator=True)
-    async def buildcourses(self, interaction:discord.Interaction):
+    async def build_courses(self, interaction:discord.Interaction):
         """Create course channels
         Try to destroy old course channels (calls on destroycourses)
         Read in role csv from cached file or from attachment on discord message
@@ -161,7 +174,7 @@ class CourseManagement(commands.Cog):
             message += f'{category_name}\n'
         await interaction.channel.send(message)
 
-        if not len(category_names):
+        if not category_names:
             await interaction.channel.send("NO CATEGORIES TO BUILD")
 
         # Get confirmation before building channels
@@ -172,7 +185,7 @@ class CourseManagement(commands.Cog):
                 attach_files=True, read_message_history=True, add_reactions=True, connect=True, speak=True, 
                 stream=True, use_voice_activation=True, change_nickname=True, mention_everyone=False)
         
-        for i in range(len(role_names)):
+        for i, role_name in enumerate(role_names):
             # Create roles
             role_name = role_names[i]
             role = await interaction.guild.create_role(name=role_name, permissions=permissions)
@@ -202,7 +215,7 @@ class CourseManagement(commands.Cog):
 
     @app_commands.command()
     @app_commands.default_permissions(administrator=True)
-    async def destroycourses(self, interaction:discord.Interaction):
+    async def destroy_courses(self, interaction:discord.Interaction):
         """Destroy course channels
         Try loading in cached classlist csv
         Create list of all categories and roles to be deleted, send to author
@@ -216,7 +229,6 @@ class CourseManagement(commands.Cog):
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
             await interaction.followup.send("File not found")
-            raise FileNotFoundError
 
         # drop cross-listed courses (and other roles if on the file)
         courses_df = courses_df.dropna(subset=['create_channels'])
@@ -234,7 +246,7 @@ class CourseManagement(commands.Cog):
             for category in categories:
                 message += f'{category.name}\n'
         else:
-            message += f'NO CATEGORIES FOUND\n'
+            message += 'NO CATEGORIES FOUND\n'
         
         await interaction.channel.send(message)
         
@@ -243,7 +255,7 @@ class CourseManagement(commands.Cog):
             for role in destroy_roles:
                 message += f'{role.name}\n'
         else:
-            message += f'NO ROLES FOUND\n'
+            message += 'NO ROLES FOUND\n'
 
         await interaction.channel.send(message)
 
@@ -287,7 +299,6 @@ class CourseManagement(commands.Cog):
             courses_df = pd.read_csv(csv_filepath)
         except FileNotFoundError:
             await interaction.channel.send("File not found")
-            raise FileNotFoundError
 
         # iterates through dataframe checking if a role exists
         # if it doesn't, a confirmation message is created to display
@@ -314,10 +325,11 @@ class CourseManagement(commands.Cog):
             # adds RoleButtons to a view with custom attributes and sends it to the appropriate channel
             channel_name = f'{prefix.lower()}-class-selection'
             channel = await get_channel_named(interaction.guild, channel_name)
-            if channel == None:
+            if channel is None:
                 message += f"{channel_name} can't be found.\n"
                 continue
             view = View(timeout=None)
+            
             for i in range(len(role_names)):
                 # ensure prefix matches the course name (CEG, CS, EE)
                 if re.match(prefix, category_names[i]):
@@ -328,7 +340,7 @@ class CourseManagement(commands.Cog):
                     name = str(role_names[i]).replace(" ", "_")
                     this_button = discord.ui.Button(label=f"{category_names[i]} - {long_names[i]}", style=discord.ButtonStyle.gray, custom_id=f"select_role_class_{name}_{i}")
                     view.add_item(this_button)
-            if not len(view.children):
+            if not view.children:
                 message += f"No buttons were built for: {prefix}\n"
                 continue
             await channel.send(view=view)
@@ -337,7 +349,7 @@ class CourseManagement(commands.Cog):
 
     @app_commands.command()
     @app_commands.default_permissions(administrator=True)
-    async def buildrolemenu(self, interaction:discord.Interaction):
+    async def build_role_menu(self, interaction:discord.Interaction):
         """Creates rolemenu dropdown
         Creates options for class prefixes
         Creates a select menu (dropdown) using these options
@@ -370,7 +382,7 @@ class CourseManagement(commands.Cog):
 
     @app_commands.command(description="Add a role and have a button for it")
     @app_commands.default_permissions(administrator=True)
-    async def createrolebutton(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str = 'None'):
+    async def create_role_button(self, interaction:discord.Interaction, role_name:str, button_name:str, emoji:str = 'None'):
         """Creates role menus
         Take in user input for what button and role to create
         Check the role given to see if it is a URL
@@ -422,7 +434,7 @@ class CourseManagement(commands.Cog):
         # send button to user and log command ran
         try:
             await interaction.channel.send(view=view)
-        except:
+        except Exception as e:
             await interaction.channel.send("Emoji doesn't exist, please try again.")
             await log(self.bot, f"{interaction.user} tried creating the '{button_name}' button for role '{role_name}' role in #{interaction.channel} but failed because emoji did not exist")
         else:
