@@ -10,16 +10,30 @@ from utils.utils import *
 
 
 async def setup(bot):
+    """
+    Set up the Gourmet cog and add it to the bot.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     await bot.add_cog(Gourmet(bot))
     
 
 class Gourmet(commands.Cog):
+    """
+    A class representing commands for gourmet-related actions.
+
+    Attributes:
+        bot (commands.Bot): The bot instance.
+        normal_restaurant (list): List of normal restaurants.
+        vegan_restaurant (list): List of vegan restaurants.
+    """
     def __init__(self, bot):
         self.bot = bot
         self.normal_restaurant = []
         self.vegan_restaurant = []
         try:
-            with open('assets/restaurants.txt') as f:
+            with open('assets/restaurants.txt', encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
                     if not self.normal_restaurant:
@@ -32,6 +46,16 @@ class Gourmet(commands.Cog):
 
     # Menu that extends from a View
     class GourmetMenu(View):
+        """
+        A menu for selecting restaurants.
+
+        Attributes:
+            cog: The Gourmet cog instance.
+            timeout (int): The timeout duration for the menu.
+            normal_restaurant (list): List of normal restaurants.
+            vegan_restaurant (list): List of vegan restaurants.
+            main_list (list): Combined list of normal and vegan restaurants.
+        """
         def __init__(self, *, cog, timeout=180):
             super().__init__(timeout=timeout)
             self.normal_restaurant = copy.deepcopy(cog.normal_restaurant)
@@ -84,7 +108,7 @@ class Gourmet(commands.Cog):
 
             # If the user response is before this it would show "interaction failed"
             # The interaction has not really failed however it hasnt happened quick enough.
-            await interaction.response.edit_message(content=f'**__Enter a restaurant to remove from the list.__**', view=self)
+            await interaction.response.edit_message(content='**__Enter a restaurant to remove from the list.__**', view=self)
 
             # Waiting for the user's response (with interactons!)
             msg = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
@@ -102,7 +126,7 @@ class Gourmet(commands.Cog):
 
             self.normal_restaurant = self.main_list
 
-
+            
         
         @discord.ui.button(label="Vegan", style=discord.ButtonStyle.blurple, emoji='\U0001F96C')
         async def vegan(self, interaction:discord.Interaction, button:discord.ui.Button):
