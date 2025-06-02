@@ -9,25 +9,41 @@ import subprocess
 import pandas as pd
 
 
-# adds my cog to the bot
 async def setup(bot:commands.Bot):
-    # Might want to make this a global class variable at some point(?)
+    """
+    Setup function to initialize the bot's cog and ensure the CSV file for moss_ids exists.
+
+    If the moss_ids.csv file does not exist at startup, this function will create it and add the header row.
+    
+    Args:
+        bot (commands.Bot): The instance of the bot to add the cog to.
+    """
     csv_filepath = "assets/moss_ids.csv"
 
     # If the moss_ids.csv does not exist on startup, create it
     if not os.path.exists(csv_filepath):
-        with open(csv_filepath, 'w') as file:
-            # Add the header for the df
+        with open(csv_filepath, 'w', encoding='utf=8') as file:
             file.write("discord_id,moss_id\n")
     await bot.add_cog(MOSS(bot))
 
 
-# constructor method that passes in Cog commands
 class MOSS(commands.Cog):
+    """
+    MOSS Cog for a Discord bot.
+
+    This cog handles operations related to the MOSS system, including managing
+    and interacting with MOSS IDs.
+    """
     def __init__(self, bot):
+        """
+        Initializes the MOSS cog with the given bot.
+
+        Args:
+            bot (commands.Bot): The instance of the bot to which this cog is added.
+        """
         self.bot = bot
-
-
+        
+        
     def get_moss_id(discord_id):
         """Gets a user's MossID
         Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
@@ -142,8 +158,10 @@ class MOSS(commands.Cog):
 
         # saves .zip file
         await file.attachments[0].save(zip_filepath)
-
-        moss_command = f'python3 ./utils/WSU_mossScript.py --id {moss_id}'
+        
+        # This is the bane of my existence. Change this to "python" instead of "python3"
+        # if running on the development SIF. Will complain to Matt about this. God speed.
+        moss_command = f"python3 ./utils/WSU_mossScript.py --id {moss_id}"
 
         process = subprocess.Popen(
             moss_command, stdout = subprocess.PIPE, shell=True)

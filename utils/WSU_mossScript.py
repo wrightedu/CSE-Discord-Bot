@@ -67,16 +67,16 @@ file_extension = '.java'
 if not os.path.exists(moss_path):
     os.mkdir(moss_path)
 
-def get_last_name(file: str) -> str:
+def get_name(file: str) -> str:
     """
-    Gets the last name from file
+    Gets the student name from the file
 
-    :param str file: The file name to get the last name from
+    :param str file: The file name to get the name from
     :return: Tries to split the file name. Should be successful as it follows the Pilot naming convention. If it files, just
         uses the file name itself
     """
     try:
-        return file.split(' - ')[1].split()[1]
+        return file.split(' - ')[1].replace(" ", "_")
     except:
         return file
 
@@ -115,7 +115,7 @@ def file_to_dir():
         if file_name[-len(file_extension):] == file_extension:
             new_name = ''
             try:
-                new_name = get_last_name(
+                new_name = get_name(
                     file_name) + file_extension if file_name.index(' - ') else file_name
             except:
                 new_name = file_name
@@ -171,11 +171,11 @@ def unzip_inner_zip_files():
     if not os.path.exists(unzipped_dir):
         return
     for zipped_file in os.listdir(unzipped_dir):
-        user_last_name = get_last_name(zipped_file)
+        user_name = get_name(zipped_file)
         # Skip non-zip files
         if zipped_file[-4:] != '.zip':
             continue
-        stored_user_date = user_submissions_dates.get(user_last_name, "NoDate")
+        stored_user_date = user_submissions_dates.get(user_name, "NoDate")
         current_user_date = get_date_from_file(zipped_file)
         # If stored is newer than current file, skip
         if stored_user_date != "NoDate" and is_more_recent(stored_user_date, current_user_date):
@@ -183,7 +183,7 @@ def unzip_inner_zip_files():
         try:
             with ZipFile(unzipped_dir+os_separator+zipped_file, 'r') as zf:
                 temp_dir = unzipped_dir+os_separator + \
-                    (user_last_name)+'.dir'
+                    (user_name)+'.dir'
                 if not os.path.exists(temp_dir):
                     os.mkdir(temp_dir)
                 else:
@@ -191,7 +191,7 @@ def unzip_inner_zip_files():
                     os.mkdir(temp_dir)
                 zf.extractall(temp_dir)
                 # update the last name to have the latest date
-                user_submissions_dates[user_last_name] = current_user_date
+                user_submissions_dates[user_name] = current_user_date
                 i += 1
         except:
             print(f'Error unzipping {unzipped_dir+os_separator+zipped_file}')

@@ -14,10 +14,22 @@ from diceParser import parse
 
 
 async def setup(bot:commands.Bot):
+    """
+    Setup function to initialize the StudentCommands cog.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     await bot.add_cog(StudentCommands(bot))
 
 
 class StudentCommands(commands.Cog):
+    """
+    A class representing commands for student-related actions.
+    
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -80,7 +92,7 @@ class StudentCommands(commands.Cog):
         """
 
         # Read in the langague data from the yaml file
-        with open('helloworld.yml', 'r') as f:
+        with open('helloworld.yml', 'r', encoding='utf=8') as f:
 
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
@@ -144,7 +156,7 @@ class StudentCommands(commands.Cog):
 
         # slices the dictionary of local variables (the parameters) from the 3rd-10th options
         params = dict(itertools.islice(locals().items(), 5, 13))
-        options = [option1, option2]    
+        options = [option1, option2]
         for param in params:
             choice = params[param] # sets the current choice to the value at the current key
             if choice != 'None':
@@ -160,7 +172,7 @@ class StudentCommands(commands.Cog):
 
         description = []
         for i, option in enumerate(options):
-            description += '\n {} {}'.format(reactions[i], option)
+            description += f'\n {reactions[i]} {option}'
         embed = discord.Embed(title=question, description=''.join(description))
 
         await interaction.response.send_message(embed=embed)
@@ -191,7 +203,7 @@ class StudentCommands(commands.Cog):
             Result of dice rolled and pruned, or otherwise specified
         """
 
-        # make the roll into a list
+        # Make the roll into a list
         options=[roll]
 
         # Credit goes to Alan Fleming for the module that powers this command
@@ -205,7 +217,7 @@ class StudentCommands(commands.Cog):
                 else:
                     await interaction.response.send_message(f'{output[0]}\n{output[1]}')
                 await log(self.bot, f'{interaction.user} successfully ran /roll in #{interaction.channel}')
-            except Exception:
+            except ValueError:
                 await interaction.response.send_message('Invalid input')
                 await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was invalid')
         else:

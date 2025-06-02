@@ -8,13 +8,19 @@ from utils.utils import *
 
 
 async def setup(bot):
+    """
+    Set up the FAQ cog by reading channel names from a file and adding it to the bot.
+
+    Parameters:
+        bot (commands.Bot): The bot instance.
+    """
     channels_path = r"assets/FAQ/channels.txt"
     path = Path(channels_path)
     channel_names = []
     
     # if file exists, appends channel names to a list for use with faq command
     if path.is_file():
-        with path.open() as f:
+        with path.open(encoding='utf-8') as f:
             for channel_name in f:
                 channel_name = channel_name.strip()
                 channel_names.append(channel_name)
@@ -85,6 +91,6 @@ class Faq(commands.Cog):
 
         channels_path = r"assets/FAQ/channels.txt"
         path = Path(channels_path)
-        with path.open('w') as f:
+        with path.open('w', encoding='utf=8') as f:
             for channel_name in self.channel_names:
                 f.write(f"{channel_name}\n")
