@@ -1,5 +1,7 @@
 import random
 import copy
+import pandas as pd
+import re
 
 from discord.ui import View
 from discord.ext import commands
@@ -16,39 +18,35 @@ async def setup(bot):
 class Gourmet(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.normal_restaurant = []
-        self.vegan_restaurant = []
-        try:
-            with open('assets/restaurants.txt') as f:
-                for line in f:
-                    line = line.strip()
-                    if not self.normal_restaurant:
-                        self.normal_restaurant = line.split(', ')
-                    else:
-                        self.vegan_restaurant = line.split(', ')
-        except FileNotFoundError:
-            print('Error: assets/restaurants.txt was not found on local machine.')
+        csv_filepath = "assets/restaurants.csv"
+        self.restaurants = pd.read_csv(csv_filepath)
 
 
     # Menu that extends from a View
     class GourmetMenu(View):
         def __init__(self, *, cog, timeout=180):
             super().__init__(timeout=timeout)
-            self.normal_restaurant = copy.deepcopy(cog.normal_restaurant)
-            self.vegan_restaurant = copy.deepcopy(cog.vegan_restaurant)
-            self.main_list = copy.deepcopy(cog.normal_restaurant)
-            random.shuffle(self.normal_restaurant)
-            random.shuffle(self.vegan_restaurant)
-            random.shuffle(self.main_list)
+            self.cog = cog
+            self.restaurants = copy.deepcopy(cog.restaurants).sample(frac=1).reset_index(drop=True)
+            self.choice_count = 0
 
         @discord.ui.button(label="Random", style=discord.ButtonStyle.blurple, emoji='\U0001F3B1')
         async def random(self, interaction:discord.Interaction, button:discord.ui.Button):
             """Returns a random restaurant"""
 
-            if not len(self.normal_restaurant) == 0:
-                await interaction.response.edit_message(content='**' + self.normal_restaurant.pop() + '**', view=self)
+            if not len(self.restaurants) == 0 and self.choice_count < 8:
+                # Increment number of choices made
+                self.choice_count += 1
+
+                # Get top restaurant from randomized list
+                restaurant = self.restaurants.head(1)
+
+                # Remove element from already selected restaurants
+                self.restaurants = self.restaurants.drop(restaurant.index)
+
+                await interaction.response.edit_message(content='**' + restaurant.iloc[0]['name'] + '**', view=self)
             else:
-                await interaction.response.edit_message(content='**__You have run out of restaurants. You are going to arbys.__**', view=self)
+                await interaction.response.edit_message(content='**__You have run out of restaurants. You are going to Arby\'s.__**', view=self)
         
         @discord.ui.button(label="Add Restaurant", style=discord.ButtonStyle.green)
         async def add(self, interaction:discord.Interaction, button:discord.ui.Button):
@@ -64,15 +62,24 @@ class Gourmet(commands.Cog):
             # Waiting for the user's response (with interactions!)
             msg = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
-            # Turning the message to lowercase and appending it
-            msg.content = msg.content.casefold()
-            for rest in self.main_list:
-                if msg.content == rest.casefold():
-                    await interaction.message.edit(content=f'**__Error: {msg.content} already is in the restaurant list.__**', view=self)
-                    return
+            # Check if restaurant is already in list
+            if len(self.cog.restaurants[self.cog.restaurants['name'] == msg.content]) > 0:
+                await interaction.message.edit(content=f'**__Error: {msg.content} already is in the restaurant list.__**', view=self)
+                return
 
-            self.main_list.append(msg.content)
-            self.normal_restaurant = self.main_list
+            # Create new row
+            restaurant = pd.DataFrame({'name': [msg.content]})
+
+            # Append new restaurant into restaurants
+            self.cog.restaurants = pd.concat([self.cog.restaurants, restaurant], ignore_index=True)
+
+            # Append new restaurants into current list of restuarants
+            self.restaurants = pd.concat([self.restaurants, restaurant], ignore_index=True)
+
+            # Write restaurants into csv
+            await self.cog.write_restaurants()
+
+            # Return added
             await interaction.message.edit(content=f'**__{msg.content} has been added to the list.__**')
 
         @discord.ui.button(label="Remove Restaurant", style=discord.ButtonStyle.red)
@@ -89,29 +96,22 @@ class Gourmet(commands.Cog):
             # Waiting for the user's response (with interactons!)
             msg = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
 
-            # Turning msg to lowercase
-            msg.content = msg.content.casefold()
+            # Get restaurant
+            restaurant = self.cog.restaurants[self.cog.restaurants['name'] == msg.content]
 
-            # If the restaurant is not in the list it responds with an error
-            for rest in self.main_list:
-                if msg.content == rest.casefold():
-                    self.main_list.remove(rest)
-                    await interaction.message.edit(content=f'**__{msg.content} has been removed.__**', view=self)
-                    return
+            if len(restaurant) == 1:
+                # Remove restaurant
+                self.cog.restaurants = self.cog.restaurants.drop(restaurant.index)
+
+                # Update restaurants
+                await self.cog.write_restaurants()
+
+                # Edit message
+                await interaction.message.edit(content=f'**__{msg.content} has been removed.__**', view=self)
+                return
             await interaction.message.edit(content=f'**__Error: {msg.content} is not in the list.__**', view=self)
 
             self.normal_restaurant = self.main_list
-
-
-        
-        @discord.ui.button(label="Vegan", style=discord.ButtonStyle.blurple, emoji='\U0001F96C')
-        async def vegan(self, interaction:discord.Interaction, button:discord.ui.Button):
-            """Returns a random vegan restaurant"""
-
-            if not len(self.vegan_restaurant) == 0:
-                await interaction.response.edit_message(content='**' + self.vegan_restaurant.pop() + '**', view=self)
-            else:
-                await interaction.response.edit_message(content='**__You have run out of restaurants. You are going to arbys.__**', view=self)
 
     @app_commands.command(description="Sends a message with buttons to give you options on possible food choices")
     async def feedme(self, interaction:discord.Interaction):
@@ -122,3 +122,6 @@ class Gourmet(commands.Cog):
 
         await interaction.response.send_message(view=self.GourmetMenu(cog=self))
         await log(self.bot, f'{interaction.user} ran /feedMe in `#{interaction.channel}`')
+
+    async def write_restaurants(self):
+        self.restaurants.to_csv('assets/restaurants.csv', index=False)
