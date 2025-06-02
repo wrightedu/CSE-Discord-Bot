@@ -1,7 +1,8 @@
+import re
 import datetime
-
 import aiofiles
 import discord
+from discord.ext import commands
 from bing_image_downloader import downloader
 
 
@@ -196,3 +197,175 @@ def months_ago(months):
     delta = datetime.timedelta(days=num_days)
     that_day = now - delta
     return that_day
+
+async def update_view(interaction, view:discord.ui.View):
+    """Takes in a view and updates the current message with the new view
+    Uses the interaction to get the channel and message id. Fetches the message and edits it with the new view.
+
+    Args:
+        interaction (discord.Interaction): The interaction object
+        view (discord.ui.View): The new view that will replace the old view
+    """
+    channel = interaction.channel
+    message_id = interaction.message.id
+
+    message = await channel.fetch_message(message_id)
+    await message.edit(view=view)
+
+async def get_time_epoch():
+    """ Function that gets the current epoch timestamp.
+
+    Returns:
+        current_time (float): current epoch time as float
+    """
+    current_time = datetime.datetime.now()
+
+    return current_time.timestamp()
+
+async def get_string_from_epoch(time):
+    """ Function that takes a total epoch time and converts it to so many minutes or hours
+
+    Args:
+        time (float): total epoch timestamp
+
+    Returns:
+        prompt (string): string equivalent of total epoch
+    """
+
+    string_return = ""
+    hours = int((time) // 3600 % 24)
+    minutes = int(time % 3600 // 60)
+
+    if hours >= 1:
+        string_return = f"{hours} hour" + ("s, " if hours > 1 else ", ")
+
+    string_return += f"{minutes} minute" + ("s" if (minutes > 1 or minutes == 0) else "")
+
+    return string_return
+
+def get_last_pay_period_monday(current_date:str):
+    """
+    Takes unix date in string format and returns the week day
+    current_date = unixtime
+    datetime object
+
+    returns the first monday's date of the last pay period
+    """
+    dt =  datetime.datetime.fromtimestamp(current_date)
+    current_week_number= dt.isocalendar().week
+    monday_date = None
+    if current_week_number % 2 == 0:
+        monday_date = get_monday(dt)
+    else:
+        one_week_before = dt - datetime.timedelta(weeks=1)
+        monday_date = get_monday(one_week_before)
+    return monday_date
+
+def get_monday(date_now):
+    """takes a datetime object date_now and gets the difference between the day 
+    and starting day(monday of the week) and returns the date for monday"""
+
+    weekday = date_now.isoweekday()
+    days_to_substract = weekday - 1
+    first_iso_monday = date_now - datetime.timedelta(days= days_to_substract)
+    return first_iso_monday.date()
+
+
+def get_unix_time(desired_date: str):
+    """takes in a Data MM-DD-YYYY format and returns a Unix time stamp"""
+
+    datetime_obj = datetime.datetime.strptime(desired_date, "%m-%d-%Y")
+    unix_desired_date = datetime_obj.timestamp()
+    return unix_desired_date
+
+async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: str, status: str):
+    """ Function that changes the status of a CSE Dev Team member in checkin
+
+    Args:
+        bot (commands.Bot): a Discord bot object
+        user_id (int): ID of Discord user that triggered change
+        display_name (str): Display name of user that triggered change
+        status (str): The status to set
+    """
+
+    # Find Guilds to watch
+    guild = None
+    for temp_guild in bot.guilds:
+        if any(name in temp_guild.name for name in ['WSU CSE-EE Department', 'CSE Testing Server']):
+            guild = temp_guild
+
+    # If guild was found
+    if guild is not None:
+        # Get member object
+        member = guild.get_member(user_id)
+
+        # Get role object
+        role = discord.utils.get(guild.roles, name="cse-devteam")
+
+        # See if user has role
+        if role is not None and role in member.roles:
+            status_emojis = {
+                "checkin": "🟢",
+                "pomodoro": "🟠",
+                "checkout": "🔴",
+            }
+
+            # Get checkin channel
+            channel = discord.utils.get(guild.channels, name='checkin')
+
+            # If channel is found
+            if channel is not None:
+                # Set message to assign
+                message = None
+
+                # Loop through ten most recent messages
+                async for temp_message in channel.history(limit=10, oldest_first=False):
+                    # If message has embeds
+                    if len(temp_message.embeds) == 1:
+                        # If embed is the embed we're looking for, set message
+                        if temp_message.embeds[0].title == 'CSE Development Team Status':
+                            message = temp_message
+                            break
+                
+                # If message was not found, create it
+                embed = discord.Embed(title="CSE Development Team Status")
+                if message is None:
+                    # Update description of new embed
+                    embed.description = f"```{display_name} - {status_emojis[status]}```"
+
+                    await channel.send(embed=embed)
+                # If message found, update it
+                else:
+                    # Update description of embed
+                    embed.description = message.embeds[0].description
+
+                    # If user is inside of embed already, update them
+                    if display_name in embed.description:
+                        # Remove all markdown ticks
+                        embed.description = embed.description.replace("```", "")
+
+                        # Replace description
+                        embed.description = re.sub(fr"({display_name} - )\S+(\s*$)", rf"\1{status_emojis[status]}\2", embed.description, flags=re.MULTILINE)
+
+                        # Readd markdown ticks
+                        embed.description = "```" + embed.description + "```"
+
+                        # Edit message
+                        await message.edit(embed=embed)
+                    # If user isn't in embed, add them
+                    else:
+                        # Remove trailing characters
+                        embed.description = embed.description.rstrip("`")
+
+                        # Remove placeholder if necessary
+                        embed.description = embed.description.replace("No members currently logged in", "")
+
+                        # Add spacing if needed
+                        if embed.description != '```':
+                            embed.description += "\n"
+
+                        # Add user and end code block
+                        embed.description += f"{display_name} - {status_emojis[status]}```"
+
+                        # Update message
+                        await message.edit(embed=embed)
