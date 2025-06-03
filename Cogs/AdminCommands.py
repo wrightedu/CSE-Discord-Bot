@@ -195,22 +195,22 @@ class AdminCommands(commands.Cog):
         else:
             await interaction.channel.send(f'Cleared {role.mention} from {", ".join(cleared_members)}')
 
-    @app_commands.command(description="downloads a given number of corgi pictures")
-    @app_commands.default_permissions(administrator=True)
-    async def download_corgis(self, interaction:discord.Interaction, amount:int):
-        """Downloads a given number of corgi pictures.
-        Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
-        Call the download_corgies method from utils.py. Log the user and number of images downloaded.
+    # @app_commands.command(description="downloads a given number of corgi pictures")
+    # @app_commands.default_permissions(administrator=True)
+    # async def download_corgis(self, interaction:discord.Interaction, amount:int):
+    #     """Downloads a given number of corgi pictures.
+    #     Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
+    #     Call the download_corgies method from utils.py. Log the user and number of images downloaded.
 
-        Args:
-            amount (int): Number of pictures/pieces of media being downloaded
+    #     Args:
+    #         amount (int): Number of pictures/pieces of media being downloaded
 
-        Outputs:
-            Message to log stating the user that executed the command and how many images were downloaded
-            Message to user stating numer of images downloaded
-        """
+    #     Outputs:
+    #         Message to log stating the user that executed the command and how many images were downloaded
+    #         Message to user stating numer of images downloaded
+    #     """
 
-        await download_corgis(self.bot, interaction, amount)
+    #     await download_corgis(self.bot, interaction, amount)
 
 
     @app_commands.command(description="edit a specified message sent by the bot")
@@ -386,7 +386,7 @@ class AdminCommands(commands.Cog):
         
         num_classes = 0
         for category in guild.categories:
-            class_name = re.search("^\w{2,3} \d{4}", category.name)
+            class_name = re.search(r"^\w{2,3} \d{4}", category.name)
             if class_name is not None:
                 num_classes += 1
 

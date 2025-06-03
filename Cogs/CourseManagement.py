@@ -46,10 +46,10 @@ class CourseManagement(commands.Cog):
                 try:
                     # If class, search for non-greedy role (includes special topics)
                     if 'select_role_class_' in interaction.data['custom_id']:
-                        name = re.search("^select_role_class_(\w+_\d+(?:_\(.*\))?)_.*", interaction.data['custom_id']).group(1).replace("_", " ")
+                        name = re.search(r"^select_role_class_(\w+_\d+(?:_\(.*\))?)_.*", interaction.data['custom_id']).group(1).replace("_", " ")
                     # If not class, search for greedy role
                     else:
-                        name = re.search("^select_role_(.*)", interaction.data['custom_id']).group(1).replace("_", " ")
+                        name = re.search(r"^select_role_(.*)", interaction.data['custom_id']).group(1).replace("_", " ")
 
                     # Get role from guild's roles
                     role = discord.utils.get(interaction.guild.roles, name=name)
