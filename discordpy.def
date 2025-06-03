@@ -30,9 +30,6 @@ Stage: build
     # Activate conda environment
     . /build/miniconda3/bin/activate
 
-    # Give access to the build directory to all users
-    chmod -R o+rwx /build
-
     # Initialize conda
     conda init --all
     conda install pip
