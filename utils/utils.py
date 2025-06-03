@@ -3,7 +3,7 @@ import datetime
 import aiofiles
 import discord
 from discord.ext import commands
-from bing_image_downloader import downloader
+# from bing_image_downloader import downloader
 # import time
 
 
@@ -38,29 +38,29 @@ async def confirmation(bot, interaction:discord.Interaction, confirm_string='con
         return False
 
 
-async def download_corgis(bot, interaction, amount):
-    """Download Corgi Pictures
-    Send message to user informing them how many corgis will be downloaded. Use the downloader to download
-    a specified amount of corgies into 'dogs' with a functioning adult filter. Log the event.
+# async def download_corgis(bot, interaction, amount):
+#     """Download Corgi Pictures
+#     Send message to user informing them how many corgis will be downloaded. Use the downloader to download
+#     a specified amount of corgies into 'dogs' with a functioning adult filter. Log the event.
 
-    Args:
-        bot (discord.ext.commands.bot.Bot): The bot object
-        amount (int): The number of corgi pictures being downloaded.
+#     Args:
+#         bot (discord.ext.commands.bot.Bot): The bot object
+#         amount (int): The number of corgi pictures being downloaded.
 
-    Outputs:
-        The amount of images downloaded
+#     Outputs:
+#         The amount of images downloaded
 
-    Logs:
-        Who sent command and the amount of pictures downloaded.
-    """
+#     Logs:
+#         Who sent command and the amount of pictures downloaded.
+#     """
 
-    await interaction.followup.send(f'Downloading {amount} images')
-    downloader.download('corgis',
-                        limit=amount,
-                        output_dir='dogs',
-                        adult_filter_off=False,
-                        force_replace=False)
-    await log(bot, f'{interaction.user} ran /downloadcorgis {amount} in #{interaction.channel}')
+#     await interaction.followup.send(f'Downloading {amount} images')
+#     downloader.download('corgis',
+#                         limit=amount,
+#                         output_dir='dogs',
+#                         adult_filter_off=False,
+#                         force_replace=False)
+#     await log(bot, f'{interaction.user} ran /downloadcorgis {amount} in #{interaction.channel}')
 
 
 async def dm(member, content):
