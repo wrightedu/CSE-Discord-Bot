@@ -1,10 +1,10 @@
-import itertools
-import random
-import yaml
-from os.path import exists
+from os import getcwd
 from pathlib import Path
 from random import randint
+import itertools
+import random
 
+import yaml
 from discord.ext import commands
 from discord import app_commands
 
@@ -49,14 +49,17 @@ class StudentCommands(commands.Cog):
             image: picture being sent to chat
         """
         await interaction.response.defer()
+        cwd = getcwd()
 
         # Check if corgis dir exists
-        if not exists('dogs/corgis'):
-            await log(self.bot, 'Corgis directory not found, downloading 100 images')
-            await download_corgis(self.bot, interaction, 100)
+        if not exists(f'{cwd}/assets/corgis/') or not any(scandir(f'{cwd}/assets/corgis/')):
+            await log(self.bot, 'Corgis directory not found, extracting tar file')
+            
+            # Extract the tar file
+            extract_corgis(self.bot, interaction)
 
         # Get images from directory
-        images = ['dogs/corgis/' + path.name for path in Path('dogs').rglob('*.*')]
+        images = ['assets/corgis/' + path.name for path in Path('assets/corgis/').rglob('*.*')]
 
         # If 404, send cute error
         if number == 404:
@@ -64,7 +67,7 @@ class StudentCommands(commands.Cog):
             return
 
         # Generates a random number if no number is given
-        elif number < 0 or number > (len(images) - 1):
+        if number < 0 or number > (len(images) - 1):
             number = randint(0, len(images) - 1)
 
         image = images[number]
