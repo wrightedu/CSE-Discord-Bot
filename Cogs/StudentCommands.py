@@ -1,10 +1,8 @@
-from os.path import exists
-from os import getcwd, scandir
+from os import getcwd
 from pathlib import Path
 from random import randint
 import itertools
 import random
-import tarfile
 
 import yaml
 from discord.ext import commands
@@ -56,10 +54,9 @@ class StudentCommands(commands.Cog):
         # Check if corgis dir exists
         if not exists(f'{cwd}/assets/corgis/') or not any(scandir(f'{cwd}/assets/corgis/')):
             await log(self.bot, 'Corgis directory not found, extracting tar file')
-
+            
             # Extract the tar file
-            with tarfile.open(f'{cwd}/assets/corgis.tar.gz', 'r:gz') as tar:
-                tar.extractall(path=f'{cwd}/assets/')
+            extract_corgis(self.bot, interaction)
 
         # Get images from directory
         images = ['assets/corgis/' + path.name for path in Path('assets/corgis/').rglob('*.*')]

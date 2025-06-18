@@ -195,23 +195,26 @@ class AdminCommands(commands.Cog):
         else:
             await interaction.channel.send(f'Cleared {role.mention} from {", ".join(cleared_members)}')
 
-    # @app_commands.command(description="downloads a given number of corgi pictures")
-    # @app_commands.default_permissions(administrator=True)
-    # async def download_corgis(self, interaction:discord.Interaction, amount:int):
-    #     """Downloads a given number of corgi pictures.
-    #     Convert user input to an integer. If this is not possible, set the amount of pictures as 100.
-    #     Call the download_corgies method from utils.py. Log the user and number of images downloaded.
+    @app_commands.command(description="Extracts the tar archive that contains the corgi images")
+    @app_commands.default_permissions(administrator=True)
+    async def extract_corgis(self, interaction:discord.Interaction):
+        """Extracts the tar archive that contains the corgi images
+        Extracts the tar archive that contains the corgi images to the appropriate directory.
+        If the extraction is successful, send a message to chat confirming it. If it fails, send an error message.
 
-    #     Args:
-    #         amount (int): Number of pictures/pieces of media being downloaded
+        Outputs:
+            Message to chat confirming that the extraction was successful or an error message if it failed.
+        """
 
-    #     Outputs:
-    #         Message to log stating the user that executed the command and how many images were downloaded
-    #         Message to user stating numer of images downloaded
-    #     """
+        await interaction.response.defer(ephemeral=True)
 
-    #     await download_corgis(self.bot, interaction, amount)
+        try:
+            await extract_corgis(self.bot, interaction)
+            await interaction.followup.send("Corgi images extracted successfully", ephemeral=True)
 
+        except Exception as e:
+            await interaction.followup.send(f"An error occurred while extracting corgi images: {e}")
+            await log(self.bot, f"{interaction.user} tried to extract corgi images in #{interaction.channel} but failed due to an error: {e}")
 
     @app_commands.command(description="edit a specified message sent by the bot")
     @app_commands.default_permissions(administrator=True)
@@ -265,7 +268,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
     @app_commands.default_permissions(administrator = True)
-    async def history(self, interaction:discord.Interaction, username:str):
+    async def history(self, interaction:discord.Interaction, username:discord.User):
         """Outputs all messages from a specified user after a specified date with some metadata to a file
         Prompts user for username and date. Outputs messages authored by that username and sent after that date
         to a file. Outputs file to discord channel if it is less that 4 MB.

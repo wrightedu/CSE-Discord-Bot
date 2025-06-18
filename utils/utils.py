@@ -1,3 +1,6 @@
+from os import getcwd
+import tarfile
+
 import re
 import datetime
 import aiofiles
@@ -37,31 +40,23 @@ async def confirmation(bot, interaction:discord.Interaction, confirm_string='con
         await interaction.channel.send(f'Confirmation failed, terminating execution')
         return False
 
+async def extract_corgis(bot, interaction):
+    """Extracts corgis from a tar file
+    Simply extracts the corgis from a tar file if the directory does not already exist. 
+    
+    Outputs:
+        The extracted corgis in the 'assets/corgis/' directory
 
-# async def download_corgis(bot, interaction, amount):
-#     """Download Corgi Pictures
-#     Send message to user informing them how many corgis will be downloaded. Use the downloader to download
-#     a specified amount of corgies into 'dogs' with a functioning adult filter. Log the event.
+    Logs:
+        Who sent command and the channel it was sent in.
+    """
+    cwd = getcwd()
 
-#     Args:
-#         bot (discord.ext.commands.bot.Bot): The bot object
-#         amount (int): The number of corgi pictures being downloaded.
+    # Extract the tar file
+    with tarfile.open(f'{cwd}/assets/corgis.tar.gz', 'r:gz') as tar:
+        tar.extractall(path=f'{cwd}/assets/')
 
-#     Outputs:
-#         The amount of images downloaded
-
-#     Logs:
-#         Who sent command and the amount of pictures downloaded.
-#     """
-
-#     await interaction.followup.send(f'Downloading {amount} images')
-#     downloader.download('corgis',
-#                         limit=amount,
-#                         output_dir='dogs',
-#                         adult_filter_off=False,
-#                         force_replace=False)
-#     await log(bot, f'{interaction.user} ran /downloadcorgis {amount} in #{interaction.channel}')
-
+    await log(bot, f'{interaction.user} ran /extractcorgis in #{interaction.channel}')
 
 async def dm(member, content):
     """Send a direct message to another user.
