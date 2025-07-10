@@ -1,4 +1,5 @@
-from os import getcwd
+from os import getcwd, scandir
+from os.path import exists
 from pathlib import Path
 from random import randint
 import itertools
