@@ -57,7 +57,7 @@ class StudentCommands(commands.Cog):
             await log(self.bot, 'Corgis directory not found, extracting tar file')
             
             # Extract the tar file
-            extract_corgis(self.bot, interaction)
+            await extract_corgis(self.bot, interaction)
 
         # Get images from directory
         images = ['assets/corgis/' + path.name for path in Path('assets/corgis/').rglob('*.*')]
