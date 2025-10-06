@@ -96,7 +96,7 @@ Cog to read messages sent by users with a question mark and respond with a promp
 
 Cog to select and manage potentional resturants to eat at in the greater Fairborn area.
 
-#### Slash Commands (Gourmet)
+#### Slash Commands
 
 - `feedme`
 
