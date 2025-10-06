@@ -38,7 +38,6 @@ Cog that contains commands to be used exclusively by admins for server moderatio
 
 #### Slash Commands
 
-- `__init__`
 - `announce`
 - `clear`
 - `clearrole`
@@ -56,17 +55,9 @@ Cog used to manage timing for CSE Dev Team members. Tracks time in and time out 
 
 #### Slash Commands
 
-- `__init__`
-- `cog_unload`
 - `on_interaction`
-- `checkin_view`
-- `checked_in_view`
-- `pomo_view`
 - `checkin_register`
 - `checkin_clear`
-- `clear_checkin_messages`
-- `check_pomodoros`
-- `check_timesheets`
 
 ### `CogManagement.py`
 
@@ -74,12 +65,10 @@ Cog used to load, unload, and reload other cogs. Cannot be unloaded
 
 #### Slash Commands
 
-- `__init__`
 - `load`
 - `reload_all`
 - `reload`
 - `unload`
-- `cog_auto`
 - `sync`
 
 ### `CourseManagement.py`
@@ -88,15 +77,10 @@ Cog used to manage courses within the CSE-EE Discord, including the ability to p
 
 #### Slash Commands
 
-- `__init__`
 - `on_interaction`
-- `get_category`
-- `get_roles`
 - `buildcourses`
 - `destorycourses`
-- `rolemenu_callback`
 - `buildrolemenu`
-  - `callback_healper`
 - `createrolebutton`
 
 ### `Faq.py`
@@ -105,7 +89,6 @@ Cog to read messages sent by users with a question mark and respond with a promp
 
 #### Slash Commands
 
-- `__init__`
 - `on_message`
 - `faq`
 
@@ -115,16 +98,7 @@ Cog to select and manage potentional resturants to eat at in the greater Fairbor
 
 #### Slash Commands (Gourmet)
 
-- `__init__`
 - `feedme`
-- `write_restaurants`
-
-##### Slash Commands (GourmetMenu)
-
-  - `__init__`
-  - `random`
-  - `add`
-  - `remove`
 
 ### `Listeners.py`
 
@@ -132,7 +106,6 @@ Cog that contains generic event handlers and listeners that don't fit elsewhere.
 
 #### Slash Commands
 
-- `__init__`
 - `on_message`
 - `on_message_edit`
 - `on_message_delete`
@@ -143,10 +116,6 @@ Cog that allows Faculty, Staff, and Teaching Assistants to check a ZIP of studen
 
 #### Slash Commands
 
-- `__init__`
-- `get_moss_id`
-- `delete_all`
-- `check_moss_folder`
 - `moss`
 - `moss_register`
 
@@ -156,7 +125,6 @@ Cog that contains commands to be used by anyone. Mostly fun toys, but some usefu
 
 #### Slash Commands
 
-- `__init__`
 - `corgme`
 - `helloworld`
 - `ping`
