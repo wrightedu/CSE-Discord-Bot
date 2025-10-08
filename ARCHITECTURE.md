@@ -55,7 +55,6 @@ Cog used to manage timing for CSE Dev Team members. Tracks time in and time out 
 
 #### Slash Commands
 
-- `on_interaction`
 - `checkin_register`
 - `checkin_clear`
 
@@ -77,7 +76,6 @@ Cog used to manage courses within the CSE-EE Discord, including the ability to p
 
 #### Slash Commands
 
-- `on_interaction`
 - `buildcourses`
 - `destorycourses`
 - `buildrolemenu`
@@ -89,7 +87,6 @@ Cog to read messages sent by users with a question mark and respond with a promp
 
 #### Slash Commands
 
-- `on_message`
 - `faq`
 
 ### `Gourmet.py`
@@ -103,12 +100,6 @@ Cog to select and manage potentional resturants to eat at in the greater Fairbor
 ### `Listeners.py`
 
 Cog that contains generic event handlers and listeners that don't fit elsewhere.
-
-#### Slash Commands
-
-- `on_message`
-- `on_message_edit`
-- `on_message_delete`
 
 ### `MOSS.py`
 
