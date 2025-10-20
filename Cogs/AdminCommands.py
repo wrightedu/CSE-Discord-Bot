@@ -4,6 +4,7 @@ import sys
 from time import sleep
 import re
 
+import discord
 from discord.ext import commands
 from discord import MessageType
 from discord import app_commands
@@ -141,10 +142,10 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="removes a specified role from each member of a guild.")
     @app_commands.default_permissions(administrator=True)
-    async def clear_role(self, interaction:discord.Interaction, role_mention:str):
+    async def clear_role(self, interaction:discord.Interaction, role:discord.Role):
         """Remove a role from each member of a guild.
         Remove the extra characters from the ID number of the guild obtained from the role_mention. Search through every
-        member of a guild to see if they have the role that matches the ID in question. If the member has the role,
+        memiber of a guild to see if they have the role that matches the ID in question. If the member has the role,
         remove it from their roles. Send message in chat confirming that the role has been removed, and the number of
         users it has been removed from.
 
@@ -159,21 +160,21 @@ class AdminCommands(commands.Cog):
         await interaction.followup.send("Removing role")
         guild = interaction.guild
 
-        try:
-            int(role_mention[3:-1])
-        except ValueError:
-            await interaction.channel.send("The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
-            await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because of an invalid role mention")
-            return
+        # try:
+        #     int(role_mention[3:-1])
+        # except ValueError:
+        #     await interaction.channel.send("The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
+        #     await log(self.bot, f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because of an invalid role mention")
+        #     return
 
-        role = discord.utils.get(guild.roles, id=int(role_mention[3:-1]))
-        if role is None:
-            await interaction.channel.send(f"The '{role_mention}' role could not be found. The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
-            await log(self.bot, f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it could not be found")
-            return
+        # role = discord.utils.get(guild.roles, id=int(role_mention[3:-1]))
+        # if role is None:
+        #     await interaction.channel.send(f"The '{role_mention}' role could not be found. The `role_mention` parameter can only take role mentions (i.e. of format `@role`).")
+        #     await log(self.bot, f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it could not be found")
+        #     return
 
         if role >= interaction.guild.me.top_role:
-            await interaction.channel.send(f"I cannot remove the {role_mention} role from members because it is equal to or higher than my top role.")
+            await interaction.channel.send(f"I cannot remove the {role.mention} role from members because it is equal to or higher than my top role.")
             await log(self.bot, f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it is equal to or higher than the bot's top role")
             return
 
