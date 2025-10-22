@@ -251,7 +251,10 @@ class AdminCommands(commands.Cog):
                 await log(self.bot, f"{interaction.user} edited the message with the ID `{message_id}` in #{interaction.channel}")
         except asyncio.TimeoutError:
             await interaction.followup.send("You took too long to respond. Exiting command...")
-            return 
+            return
+
+
+
 
     @app_commands.command(description="set status of discord bot")
     @app_commands.default_permissions(administrator=True)
