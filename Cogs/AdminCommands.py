@@ -6,7 +6,6 @@ import re
 
 import discord
 from discord.ext import commands
-from discord import MessageType
 from discord import app_commands
 
 from utils.utils import *
@@ -33,58 +32,79 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(description="-announce MSG to several #channels")
+    @app_commands.command(
+        description="Sends an announcement to specified channels given by a select menu"
+    )
     @app_commands.default_permissions(administrator=True)
-    async def announce(self, interaction: discord.Interaction, channel_mentions: str):
+    async def announce(self, interaction: discord.Interaction):
         """
-        Uses the bot to announce something instead of having an admin to do so
+        Uses the bot to announce something instead of having an admin to do so.
 
         Args:
-            channel_mentions (str): the channels to which the announcement is sent
+            channels (list[discord.TextChannel]): the channels to which the announcement is sent
 
         Outputs:
             The announcement to the specified channel(s) in the CSE server
             Logs that the specific user used the announcement command
         """
+        await interaction.response.defer(ephemeral=True)
 
-        # gets the channel ids from the mentions
-        channel_mentions_list = channel_mentions.split()
-        channels = []
-        channel_names = []
-        for channel_mention in channel_mentions_list:
-            # ensures the channel mentions can be converted to integers
-            try:
-                int(channel_mention[2:-1])
-            except ValueError:
-                await interaction.response.send_message(
-                    "The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`)."
-                )
-                await log(
-                    self.bot,
-                    f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)",
-                )
-                return
+        class MultiChannelSelect(discord.ui.View):
+            def __init__(self):
+                super().__init__()  # Timeout after 60 seconds
+                self.selected_channels = None
 
-            # ensures the channels exist
-            channel = discord.utils.get(
-                interaction.guild.text_channels, id=int(channel_mention[2:-1])
+            @discord.ui.select(
+                cls=discord.ui.ChannelSelect,
+                placeholder="Select channels...",
+                min_values=1,
+                max_values=25,
+                channel_types=[
+                    discord.ChannelType.text,
+                    discord.ChannelType.news,  # Wait until the user makes a selection or the view times out
+                ],
             )
-            if channel is None:
-                await interaction.response.send_message(
-                    f"The '{channel_mention}' channel could not be found. The `channel_mentions` parameter can only take channel mentions (i.e. of format `#channel`)."
-                )
-                await log(
-                    self.bot,
-                    f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because of invalid channel mention(s)",
-                )
-                return
-            channels.append(channel)
-            channel_names.append(f"#{channel.name}")
+            async def callback(
+                self, interaction: discord.Interaction, select: discord.ui.ChannelSelect
+            ):
+                selected = (
+                    select.values
+                )  # This will be a list of discord.abc.GuildChannel objects
+                channel_names = [channel.mention for channel in selected]
 
-        # Gets the message from the user
-        await interaction.response.send_message("Please enter a message.")
+                await interaction.response.send_message(
+                    content=(
+                        f"You selected: {', '.join(channel_names)}\n"
+                        "Please enter a message in this channel."
+                    ),
+                    ephemeral=True,
+                )
+
+                self.selected_channels = [await channel.fetch() for channel in selected]
+                self.stop()  # Stop listening for more selections
+
+        multi_channel_select = MultiChannelSelect()
+
+        # Prompt the user to select channels
+        await interaction.edit_original_response(
+            content="Select the channels you want to announce in (Max: 25)",
+            view=multi_channel_select,
+        )
+
+        # Wait until the user makes a selection or the view times out
+        await multi_channel_select.wait()
+
+        await interaction.delete_original_response()
+
+        # Get the selected channels
+        channels = multi_channel_select.selected_channels
+        channel_names = [channel.mention for channel in channels]
+
+        # Wait for the announcement message
         message = await self.bot.wait_for(
-            "message", check=lambda message: message.author == interaction.user
+            "message",
+            check=lambda message: message.author == interaction.user
+            and message.channel == interaction.channel,
         )
 
         # Errors if the user tries to send a message over 2,000 characters (if they have nitro)
@@ -107,6 +127,10 @@ class AdminCommands(commands.Cog):
         # sends the message to the specified channels
         for channel in channels:
             await channel.send(message.content)
+
+        await interaction.channel.send(
+            f"Announcement sent to {', '.join(channel_names)}", ephemeral=True
+        )
 
         # logs appropriately
         await log(
@@ -141,7 +165,7 @@ class AdminCommands(commands.Cog):
                 self.bot,
                 f"{interaction.user} cleared {amount} messages from #{interaction.channel}",
             )
-            amount = 999999999999999999999999999999999999999999
+            amount = 999_999_999_999_999_999_999_999_999_999_999_999_999_999
 
         else:
             try:
