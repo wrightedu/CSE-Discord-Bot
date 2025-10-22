@@ -139,9 +139,7 @@ class StudentCommands(commands.Cog):
         latency = round(self.bot.latency * 1000)
         await interaction.response.send_message(f'{latency} ms')
         await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
-#------------------------------------------
-# Deleted Poll
-#------------------------------------------
+
         # slices the dictionary of local variables (the parameters) from the 3rd-10th options
         params = dict(itertools.islice(locals().items(), 5, 13))
         options = [option1, option2]
