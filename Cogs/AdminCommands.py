@@ -266,67 +266,9 @@ class AdminCommands(commands.Cog):
             return
 
 
-    @app_commands.command(description="outputs all messages from a specified user after a specified date with some metadata to a file")
-    @app_commands.default_permissions(administrator = True)
-    async def history(self, interaction:discord.Interaction, username:discord.User):
-        """Outputs all messages from a specified user after a specified date with some metadata to a file
-        Prompts user for username and date. Outputs messages authored by that username and sent after that date
-        to a file. Outputs file to discord channel if it is less that 4 MB.
-
-        Args:
-            username (str): username of the desired user (without # and 4 digits)
-        Outputs:
-            A file to chat including all messages from a user after a date, whether those messages are a reply,
-            a link to those messages, and all reactions to those messages.
-        """
-
-        await interaction.response.defer(ephemeral = True)
-
-        guild = interaction.guild
-
-        member_found = False
-        for member in guild.members:
-            if member.name == username:
-                member_found = True
-                break
-
-        if not member_found:
-            await interaction.channel.send("That user is no longer active in the server. Would you like to continue this search query anyway?")
-            if not await confirmation(self.bot, interaction, confirm_string="yes"):
-                await interaction.followup.send("command not confirmed")
-                return
-        that_day = months_ago(4)
-        
-        history_file = open("/tmp/history.txt", "w", encoding="utf-8")
-        channel = interaction.channel
-        # gets 250 most recent messages posted less than 4 months ago
-        messages = [message async for message in channel.history(limit=250, after=that_day, oldest_first=False)]
-
-        for message in messages:
-            if message.author.name == username and message.type is MessageType.default:
-                history_file.write(f"{message.content}\n")
-                if message.reference:
-                    history_file.write("a reply\n")
-                else:
-                    history_file.write("not a reply\n")
-                history_file.write(f"{message.jump_url}\n")
-                for reaction in message.reactions:
-                    history_file.write(f"{reaction}\n")
-                history_file.write("\n")
-
-        history_file.close()
-
-        size = os.path.getsize("/tmp/history.txt")
-        if size == 0:
-            await interaction.channel.send("No messages were found.")
-        elif size <= 4194304:
-            await interaction.channel.send(file=discord.File("/tmp/history.txt"))
-        else:
-            await interaction.channel.send("Error: The file is greater than 4 MB and will therefore not be output.")
-
-        os.remove("/tmp/history.txt")
-        await interaction.followup.send("History gathered")
-
+    #----------------------------------------
+    # History has been deleted
+    #---------------------------------------- 
 
     @app_commands.command(description="set status of discord bot")
     @app_commands.default_permissions(administrator=True)
