@@ -214,10 +214,10 @@ class AdminCommands(commands.Cog):
         description="removes a specified role from each member of a guild."
     )
     @app_commands.default_permissions(administrator=True)
-    async def clear_role(self, interaction: discord.Interaction, role_mention: str):
+    async def clear_role(self, interaction: discord.Interaction, role: discord.Role):
         """Remove a role from each member of a guild.
         Remove the extra characters from the ID number of the guild obtained from the role_mention. Search through every
-        member of a guild to see if they have the role that matches the ID in question. If the member has the role,
+        memiber of a guild to see if they have the role that matches the ID in question. If the member has the role,
         remove it from their roles. Send message in chat confirming that the role has been removed, and the number of
         users it has been removed from.
 
@@ -232,32 +232,9 @@ class AdminCommands(commands.Cog):
         await interaction.followup.send("Removing role")
         guild = interaction.guild
 
-        try:
-            int(role_mention[3:-1])
-        except ValueError:
-            await interaction.channel.send(
-                "The `role_mention` parameter can only take role mentions (i.e. of format `@role`)."
-            )
-            await log(
-                self.bot,
-                f"{interaction.user} tried clearing the '{role_mention}' role in #{interaction.channel} but failed because of an invalid role mention",
-            )
-            return
-
-        role = discord.utils.get(guild.roles, id=int(role_mention[3:-1]))
-        if role is None:
-            await interaction.channel.send(
-                f"The '{role_mention}' role could not be found. The `role_mention` parameter can only take role mentions (i.e. of format `@role`)."
-            )
-            await log(
-                self.bot,
-                f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it could not be found",
-            )
-            return
-
         if role >= interaction.guild.me.top_role:
             await interaction.channel.send(
-                f"I cannot remove the {role_mention} role from members because it is equal to or higher than my top role."
+                f"I cannot remove the {role.mention} role from members because it is equal to or higher than my top role."
             )
             await log(
                 self.bot,
@@ -287,7 +264,7 @@ class AdminCommands(commands.Cog):
             await interaction.channel.send(f"No members have the role {role.mention}")
         else:
             await interaction.channel.send(
-                f"Cleared {role.mention} from {', '.join(cleared_members)}"
+                f'Cleared {role.mention} from {", ".join(cleared_members)}'
             )
 
     @app_commands.command(
@@ -393,81 +370,6 @@ class AdminCommands(commands.Cog):
             )
             return
 
-    @app_commands.command(
-        description="outputs all messages from a specified user after a specified date with some metadata to a file"
-    )
-    @app_commands.default_permissions(administrator=True)
-    async def history(self, interaction: discord.Interaction, username: discord.User):
-        """Outputs all messages from a specified user after a specified date with some metadata to a file
-        Prompts user for username and date. Outputs messages authored by that username and sent after that date
-        to a file. Outputs file to discord channel if it is less that 4 MB.
-
-        Args:
-            username (str): username of the desired user (without # and 4 digits)
-        Outputs:
-            A file to chat including all messages from a user after a date, whether those messages are a reply,
-            a link to those messages, and all reactions to those messages.
-        """
-
-        await interaction.response.defer(ephemeral=True)
-
-        guild = interaction.guild
-
-        member_found = False
-        for member in guild.members:
-            if member.name == username:
-                member_found = True
-                break
-
-        if not member_found:
-            await interaction.channel.send(
-                "That user is no longer active in the server. Would you like to continue this search query anyway?"
-            )
-            if not await confirmation(self.bot, interaction, confirm_string="yes"):
-                await interaction.followup.send("command not confirmed")
-                return
-        that_day = months_ago(4)
-
-        history_file = open("/tmp/history.txt", "w", encoding="utf-8")
-        channel = interaction.channel
-        # gets 250 most recent messages posted less than 4 months ago
-        messages = [
-            message
-            async for message in channel.history(
-                limit=250, after=that_day, oldest_first=False
-            )
-        ]
-
-        for message in messages:
-            if (
-                message.author.name == username
-                and message.type is discord.MessageType.default
-            ):
-                history_file.write(f"{message.content}\n")
-                if message.reference:
-                    history_file.write("a reply\n")
-                else:
-                    history_file.write("not a reply\n")
-                history_file.write(f"{message.jump_url}\n")
-                for reaction in message.reactions:
-                    history_file.write(f"{reaction}\n")
-                history_file.write("\n")
-
-        history_file.close()
-
-        size = os.path.getsize("/tmp/history.txt")
-        if size == 0:
-            await interaction.channel.send("No messages were found.")
-        elif size <= 4194304:
-            await interaction.channel.send(file=discord.File("/tmp/history.txt"))
-        else:
-            await interaction.channel.send(
-                "Error: The file is greater than 4 MB and will therefore not be output."
-            )
-
-        os.remove("/tmp/history.txt")
-        await interaction.followup.send("History gathered")
-
     @app_commands.command(description="set status of discord bot")
     @app_commands.default_permissions(administrator=True)
     async def status(self, interaction: discord.Interaction, status: str):
@@ -484,6 +386,7 @@ class AdminCommands(commands.Cog):
 
         # open a file to store the status in
         async with aiofiles.open("status.txt", mode="w") as f:
+
             status = status.strip()
             if status.lower() == "none":
                 await self.bot.change_presence(activity=None)

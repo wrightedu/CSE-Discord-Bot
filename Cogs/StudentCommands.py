@@ -140,24 +140,6 @@ class StudentCommands(commands.Cog):
         await interaction.response.send_message(f'{latency} ms')
         await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
 
-    @app_commands.command(description="Create a poll users can vote on")
-    async def poll(self, interaction:discord.Interaction, question:str, option1: str, option2: str, option3: str = 'None', option4: str = 'None', 
-    option5: str = 'None', option6: str = 'None', option7: str = 'None', option8: str = 'None', option9: str = 'None', option10: str = 'None'):
-        """Create a poll that users can vote on
-        Generates a dictionary from the passed in parameters of the command. Appends to the options list from 
-        the inputted values determined from the optional parameters. Determine what the most appropriate 
-        reactions for voting will be for the poll. Generate a two column format with reaction
-        emojis on the left and options on the right. Embed this and display this in the discord chat.
-        Log the creation of the poll.
-
-        Args:
-            question (str): A question that the poll taker is asking. 
-            options (individual strs): String parameters for the desired options for the poll. 8 of them are optional
-
-        Outputs:
-            Message stating the question of the poll with answers bound to numeric emojis. Reacts to the message with those emojis
-        """
-
         # slices the dictionary of local variables (the parameters) from the 3rd-10th options
         params = dict(itertools.islice(locals().items(), 5, 13))
         options = [option1, option2]
