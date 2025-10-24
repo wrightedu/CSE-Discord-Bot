@@ -15,15 +15,15 @@ __start_time__ = perf_counter()
 
 # Initialize regular logging
 initialize_logger()
-
+enable_cli_logging()
 load_dotenv()
 
 # Enable CLI logging if in development mode
-if os.getenv("ENVIRONMENT", "production") == "development" or (
-    len(argv) > 1 and argv[1] == "--dev"
-):
-    enable_cli_logging()
-    logger.warning("Running in development mode")
+# if os.getenv("ENVIRONMENT", "production") == "development" or (
+# len(argv) > 1 and argv[1] == "--dev"
+# ):
+# enable_cli_logging()
+# logger.warning("Running in development mode")
 
 # Make sure working directory is properly set to the root of the project
 __proper_wd__ = os.path.dirname(os.path.abspath(__file__))
