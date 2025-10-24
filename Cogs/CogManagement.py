@@ -6,8 +6,7 @@ from typing import List
 import discord
 from discord.ext import commands
 from discord import app_commands
-
-from utils.utils import log
+from loguru import logger
 
 
 def get_choices():
@@ -20,9 +19,9 @@ def get_choices():
     """
 
     cogs_list = []
-    for file in os.listdir('Cogs'):
-        if not file.startswith('__') and file.endswith('.py'):
-            cogs_list.append(f'{file[:-3]}')
+    for file in os.listdir("Cogs"):
+        if not file.startswith("__") and file.endswith(".py"):
+            cogs_list.append(f"{file[:-3]}")
     return cogs_list
 
 
@@ -45,14 +44,13 @@ class CogManagement(commands.Cog):
     def __init__(self, bot, choices):
         self.bot = bot
         self.choices = choices
-        
 
     @app_commands.command(description="Load a specific cog")
     @app_commands.default_permissions(administrator=True)
     async def load(self, interaction: discord.Interaction, cog_name: str):
         """Load a specific cog
         Take in the name of a cog from a user. Send a message confirming the action, and call
-        load_extension command from Discord.ext, passing in cog_name. If the cog is 
+        load_extension command from Discord.ext, passing in cog_name. If the cog is
         ServerManagment, call load_server_managment method from CogManagment.py
 
         Args:
@@ -63,30 +61,33 @@ class CogManagement(commands.Cog):
             Message to user informing them of what cog is being loaded, and when the action is done.
         """
 
-        file = abspath('Cogs/' + cog_name + '.py')
+        file = abspath("Cogs/" + cog_name + ".py")
 
         # If the file exists it loads the cog
         if exists(file):
-            await interaction.response.send_message(f'Loading {cog_name}')
+            await interaction.response.send_message(f"Loading {cog_name}")
 
             # Attempt the load, if already loaded tell the user and return
             try:
-                await self.bot.load_extension(f'Cogs.{cog_name}')
+                await self.bot.load_extension(f"Cogs.{cog_name}")
             except commands.ExtensionAlreadyLoaded:
-                await interaction.channel.send(f'Cog {cog_name} is already loaded')
+                await interaction.channel.send(f"Cog {cog_name} is already loaded")
                 return
-            await interaction.channel.send(f'Cog {cog_name} has been loaded')
-            await log(self.bot, f'{interaction.user} loaded the {cog_name} cog.')
+            await interaction.channel.send(f"Cog {cog_name} has been loaded")
+            logger.success(f"{interaction.user} loaded the {cog_name} cog.")
         else:
-            await interaction.response.send_message(f"""Cog {cog_name} does not exist. Please be
-                                                    sure you spelled it correctly.""")
-            await log(self.bot, f"""{interaction.user} attempted to reload the {cog_name} cog, but
-                    failed.""")
-
+            await interaction.response.send_message(
+                f"""Cog {cog_name} does not exist. Please be
+                                                    sure you spelled it correctly."""
+            )
+            logger.warning(
+                f"""{interaction.user} attempted to reload the {cog_name} cog, but
+                    failed.""",
+            )
 
     @app_commands.command(description="Reload all cogs")
     @app_commands.default_permissions(administrator=True)
-    async def reload_all(self, interaction:discord.Interaction):
+    async def reload_all(self, interaction: discord.Interaction):
         """Reload all cogs
         Run /load_all. Send a message confirming the action, and call load_extension
         command from Discord.ext, passing in all cog names. Must call load_server_management
@@ -95,31 +96,35 @@ class CogManagement(commands.Cog):
         Outputs:
             Message to user informing them of what cog is being loaded, and when the action is done.
         """
-        await interaction.response.send_message('Reloading all cogs...')
+        await interaction.response.send_message("Reloading all cogs...")
 
         # Iterate through all loaded cogs and reload each one
         for cog in list(self.bot.extensions.keys()):
             try:
                 await self.bot.reload_extension(cog)
-                await interaction.channel.send(f'Cog {cog} has been reloaded')
-            except:
-                await interaction.channel.send(f'Cog {cog} is unloaded')
-                return
-            await interaction.channel.send(f'Cog {cog} has been reloaded')
-            await log(self.bot, f'{interaction.user} reloaded the {cog} cog.')
-        else:
-            await interaction.channel.send(f'Cog {cog} does not exist. Please be sure you spelled it correctly.')
-            await log(self.bot, f'{interaction.user} attempted to reload the {cog} cog, but failed.')
+                await interaction.channel.send(f"Cog {cog} has been reloaded")
+                logger.success(f"{interaction.user} reloaded the {cog} cog.")
 
-        await log(self.bot, f'{interaction.user} reloaded all cogs.')
+            except commands.ExtensionNotLoaded as _e:
+                await interaction.channel.send(f"Cog {cog} is unloaded")
+                logger.warning(
+                    f"{interaction.user} attempted to reload the {cog} cog, but it is unloaded."
+                )
 
+            except commands.ExtensionNotFound as _e:
+                await interaction.channel.send(f"Cog {cog} not found")
+                logger.warning(
+                    f"{interaction.user} attempted to reload the {cog} cog, but it was not found."
+                )
+
+        logger.success(f"{interaction.user} reloaded all cogs.")
 
     @app_commands.command(description="Reload a specific cog")
     @app_commands.default_permissions(administrator=True)
     async def reload(self, interaction: discord.Interaction, cog_name: str):
         """Reload a specific cog
         Take in the name of single cog from a user and reload it. Output a message confirming reload
-        action and use reload extension method on the cog. If reloading server managment, call 
+        action and use reload extension method on the cog. If reloading server managment, call
         load_server_managment method from CogManagment.py
 
         Args:
@@ -131,25 +136,27 @@ class CogManagement(commands.Cog):
             done.
         """
 
-        file = abspath('Cogs/' + cog_name + '.py')
+        file = abspath("Cogs/" + cog_name + ".py")
 
         # If the file exists it reloads the cog
         if exists(file):
-            await interaction.response.send_message(f'Reloading {cog_name}')
+            await interaction.response.send_message(f"Reloading {cog_name}")
 
             # Attempt the reload, if unloaded tell the user and return
             try:
-                await self.bot.reload_extension(f'Cogs.{cog_name}')
+                await self.bot.reload_extension(f"Cogs.{cog_name}")
             except commands.ExtensionNotLoaded:
-                await interaction.channel.send(f'Cog {cog_name} is unloaded')
+                await interaction.channel.send(f"Cog {cog_name} is unloaded")
                 return
-            await interaction.channel.send(f'Cog {cog_name} has been reloaded')
-            await log(self.bot, f'{interaction.user} reloaded the {cog_name} cog.')
+            await interaction.channel.send(f"Cog {cog_name} has been reloaded")
+            logger.success(f"{interaction.user} reloaded the {cog_name} cog.")
         else:
-            await interaction.response.send_message(f"""Cog {cog_name} does not exist. Please be
-                                                    sure you spelled it correctly.""")
-            await log(self.bot, f"""{interaction.user} attempted to reload the {cog_name} cog, but
-                    failed.""")
+            await interaction.response.send_message(
+                f"Cog {cog_name} does not exist. Please be sure you spelled it correctly."
+            )
+            logger.warning(
+                f"{interaction.user} attempted to reload the {cog_name} cog, butfailed.",
+            )
 
     @app_commands.command(description="Unload a specific cog")
     @app_commands.default_permissions(administrator=True)
@@ -168,36 +175,42 @@ class CogManagement(commands.Cog):
             done.
         """
 
-        file = abspath('Cogs/' + cog_name + '.py')
+        file = abspath("Cogs/" + cog_name + ".py")
 
         # If the file exists it unloads the cog
         if exists(file):
-            if cog_name != 'CogManagement':
-                await interaction.response.send_message(f'Unloading {cog_name}')
+            if cog_name != "CogManagement":
+                await interaction.response.send_message(f"Unloading {cog_name}")
 
                 # Attempt the unload, if already unloaded tell the user and return
                 try:
-                    await self.bot.unload_extension(f'Cogs.{cog_name}')
+                    await self.bot.unload_extension(f"Cogs.{cog_name}")
                 except commands.ExtensionNotLoaded:
-                    await interaction.channel.send(f'Cog {cog_name} is already unloaded')
+                    await interaction.channel.send(
+                        f"Cog {cog_name} is already unloaded"
+                    )
                     return
-                await interaction.channel.send(f'Cog {cog_name} has been unloaded')
-                await log(self.bot, f'{interaction.user} unloaded the {cog_name} cog.')
+                await interaction.channel.send(f"Cog {cog_name} has been unloaded")
+                logger.success(f"{interaction.user} unloaded the {cog_name} cog.")
             else:
-                await interaction.response.send_message(f'Cannot unload {cog_name}')
+                await interaction.response.send_message(f"Cannot unload {cog_name}")
                 return
         else:
-            await interaction.response.send_message(f"""Cog {cog_name} does not exist. Please be
-                                                    sure you spelled it correctly.""")
-            await log(self.bot, f"""{interaction.user} attempted to unload the {cog_name} cog, but
-                    failed.""")
+            await interaction.response.send_message(
+                f"Cog {cog_name} does not exist. Please be sure you spelled it correctly."
+            )
+            logger.warning(
+                f"{interaction.user} attempted to unload the {cog_name} cog, but failed.",
+            )
 
     # Autocomplete functionality for the parameter "cog_name" in the load, reload, and unload
     # commands
     @load.autocomplete("cog_name")
     @reload.autocomplete("cog_name")
     @unload.autocomplete("cog_name")
-    async def cog_auto(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    async def cog_auto(
+        self, interaction: discord.Interaction, current: str
+    ) -> List[app_commands.Choice[str]]:
         """
         Generate a list of choices based on the current input.
 
@@ -223,8 +236,10 @@ class CogManagement(commands.Cog):
         Copies to current server.
         """
 
-        await self.bot.tree.sync()      # syncs global tree to server/guilds
+        await self.bot.tree.sync()  # syncs global tree to server/guilds
         # needs to be run the first time a bot syncs to a server
         self.bot.tree.copy_global_to(guild=ctx.guild)
-        await ctx.send('All slash commands have been synced')
-        await log(self.bot, f'{ctx.author} synced all slash commands in the {ctx.channel} channel')
+        await ctx.send("All slash commands have been synced")
+        logger.success(
+            f"{ctx.author} synced all slash commands in the {ctx.channel} channel",
+        )

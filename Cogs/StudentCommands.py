@@ -2,19 +2,19 @@ from os import getcwd, scandir
 from os.path import exists
 from pathlib import Path
 from random import randint
-import itertools
 import random
 
+import discord
 import yaml
 from discord.ext import commands
 from discord import app_commands
+from loguru import logger
 
-from utils.utils import *
+from utils.utils import extract_corgis
 from diceParser import parse
-# from utils.Checkin import Checkin
 
 
-async def setup(bot:commands.Bot):
+async def setup(bot: commands.Bot):
     """
     Setup function to initialize the StudentCommands cog.
 
@@ -27,15 +27,16 @@ async def setup(bot:commands.Bot):
 class StudentCommands(commands.Cog):
     """
     A class representing commands for student-related actions.
-    
+
     Parameters:
         bot (commands.Bot): The bot instance.
     """
+
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(description="Get a cute picture of some corgis!") 
-    async def corgme(self, interaction:discord.Interaction, number:int =-1):
+    @app_commands.command(description="Get a cute picture of some corgis!")
+    async def corgme(self, interaction: discord.Interaction, number: int = -1):
         """Sends a picture of a corgi
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
         Loop through all images in the directory containing pictures and place them in a list of images.
@@ -53,18 +54,24 @@ class StudentCommands(commands.Cog):
         cwd = getcwd()
 
         # Check if corgis dir exists
-        if not exists(f'{cwd}/assets/corgis/') or not any(scandir(f'{cwd}/assets/corgis/')):
-            await log(self.bot, 'Corgis directory not found, extracting tar file')
-            
+        if not exists(f"{cwd}/assets/corgis/") or not any(
+            scandir(f"{cwd}/assets/corgis/")
+        ):
+            logger.info("Corgis directory not found, extracting tar file")
+
             # Extract the tar file
             await extract_corgis(self.bot, interaction)
 
         # Get images from directory
-        images = ['assets/corgis/' + path.name for path in Path('assets/corgis/').rglob('*.*')]
+        images = [
+            "assets/corgis/" + path.name for path in Path("assets/corgis/").rglob("*.*")
+        ]
 
         # If 404, send cute error
         if number == 404:
-            await interaction.response.send_message(f'Corgi #{number}:', file=discord.File('assets/Corgi404Error.png'))
+            await interaction.response.send_message(
+                f"Corgi #{number}:", file=discord.File("assets/Corgi404Error.png")
+            )
             return
 
         # Generates a random number if no number is given
@@ -74,14 +81,17 @@ class StudentCommands(commands.Cog):
         image = images[number]
 
         # Send image
-        await interaction.followup.send(f'Corgi #{number}:', file=discord.File(image))
+        await interaction.followup.send(f"Corgi #{number}:", file=discord.File(image))
 
         # put in the log channel that the corgme command was run
-        await log(self.bot, f'{interaction.user} ran /corgme in #{interaction.channel}')
+        logger.info(f"{interaction.user} ran /corgme in #{interaction.channel}")
 
-
-    @app_commands.command(description='Displays the code needed to print "hello world" to the console')
-    async def helloworld(self, interaction:discord.Interaction, language: str ='random'):
+    @app_commands.command(
+        description='Displays the code needed to print "hello world" to the console'
+    )
+    async def helloworld(
+        self, interaction: discord.Interaction, language: str = "random"
+    ):
         """Displays the code needed to print 'hello world' to the console in a variety of different programming languages
         Take in user input for a programming language. If input is ls, list all the languages that the command
         can give code for. If input is not listed in the keys for output or is 'random', pick a random language
@@ -96,7 +106,7 @@ class StudentCommands(commands.Cog):
         """
 
         # Read in the langague data from the yaml file
-        with open('helloworld.yml', 'r', encoding='utf=8') as f:
+        with open("helloworld.yml", "r", encoding="utf=8") as f:
 
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
@@ -106,29 +116,33 @@ class StudentCommands(commands.Cog):
         language = language.lower()
 
         # List languages
-        if language == 'ls':
+        if language == "ls":
             languages = [i for i in language_data]
             languages.sort()
-            languages = '\n'.join(languages)
-            await interaction.response.send_message(f'```I know:\n{languages}```')
+            languages = "\n".join(languages)
+            await interaction.response.send_message(f"```I know:\n{languages}```")
             return
 
         # If invalid input, make it random
-        if language != 'random' and language not in language_data:
-            language = 'random'
+        if language != "random" and language not in language_data:
+            language = "random"
 
         # If random, pick random language
-        if language == 'random':
+        if language == "random":
             languages = [i for i in language_data]
             language = random.choice(languages)
 
         # Build the message
         message = f'{language}\n```{language_data[language]["tag"]}\n{language_data[language]["code"]}\n```'
         await interaction.response.send_message(message)
-        await log(self.bot, f'{interaction.user} ran /helloworld with language {language} in #{interaction.channel}')
+        logger.info(
+            f"{interaction.user} ran /helloworld with language {language} in #{interaction.channel}",
+        )
 
-    @app_commands.command(description="Sends message containing Discord WebSocket protocol latency")
-    async def ping(self, interaction:discord.Interaction):
+    @app_commands.command(
+        description="Sends message containing Discord WebSocket protocol latency"
+    )
+    async def ping(self, interaction: discord.Interaction):
         """Sends the Discord WebSocket protocol latency
         Sends a message containing the Discord WebSocket protocol latency. Log that the command was run.
 
@@ -137,43 +151,13 @@ class StudentCommands(commands.Cog):
         """
 
         latency = round(self.bot.latency * 1000)
-        await interaction.response.send_message(f'{latency} ms')
-        await log(self.bot, f'{interaction.user} pinged from #{interaction.channel}, response took {latency} ms')
+        await interaction.response.send_message(f"{latency} ms")
+        logger.info(
+            f"{interaction.user} pinged from #{interaction.channel}, response took {latency} ms",
+        )
 
-        # slices the dictionary of local variables (the parameters) from the 3rd-10th options
-        params = dict(itertools.islice(locals().items(), 5, 13))
-        options = [option1, option2]
-        for param in params:
-            choice = params[param] # sets the current choice to the value at the current key
-            if choice != 'None':
-                options.append(choice)
-
-        # Define reactions
-        if len(options) == 2 and options[0].casefold() == 'yes' and options[1].casefold() == 'no':
-            reactions = ['✅', '❌']
-        elif len(options) == 2 and options[0].casefold() == 'no' and options[1].casefold() == 'yes':
-            reactions = ['❌', '✅']
-        else:
-            reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
-
-        description = []
-        for i, option in enumerate(options):
-            description += f'\n {reactions[i]} {option}'
-        embed = discord.Embed(title=question, description=''.join(description))
-
-        await interaction.response.send_message(embed=embed)
-        react_message = await interaction.original_response() # store original message to add reactions to
-        for reaction in reactions[:len(options)]:
-            await react_message.add_reaction(reaction)
-
-        # Logging
-        await log(self.bot, f'{interaction.user} started a poll in #{interaction.channel}:')
-        await log(self.bot, question, False)
-        for option in options:
-            await log(self.bot, f'{option}', False)
-
-    @app_commands.command(description="Rolls dice based on input") 
-    async def roll(self, interaction:discord.Interaction, roll:str):
+    @app_commands.command(description="Rolls dice based on input")
+    async def roll(self, interaction: discord.Interaction, roll: str):
         """Rolls dice based on input
         Check to see if the input is an appropriate size and quantity. Call imported dice parse module and store in
         'output'. 'output'[0] is the raw roll, and 'output'[1] is the roll with all modifiers included. If the length
@@ -190,22 +174,31 @@ class StudentCommands(commands.Cog):
         """
 
         # Make the roll into a list
-        options=[roll]
+        options = [roll]
 
         # Credit goes to Alan Fleming for the module that powers this command
         # https://github.com/AlanCFleming/DiceParser
-        dice = ' '.join(options)
-        if 0 < len(dice) < 20 and dice.find('d') < 5:
+        dice = " ".join(options)
+        if 0 < len(dice) < 20 and dice.find("d") < 5:
             try:
                 output = parse(dice)
                 if len(output[0]) > 100:
-                    await interaction.response.send_message(output[1]) # interaction.response.send_message
+                    await interaction.response.send_message(
+                        output[1]
+                    )  # interaction.response.send_message
                 else:
-                    await interaction.response.send_message(f'{output[0]}\n{output[1]}')
-                await log(self.bot, f'{interaction.user} successfully ran /roll in #{interaction.channel}')
+                    await interaction.response.send_message(f"{output[0]}\n{output[1]}")
+
+                logger.success(
+                    f"{interaction.user} successfully ran /roll in #{interaction.channel}",
+                )
             except ValueError:
-                await interaction.response.send_message('Invalid input')
-                await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was invalid')
+                await interaction.response.send_message("Invalid input")
+                logger.warning(
+                    f"{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was invalid",
+                )
         else:
-            await interaction.response.send_message('Too large of an input')
-            await log(self.bot, f'{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was too large')
+            await interaction.response.send_message("Too large of an input")
+            logger.warning(
+                f"{interaction.user} unsuccessfully ran /roll in #{interaction.channel}, errored because input was too large",
+            )
