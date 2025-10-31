@@ -91,7 +91,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
     @app_commands.default_permissions(administrator=True)
-    async def clear(self, interaction:discord.Interaction, amount:str):
+    async def clear(self, ctx, interaction:discord.Interaction):
         """Clears a specific number of messages from a guild
         Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
         clear a very large number of messages from the server. Otherwise, send message confirming how many
@@ -103,41 +103,53 @@ class AdminCommands(commands.Cog):
         Outputs:
             States the amount of messages being cleared or, if invalid input, help on how to use the command
         """
-
-        await interaction.response.defer(ephemeral=True)
-        if amount == 'all':
-            if not await confirmation(self.bot, interaction):
-                await interaction.followup.send("Command not confirmed")
-                return
-            await interaction.channel.send('Clearing all messages from this channel')
-            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
-            amount = 999999999999999999999999999999999999999999
-
+        
+        interaction.channel = discord.utils.get(interaction.guild.text_channels, name=interaction.channel)
+        if interaction.channel is not None:
+            await interaction.channel.clone(reason="Has been nuked")
+            await interaction.channel.delete()
         else:
-            try:
-                amount = int(amount)
-            except ValueError:
-                await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
-                await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
-                await interaction.followup.send("`amount` parameter is invalid")
-                return
+            await ctx.send(f'No channel named **{interaction.channel}** was found')
 
-            if amount < 10:
-                await interaction.channel.send(f'Clearing {amount} messages from this channel')
-                await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
-                sleep(1)
-                await interaction.channel.purge(limit=int(float(amount)) + 1)
-                await interaction.followup.send(f'Cleared {amount} messages from this channel')
-                return
-            elif amount >= 10 and not await confirmation(self.bot, interaction):
-                await interaction.followup.send("Command not confirmed")
-                return
-            await interaction.channel.send(f'Clearing {amount} messages from this channel')
-            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+        # await interaction.response.defer(ephemeral=True)
+        # if amount == 'all':
+        #     if not await confirmation(self.bot, interaction):
+        #         await interaction.followup.send("Command not confirmed")
+        #         return
+        #     await interaction.channel.clone(reason="Has been nuked")
+        #     await interaction.channel.delete()
+        #     await interaction.channel.send('Clearing all messages from this channel')
+        #     #await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+        #     #amount = 999999999999999999999999999999999999999999
+        
+        # else:
+        #     await ctx.send(f'No channel named **{interaction.channel}** was found')
 
-        sleep(1)
-        await interaction.channel.purge(limit=int(float(amount)) + 4)
-        await interaction.followup.send(f'Cleared {amount} messages from this channel')
+        # else:
+        #     try:
+        #         amount = int(amount)
+        #     except ValueError:
+        #         await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
+        #         await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
+        #         await interaction.followup.send("`amount` parameter is invalid")
+        #         return
+
+        #     if amount < 10:
+        #         await interaction.channel.send(f'Clearing {amount} messages from this channel')
+        #         await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+        #         sleep(1)
+        #         await interaction.channel.purge(limit=int(float(amount)) + 1)
+        #         await interaction.followup.send(f'Cleared {amount} messages from this channel')
+        #         return
+        #     elif amount >= 10 and not await confirmation(self.bot, interaction):
+        #         await interaction.followup.send("Command not confirmed")
+        #         return
+        #     await interaction.channel.send(f'Clearing {amount} messages from this channel')
+        #     await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+
+        # sleep(1)
+        # await interaction.channel.purge(limit=int(float(amount)) + 4)
+        # await interaction.followup.send(f'Cleared {amount} messages from this channel')
 
 
     @app_commands.command(description="removes a specified role from each member of a guild.")
