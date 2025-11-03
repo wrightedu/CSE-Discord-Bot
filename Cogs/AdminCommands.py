@@ -88,68 +88,116 @@ class AdminCommands(commands.Cog):
         # logs appropriately
         await log(self.bot, f"{interaction.user} made an announcement from #{interaction.channel} to {', '.join(channel_names)}")
 
+        @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
+        @app_commands.default_permissions(administrator=True)
+        async def clear(self, ctx,  interaction:discord.Interaction, amount:str):
+            """Clears a specific number of messages from a guild
+            Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
+            clear a very large number of messages from the server. Otherwise, send message confirming how many
+            messages are being cleared and log it. Purge the appropriate number of messages from the channel.
 
-    @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
-    @app_commands.default_permissions(administrator=True)
-    async def clear(self, ctx, interaction:discord.Interaction):
-        """Clears a specific number of messages from a guild
-        Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
-        clear a very large number of messages from the server. Otherwise, send message confirming how many
-        messages are being cleared and log it. Purge the appropriate number of messages from the channel.
+            Args:
+                amount (str): Number of messages to be removed
 
-        Args:
-            amount (str): Number of messages to be removed
+            Outputs:
+                States the amount of messages being cleared or, if invalid input, help on how to use the command
+            """
 
-        Outputs:
-            States the amount of messages being cleared or, if invalid input, help on how to use the command
-        """
-        
-        interaction.channel = discord.utils.get(interaction.guild.text_channels, name=interaction.channel)
-        if interaction.channel is not None:
-            await interaction.channel.clone(reason="Has been nuked")
-            await interaction.channel.delete()
+        await interaction.response.defer(ephemeral=True)
+        if amount == 'all':
+            if not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirmed")
+                return
+            await interaction.channel.send(f'Clearing all messages from this channel')
+            # needs to make a copy of the channel
+            # needs to delete the og channel
+            interaction.channel = discord.utils.get(interaction.guild.channel, name=interaction.channel)
+            if interaction.channel is not None:
+                await interaction.channel.clone(reason="Has been nuked")
+                await interaction.channel.purge()
+            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+            amount = interaction.channel.purge()
+
         else:
-            await ctx.send(f'No channel named **{interaction.channel}** was found')
+            try:
+                amount = int(amount)
+            except ValueError:
+                await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
+                await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
+                await interaction.followup.send("`amount` parameter is invalid")
+                return
 
-        # await interaction.response.defer(ephemeral=True)
-        # if amount == 'all':
-        #     if not await confirmation(self.bot, interaction):
-        #         await interaction.followup.send("Command not confirmed")
-        #         return
-        #     await interaction.channel.clone(reason="Has been nuked")
-        #     await interaction.channel.delete()
-        #     await interaction.channel.send('Clearing all messages from this channel')
-        #     #await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
-        #     #amount = 999999999999999999999999999999999999999999
+            if amount < 10:
+                await interaction.channel.send(f'Clearing {amount} messages from this channel')
+                await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+                sleep(1)
+                await interaction.channel.purge(limit=int(float(amount)) + 1)
+                await interaction.followup.send(f'Cleared {amount} messages from this channel')
+                return
+            elif amount >= 10 and not await confirmation(self.bot, interaction):
+                await interaction.followup.send("Command not confirmed")
+                return
+            await interaction.channel.send(f'Clearing {amount} messages from this channel')
+            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+
+        sleep(1)
+        await interaction.channel.purge(limit=int(float(amount)) + 4)
+        await interaction.followup.send(f'Cleared {amount} messages from this channel')
         
-        # else:
-        #     await ctx.send(f'No channel named **{interaction.channel}** was found')
+    # @app_commands.command(description="clears all messages from the channel")
+    # @app_commands.default_permissions(administrator=True)
+    # async def clear(self, ctx, interaction:discord.Interaction, input:str):
+    #     """Clears all messages from a guild
+    #     Purge all messages from the channel, send message confirming that all messages 
+    #     have been deleted and log it.
+    #     Take in user input to make sure they  would like the channel to get cleared.
 
-        # else:
-        #     try:
-        #         amount = int(amount)
-        #     except ValueError:
-        #         await interaction.channel.send("The `amount` parameter can only take either `all` or a number.")
-        #         await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed')
-        #         await interaction.followup.send("`amount` parameter is invalid")
-        #         return
+    #     Args:
+    #         input (str): Confirmation to nuke all messages in the channel 
 
-        #     if amount < 10:
-        #         await interaction.channel.send(f'Clearing {amount} messages from this channel')
-        #         await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
-        #         sleep(1)
-        #         await interaction.channel.purge(limit=int(float(amount)) + 1)
-        #         await interaction.followup.send(f'Cleared {amount} messages from this channel')
-        #         return
-        #     elif amount >= 10 and not await confirmation(self.bot, interaction):
-        #         await interaction.followup.send("Command not confirmed")
-        #         return
-        #     await interaction.channel.send(f'Clearing {amount} messages from this channel')
-        #     await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+    #     Outputs:
+    #         States that messages have been cleared or, if invalid input, help on how to use the command
+    #     """
+        
+    #     await interaction.response.defer(ephemeral=True)
+        
+    #     if input.lower() == 'yes' or 'y':
+    #         if not await confirmation(self.bot, interaction):
+    #             await interaction.followup.send("Clearing process stopped")
+    #             return
+    #         await interaction.channel.send(f'Clearing all messages from this channel')
+    #         #await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+    #     else:
+    #         try:
+    #             input = str(input)
+    #         except ValueError:
+    #             await interaction.channel.send("The `input` parameter can only take either '(y)es' or '(n)o'.")
+    #             await log(self.bot, f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "input" was not passed')
+    #             await interaction.followup.send("`input` parameter is invalid")
+    #             return
 
-        # sleep(1)
-        # await interaction.channel.purge(limit=int(float(amount)) + 4)
-        # await interaction.followup.send(f'Cleared {amount} messages from this channel')
+    #         if input.lower == 'yes' or 'y':
+    #             # needs to make a copy of the channel
+    #             # needs to delete the og channel
+    #             interaction.channel = discord.utils.get(interaction.guild.channel, name=interaction.channel)
+    #             if interaction.channel is not None:
+    #                 await interaction.channel.clone(reason="Has been nuked")
+    #                 await interaction.channel.purge()
+    #             await interaction.channel.send(f'Clearing all messages from this channel')
+    #             await log(self.bot, f'{interaction.user} cleared all messages from #{interaction.channel}')
+    #             sleep(1)
+    #             # await interaction.channel.purge(limit=int(float(input)) + 1)
+    #             # await interaction.followup.send(f'Cleared all messages from this channel')
+    #             return
+    #         elif input.lower == 'no' or 'n' and not await confirmation(self.bot, interaction):
+    #             await interaction.followup.send("Clearing process stopped")
+    #             return
+    #         await interaction.channel.send(f'Clearing all messages from this channel')
+    #         await log(self.bot, f'{interaction.user} cleared all messages from #{interaction.channel}')
+
+    #     sleep(1)
+    #     await interaction.channel.purge()
+    #     await interaction.followup.send(f'Cleared all messages from this channel')
 
 
     @app_commands.command(description="removes a specified role from each member of a guild.")
