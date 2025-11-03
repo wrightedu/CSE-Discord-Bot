@@ -111,11 +111,13 @@ class AdminCommands(commands.Cog):
             await interaction.channel.send(f'Clearing all messages from this channel')
 
             # Copies channel and deletes all messages
-            await interaction.channel.clone(reason="Has been nuked")
+            new_channel = await interaction.channel.clone(reason="Has been nuked")
             await interaction.channel.delete(reason="Nuked by admin command")
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
-            amount = 'all'
-
+            
+            # @'s user who ran /clear command to the new channel created 
+            await new_channel.send(f'Cleared channel is ready: {interaction.user.mention}!')
+            
         else:
             try:
                 amount = int(amount)
