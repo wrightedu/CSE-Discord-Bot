@@ -16,8 +16,8 @@ Stage: build
 %post
     # Update repos
     # and install some necessary packages
-    apt-get -y update
-    apt-get -y install \
+    apt -y update
+    apt -y install \
         wget\
         git
 
@@ -31,6 +31,7 @@ Stage: build
     . /build/miniconda3/bin/activate
 
     # Initialize conda
+    export CONDA_PLUGINS_AUTO_ACCEPT_TOS=yes
     conda init --all
     conda install pip
 
