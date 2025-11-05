@@ -109,13 +109,19 @@ class AdminCommands(commands.Cog):
                 await interaction.followup.send("Command not confirmed")
                 return
             await interaction.channel.send(f'Clearing all messages from this channel')
-
+            
+            # Grabs orignal channel position
+            original_position = interaction.channel.position
+            
             # Copies channel and deletes all messages
             new_channel = await interaction.channel.clone(reason="Has been nuked")
             await interaction.channel.delete(reason="Nuked by admin command")
             await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
             
-            # @'s user who ran /clear command to the new channel created 
+            # Puts channel back in orignal position
+            await new_channel.edit(position=original_position)
+            
+            # @'s user who ran the /clear command to the new channel created 
             await new_channel.send(f'Cleared channel is ready: {interaction.user.mention}!')
             
         else:
