@@ -4,6 +4,7 @@
 Wright State CECS Discord
 """
 
+import asyncio
 import os
 from time import perf_counter
 
@@ -40,6 +41,7 @@ INTENTS = discord.Intents(
 )
 
 logger.info("Creating bot instance...")
+
 bot = commands.Bot(command_prefix="-", intents=INTENTS)
 
 
@@ -63,9 +65,9 @@ async def on_ready():
         status=discord.Status.dnd,
     )
 
-    logger.info("##############################")
+    logger.info("###################################")
     logger.info("# BOT STARTING FROM FULL SHUTDOWN #")
-    logger.info("##############################")
+    logger.info("###################################")
 
     await bot.change_presence(
         activity=discord.Activity(
@@ -148,4 +150,4 @@ async def on_command_error(ctx, error):
 
 if __name__ == "__main__":
     logger.info("Starting bot...")
-    bot.run(TOKEN)
+    asyncio.run(bot.start(TOKEN))

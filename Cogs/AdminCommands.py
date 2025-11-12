@@ -165,12 +165,22 @@ class AdminCommands(commands.Cog):
             if not await confirmation(self.bot, interaction):
                 await interaction.followup.send("Command not confirmed")
                 return
-            await interaction.channel.send("Clearing all messages from this channel")
-            logger.success(
-                f"{interaction.user} cleared {amount} messages from #{interaction.channel}"
-            )
-            amount = 999_999_999_999_999_999_999_999_999_999_999_999_999_999
-
+            await interaction.channel.send(f'Clearing all messages from this channel')
+            
+            # Grabs orignal channel position
+            original_position = interaction.channel.position
+            
+            # Copies channel and deletes all messages
+            new_channel = await interaction.channel.clone(reason="Has been nuked")
+            await interaction.channel.delete(reason="Nuked by admin command")
+            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+            
+            # Puts channel back in orignal position
+            await new_channel.edit(position=original_position)
+            
+            # @'s user who ran the /clear command to the new channel created 
+            await new_channel.send(f'Cleared channel is ready: {interaction.user.mention}!')
+            
         else:
             try:
                 amount = int(amount)
@@ -207,20 +217,14 @@ class AdminCommands(commands.Cog):
                 await interaction.followup.send("Command not confirmed")
                 return
 
-            await interaction.channel.send(
-                f"Clearing {amount} messages from this channel"
-            )
+
+            await interaction.channel.send(f'Clearing {amount} messages from this channel')
+            await interaction.channel.purge(limit=int(float(amount)) + 4)
             logger.success(
                 f"{interaction.user} cleared {amount} messages from #{interaction.channel}"
             )
 
-        sleep(1)
-        await interaction.channel.purge(limit=int(float(amount)) + 4)
-        await interaction.followup.send(f"Cleared {amount} messages from this channel")
-
-    @app_commands.command(
-        description="removes a specified role from each member of a guild."
-    )
+    @app_commands.command(description="removes a specified role from each member of a guild.")
     @app_commands.default_permissions(administrator=True)
     @logger.catch
     async def clear_role(self, interaction: Interaction, role: Role):

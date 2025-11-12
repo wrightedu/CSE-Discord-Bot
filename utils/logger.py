@@ -59,7 +59,7 @@ def initialize_logger():
         diagnose=True,
         enqueue=True,
         rotation="00:00",  # Rotate at midnight
-        retention="3 days",
+        retention="1 week",
     )
 
     # Combined log file
@@ -68,7 +68,7 @@ def initialize_logger():
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <7} | {name: <16} | {message}",
         enqueue=True,
         rotation="00:00",  # Rotate at midnight
-        retention="7 days",
+        retention="1 week",
     )
 
 
