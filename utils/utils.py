@@ -34,6 +34,7 @@ async def confirmation(bot, interaction: discord.Interaction, confirm_string="co
     msg = await bot.wait_for(
         "message", check=lambda message: message.author == interaction.user
     )
+
     if msg.content == confirm_string:
         await interaction.channel.send(f"Action confirmed, executing")
         return True
@@ -43,8 +44,9 @@ async def confirmation(bot, interaction: discord.Interaction, confirm_string="co
 
 
 @logger.catch
-async def extract_corgis(bot, interaction):
-    """Extracts corgis from a tar file
+async def extract_corgis(interaction):
+    """
+    Extracts corgis from a tar file
     Simply extracts the corgis from a tar file if the directory does not already exist.
 
     Outputs:
@@ -64,7 +66,8 @@ async def extract_corgis(bot, interaction):
 
 @logger.catch
 async def dm(member, content):
-    """Send a direct message to another user.
+    """
+    Send a direct message to another user.
     Create a dm channel between the user and intended recipient. Send the desired message from the user to the
     recipient through the new channel.
 
@@ -82,7 +85,8 @@ async def dm(member, content):
 
 @logger.catch
 async def get_channel_named(guild, channel_name):
-    """Return a channel for use in other methods
+    """
+    Return a channel for use in other methods
     Loop through all the channels in the guild. If the channel matches the input channel name, return it.
 
     Args:
@@ -99,7 +103,8 @@ async def get_channel_named(guild, channel_name):
 
 @logger.catch
 async def get_emoji_named(guild, emoji_name):
-    """Return an emoji for use in other methods.
+    """
+    Return an emoji for use in other methods.
     Search through all the emojis in the guild. If the name of one mathces the input emoji name, return it.
 
     Args:
@@ -116,7 +121,8 @@ async def get_emoji_named(guild, emoji_name):
 
 @logger.catch
 async def get_member(guild, member_id):
-    """Return a member for use in other methods
+    """
+    Return a member for use in other methods
     Try to get member from the member id passed in to the method. If this doesn't work, search through the list of
     all members and extract a matching member id. If this doesn't work, refresh member list and return member if the
     id matches the intended member id. If this doesn't work, return none.
@@ -149,7 +155,8 @@ async def get_member(guild, member_id):
 
 @logger.catch
 def months_ago(months):
-    """Gets the date and time a certain number of months ago
+    """
+    Gets the date and time a certain number of months ago
     Assumes 30 days in a month
 
     Returns:
@@ -165,7 +172,8 @@ def months_ago(months):
 
 @logger.catch
 async def update_view(interaction, view: discord.ui.View):
-    """Takes in a view and updates the current message with the new view
+    """
+    Takes in a view and updates the current message with the new view
     Uses the interaction to get the channel and message id. Fetches the message and edits it with the new view.
 
     Args:
@@ -181,7 +189,8 @@ async def update_view(interaction, view: discord.ui.View):
 
 @logger.catch
 async def get_time_epoch():
-    """Function that gets the current epoch timestamp.
+    """
+    Function that gets the current epoch timestamp.
 
     Returns:
         current_time (float): current epoch time as float
@@ -193,7 +202,8 @@ async def get_time_epoch():
 
 @logger.catch
 async def get_string_from_epoch(time):
-    """Function that takes a total epoch time and converts it to so many minutes or hours
+    """
+    Function that takes a total epoch time and converts it to so many minutes or hours
 
     Args:
         time (float): total epoch timestamp
@@ -236,8 +246,10 @@ def get_last_pay_period_monday(current_date: str):
 
 
 def get_monday(date_now):
-    """takes a datetime object date_now and gets the difference between the day
-    and starting day(monday of the week) and returns the date for monday"""
+    """
+    takes a datetime object date_now and gets the difference between the day
+    and starting day(monday of the week) and returns the date for monday
+    """
 
     weekday = date_now.isoweekday()
     days_to_substract = weekday - 1

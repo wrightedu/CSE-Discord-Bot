@@ -4,12 +4,13 @@ import sys
 from time import sleep
 import re
 
-import discord
+import aiofiles
+from discord import Color, Embed, Interaction, ChannelType, Role, Game
+from discord import app_commands, ui, errors as discord_errors
 from discord.ext import commands
-from discord import app_commands
 from loguru import logger
 
-from utils.utils import *
+from utils.utils import confirmation, extract_corgis
 
 
 async def setup(bot: commands.Bot):
@@ -30,7 +31,7 @@ class AdminCommands(commands.Cog):
         bot (commands.Bot): The bot instance.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @app_commands.command(
@@ -38,7 +39,7 @@ class AdminCommands(commands.Cog):
     )
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def announce(self, interaction: discord.Interaction):
+    async def announce(self, interaction: Interaction):
         """
         Uses the bot to announce something instead of having an admin to do so.
 
@@ -51,27 +52,30 @@ class AdminCommands(commands.Cog):
         """
         await interaction.response.defer(ephemeral=True)
 
-        class MultiChannelSelect(discord.ui.View):
+        # pylint: disable-next=missing-class-docstring
+        class MultiChannelSelect(ui.View):
             def __init__(self):
                 super().__init__()  # Timeout after 60 seconds
                 self.selected_channels = None
 
-            @discord.ui.select(
-                cls=discord.ui.ChannelSelect,
+            @ui.select(
+                cls=ui.ChannelSelect,
                 placeholder="Select channels...",
                 min_values=1,
                 max_values=25,
                 channel_types=[
-                    discord.ChannelType.text,
-                    discord.ChannelType.news,  # Wait until the user makes a selection or the view times out
+                    ChannelType.text,
+                    ChannelType.news,  # Wait until the user makes a selection or the view times out
                 ],
             )
             async def callback(
-                self, interaction: discord.Interaction, select: discord.ui.ChannelSelect
+                self, interaction: Interaction, select: ui.ChannelSelect
             ):
-                selected = (
-                    select.values
-                )  # This will be a list of discord.abc.GuildChannel objects
+                """
+                Handles the selection of multiple channels from the select menu.
+                """
+                # This will be a list of discord.abc.GuildChannel objects
+                selected = select.values
                 channel_names = [channel.mention for channel in selected]
 
                 await interaction.response.send_message(
@@ -143,7 +147,7 @@ class AdminCommands(commands.Cog):
     )
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def clear(self, interaction: discord.Interaction, amount: str):
+    async def clear(self, interaction: Interaction, amount: str):
         """Clears a specific number of messages from a guild
         Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
         clear a very large number of messages from the server. Otherwise, send message confirming how many
@@ -219,7 +223,7 @@ class AdminCommands(commands.Cog):
     )
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def clear_role(self, interaction: discord.Interaction, role: discord.Role):
+    async def clear_role(self, interaction: Interaction, role: Role):
         """Remove a role from each member of a guild.
         Remove the extra characters from the ID number of the guild obtained from the role_mention. Search through every
         memiber of a guild to see if they have the role that matches the ID in question. If the member has the role,
@@ -280,7 +284,7 @@ class AdminCommands(commands.Cog):
     )
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def extract_corgis(self, interaction: discord.Interaction):
+    async def extract_corgis(self, interaction: Interaction):
         """
         Extracts the tar archive that contains the corgi images
         Extracts the tar archive that contains the corgi images to the appropriate directory.
@@ -293,7 +297,7 @@ class AdminCommands(commands.Cog):
         await interaction.response.defer(ephemeral=True)
 
         try:
-            await extract_corgis(self.bot, interaction)
+            await extract_corgis(interaction)
             await interaction.followup.send(
                 "Corgi images extracted successfully", ephemeral=True
             )
@@ -309,7 +313,7 @@ class AdminCommands(commands.Cog):
     @app_commands.command(description="edit a specified message sent by the bot")
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def edit_message(self, interaction: discord.Interaction, message_id: str):
+    async def edit_message(self, interaction: Interaction, message_id: str):
         """
         Edit a specified message sent by the bot
         Take in user input for the message ID of the message they would like to edit. If the message is not found,
@@ -327,7 +331,7 @@ class AdminCommands(commands.Cog):
 
         try:
             message = await interaction.channel.fetch_message(int(message_id))
-        except discord.errors.NotFound:
+        except discord_errors.NotFound:
             message = None
 
         if message is None:
@@ -385,7 +389,7 @@ class AdminCommands(commands.Cog):
     @app_commands.command(description="set status of discord bot")
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def status(self, interaction: discord.Interaction, status: str):
+    async def status(self, interaction: Interaction, status: str):
         """Set status of discord bot
         Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
         removed the custom status. Otherwise, ensure proper length of message, and calls change_presence method
@@ -408,7 +412,7 @@ class AdminCommands(commands.Cog):
                 await f.write("Raider Up!")  # Default status for when the bot restarts
 
             elif len(status) <= 128:
-                await self.bot.change_presence(activity=discord.Game(status))
+                await self.bot.change_presence(activity=Game(status))
 
                 logger.success(
                     f'{interaction.user} changed the custom status to "Playing {status}"',
@@ -425,7 +429,7 @@ class AdminCommands(commands.Cog):
     @app_commands.command(description="outputs various stats of the server")
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def stats(self, interaction: discord.Interaction):
+    async def stats(self, interaction: Interaction):
         """Outputs various stats of the server
         Send message with server stats to user
 
@@ -436,10 +440,10 @@ class AdminCommands(commands.Cog):
 
         guild = interaction.guild
 
-        embed = discord.Embed(
+        embed = Embed(
             title="Server Stats",
             description="Important Stats of the Server",
-            color=discord.Color.green(),
+            color=Color.green(),
         )
 
         total_text_channels = len(guild.text_channels)
@@ -487,7 +491,7 @@ class AdminCommands(commands.Cog):
     @app_commands.command(description="restart the discord bot")
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def restart(self, interaction: discord.Interaction):
+    async def restart(self, interaction: Interaction):
         """Restart the discord bot
         Send message to user confirming restart, then restarts the bot
 
@@ -505,17 +509,27 @@ class AdminCommands(commands.Cog):
     @app_commands.command(description="shutdown the discord bot")
     @app_commands.default_permissions(administrator=True)
     @logger.catch
-    async def stop(self, interaction: discord.Interaction):
+    async def stop(self, interaction: Interaction):
         """Shutdown the discord bot
         Send message to user confirming shutdown. Exit program.
 
         Outputs:
             Message to user that discord bot is being shut down
         """
-
         await interaction.response.defer(ephemeral=True)
-        if await confirmation(self.bot, interaction):
-            await interaction.channel.send("Stopping...")
-            await interaction.followup.send("Stopping the bot")
-            await self.bot.close()
-        await interaction.followup.send("The bot was not stopped")
+        logger.info(f"{interaction.user} is stopping the bot, sending confirmation...")
+
+        # If user didn't confirm, exit the command
+        if not (await confirmation(self.bot, interaction)):
+            return
+
+        logger.info(f"{interaction.user} confirmed stopping the bot.")
+        await interaction.channel.send("Stopping...")
+        await interaction.followup.send("Stopping the bot")
+        await self.bot.close()
+
+        if self.bot.is_closed():
+            logger.success("Bot has been successfully stopped.")
+        else:
+            logger.error("Bot failed to stop.")
+            await interaction.channel.send("Bot failed to stop.")

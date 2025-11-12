@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+
+"""
+Wright State CECS Discord
+"""
+
 import os
-from sys import argv
 from time import perf_counter
 
-import aiofiles
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -17,13 +20,6 @@ __start_time__ = perf_counter()
 initialize_logger()
 enable_cli_logging()
 load_dotenv()
-
-# Enable CLI logging if in development mode
-# if os.getenv("ENVIRONMENT", "production") == "development" or (
-# len(argv) > 1 and argv[1] == "--dev"
-# ):
-# enable_cli_logging()
-# logger.warning("Running in development mode")
 
 # Make sure working directory is properly set to the root of the project
 __proper_wd__ = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +46,8 @@ bot = commands.Bot(command_prefix="-", intents=INTENTS)
 @bot.event
 @logger.catch
 async def on_ready():
-    """Initializes cogs on bot startup
+    """
+    Initializes cogs on bot startup
 
     Begins logging
     Loads all cogs
@@ -82,8 +79,10 @@ async def on_ready():
             try:
                 await bot.load_extension(f"Cogs.{file[:-3]}")
                 logger.success(f"Loaded cog: {file[:-3]}")
+
             except commands.errors.NoEntryPointError:
                 logger.error(f"Cog {file[:-3]} has no setup function, cannot load.")
+
             except Exception as e:
                 logger.error(f"Failed to load cog {file[:-3]}: {e}")
 
@@ -98,13 +97,6 @@ async def on_ready():
     except FileNotFoundError:
         with open("status.txt", encoding="utf-8", mode="w") as sf:
             sf.write("Raider Up!")
-
-    # try:
-    # async with aiofiles.open("status.txt", mode="r") as sf:
-    # contents = await sf.read()
-    # except FileNotFoundError:
-    # async with aiofiles.open("status.txt", mode="w") as sf:
-    # await sf.write("Raider Up!")
 
     await bot.change_presence(
         activity=discord.Activity(type=discord.ActivityType.playing, name=contents),

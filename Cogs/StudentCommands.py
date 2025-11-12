@@ -37,7 +37,8 @@ class StudentCommands(commands.Cog):
 
     @app_commands.command(description="Get a cute picture of some corgis!")
     async def corgme(self, interaction: discord.Interaction, number: int = -1):
-        """Sends a picture of a corgi
+        """Sends a picture of a corgi.
+
         Check to see if the corgis directory exists. If not, download 100 images and make a log of the event.
         Loop through all images in the directory containing pictures and place them in a list of images.
         If no number was input by user, select a random image from the list and send it in chat. If the user
@@ -60,7 +61,7 @@ class StudentCommands(commands.Cog):
             logger.info("Corgis directory not found, extracting tar file")
 
             # Extract the tar file
-            await extract_corgis(self.bot, interaction)
+            await extract_corgis(interaction)
 
         # Get images from directory
         images = [
