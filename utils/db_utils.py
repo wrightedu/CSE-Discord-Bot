@@ -1,6 +1,8 @@
 import os
 import sqlite3
 
+from loguru import logger
+
 
 def initialize_db(db_location) -> None:
     """
@@ -59,9 +61,9 @@ def initialize_db(db_location) -> None:
         cursor.execute(create_pomodoro_table_query)
         cursor.execute(create_u_help_table_query)
         conn.commit()
-        print("All tables created")
+        logger.success("All tables created", discord=False)
     except Exception as e:
-        print(f'Could not create table because {e} occured')
+        logger.error(f'Could not create table because {e} occured', discord=False)
     conn.close()
 
 
@@ -77,13 +79,13 @@ def create_connection(db_file: str):
     if os.path.exists(db_file):
         try:
             conn = sqlite3.connect(db_file)
-            print(f'Connected to the Database {db_file}')
+            logger.success(f'Connected to the Database {db_file}', discord=False)
             return conn
         except sqlite3.Error as e:
-            print(f'Could not connect to database because {e}')
+            logger.error(f'Could not connect to database because {e}', discord=False)
         return conn
     else:
-        print("Error! database file does not exist")
+        logger.error("Error! database file does not exist", discord=False)
         return conn
 
 

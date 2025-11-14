@@ -1,4 +1,5 @@
 import asyncio
+import aiofiles
 import os
 import sys
 from time import sleep
@@ -7,6 +8,7 @@ import re
 import discord
 from discord.ext import commands
 from discord import app_commands
+from loguru import logger
 
 from utils.utils import *
 
@@ -36,12 +38,10 @@ class AdminCommands(commands.Cog):
         description="Sends an announcement to specified channels given by a select menu"
     )
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def announce(self, interaction: discord.Interaction):
         """
         Uses the bot to announce something instead of having an admin to do so.
-
-        Args:
-            channels (list[discord.TextChannel]): the channels to which the announcement is sent
 
         Outputs:
             The announcement to the specified channel(s) in the CSE server
@@ -112,24 +112,35 @@ class AdminCommands(commands.Cog):
             await interaction.channel.send(
                 "Just because you have nitro, doesn't mean I do! The `message` parameter can only take a message of 2000 characters or less."
             )
-            await log(
-                self.bot,
-                f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because the message was too long",
+
+            logger.warning(
+                f"{interaction.user} tried making an announcement from #{interaction.channel} but failed because the message was too long"
             )
             return
 
         # logs appropriately
-        await log(
-            self.bot,
-            f"{interaction.user} has executed the announcement command in #{interaction.channel}",
+        logger.success(
+            f"{interaction.user} has executed the announcement command in #{interaction.channel}"
         )
 
         # sends the message to the specified channels
         for channel in channels:
             await channel.send(message.content)
 
-    @app_commands.command(description="clears either 'all' or the specified number of messages from the channel")
+        await interaction.response.send_message(
+            f"Announcement sent to {', '.join(channel_names)}", ephemeral=True
+        )
+
+        # logs appropriately
+        logger.success(
+            f"{interaction.user} made an announcement from #{interaction.channel} to {', '.join(channel_names)}"
+        )
+
+    @app_commands.command(
+        description="clears either 'all' or the specified number of messages from the channel"
+    )
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def clear(self, interaction: discord.Interaction, amount: str):
         """Clears a specific number of messages from a guild
         Take in user input for the number of messages they would like to get cleared. If the amount is 'all',
@@ -148,22 +159,26 @@ class AdminCommands(commands.Cog):
             if not await confirmation(self.bot, interaction):
                 await interaction.followup.send("Command not confirmed")
                 return
-            await interaction.channel.send(f'Clearing all messages from this channel')
-            
+            await interaction.channel.send("Clearing all messages from this channel")
+
             # Grabs orignal channel position
             original_position = interaction.channel.position
-            
+
             # Copies channel and deletes all messages
             new_channel = await interaction.channel.clone(reason="Has been nuked")
             await interaction.channel.delete(reason="Nuked by admin command")
-            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
-            
+            logger.success(
+                f"{interaction.user} cleared {amount} messages from #{interaction.channel}",
+            )
+
             # Puts channel back in orignal position
             await new_channel.edit(position=original_position)
-            
-            # @'s user who ran the /clear command to the new channel created 
-            await new_channel.send(f'Cleared channel is ready: {interaction.user.mention}!')
-            
+
+            # @'s user who ran the /clear command to the new channel created
+            await new_channel.send(
+                f"Cleared channel is ready: {interaction.user.mention}!"
+            )
+
         else:
             try:
                 amount = int(amount)
@@ -171,37 +186,48 @@ class AdminCommands(commands.Cog):
                 await interaction.channel.send(
                     "The `amount` parameter can only take either `all` or a number."
                 )
-                await log(
-                    self.bot,
-                    f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed',
+
+                logger.error(
+                    f'{interaction.user} attempted to clear messages from #{interaction.channel}, but it failed because a valid "amount" was not passed'
                 )
+
                 await interaction.followup.send("`amount` parameter is invalid")
+
                 return
 
             if amount < 10:
                 await interaction.channel.send(
                     f"Clearing {amount} messages from this channel"
                 )
-                await log(
-                    self.bot,
-                    f"{interaction.user} cleared {amount} messages from #{interaction.channel}",
+                logger.success(
+                    f"{interaction.user} cleared {amount} messages from #{interaction.channel}"
                 )
+
                 sleep(1)
+
                 await interaction.channel.purge(limit=int(float(amount)) + 1)
                 await interaction.followup.send(
                     f"Cleared {amount} messages from this channel"
                 )
                 return
-            elif amount >= 10 and not await confirmation(self.bot, interaction):
+
+            if amount >= 10 and not await confirmation(self.bot, interaction):
                 await interaction.followup.send("Command not confirmed")
                 return
 
-            await interaction.channel.send(f'Clearing {amount} messages from this channel')
+            await interaction.channel.send(
+                f"Clearing {amount} messages from this channel"
+            )
             await interaction.channel.purge(limit=int(float(amount)) + 4)
-            await log(self.bot, f'{interaction.user} cleared {amount} messages from #{interaction.channel}')
+            logger.success(
+                f"{interaction.user} cleared {amount} messages from #{interaction.channel}"
+            )
 
-    @app_commands.command(description="removes a specified role from each member of a guild.")
+    @app_commands.command(
+        description="removes a specified role from each member of a guild."
+    )
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def clear_role(self, interaction: discord.Interaction, role: discord.Role):
         """Remove a role from each member of a guild.
         Remove the extra characters from the ID number of the guild obtained from the role_mention. Search through every
@@ -224,16 +250,14 @@ class AdminCommands(commands.Cog):
             await interaction.channel.send(
                 f"I cannot remove the {role.mention} role from members because it is equal to or higher than my top role."
             )
-            await log(
-                self.bot,
+            logger.warning(
                 f"{interaction.user} tried clearing the '@{role.name}' role in #{interaction.channel} but failed because it is equal to or higher than the bot's top role",
             )
             return
 
         cleared_members = []
 
-        await log(
-            self.bot,
+        logger.info(
             f"{interaction.user} is clearing the '@{role.name}' role from all members:",
         )
 
@@ -241,7 +265,8 @@ class AdminCommands(commands.Cog):
             if role in member.roles:
                 await member.remove_roles(role)
                 name = member.nick if member.nick is not None else member.name
-                await log(self.bot, name, False)
+
+                logger.info(name)
                 cleared_members.append(name)
 
         if len(cleared_members) > 10:
@@ -255,12 +280,18 @@ class AdminCommands(commands.Cog):
                 f'Cleared {role.mention} from {", ".join(cleared_members)}'
             )
 
+        logger.success(
+            f"{interaction.user} cleared the '@{role.name}' role from {len(cleared_members)} members",
+        )
+
     @app_commands.command(
         description="Extracts the tar archive that contains the corgi images"
     )
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def extract_corgis(self, interaction: discord.Interaction):
-        """Extracts the tar archive that contains the corgi images
+        """
+        Extracts the tar archive that contains the corgi images
         Extracts the tar archive that contains the corgi images to the appropriate directory.
         If the extraction is successful, send a message to chat confirming it. If it fails, send an error message.
 
@@ -280,15 +311,16 @@ class AdminCommands(commands.Cog):
             await interaction.followup.send(
                 f"An error occurred while extracting corgi images: {e}"
             )
-            await log(
-                self.bot,
+            logger.error(
                 f"{interaction.user} tried to extract corgi images in #{interaction.channel} but failed due to an error: {e}",
             )
 
     @app_commands.command(description="edit a specified message sent by the bot")
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def edit_message(self, interaction: discord.Interaction, message_id: str):
-        """Edit a specified message sent by the bot
+        """
+        Edit a specified message sent by the bot
         Take in user input for the message ID of the message they would like to edit. If the message is not found,
         it responds stating that the message could not be found. If the message is found, send a message
         to chat stating that the message has been edited and log it. Edit the message with the user's input.
@@ -311,17 +343,18 @@ class AdminCommands(commands.Cog):
             await interaction.followup.send(
                 f"The message with the ID {message_id} could not be found. Make sure you are in same channel as the message you wish to edit."
             )
-            await log(
-                self.bot,
+
+            logger.warning(
                 f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because the message could not be found",
             )
             return
-        elif message.author != self.bot.user:
+
+        if message.author != self.bot.user:
             await interaction.followup.send(
                 f"The message with the ID {message_id} is not a message sent by the bot."
             )
-            await log(
-                self.bot,
+
+            logger.warning(
                 f"{interaction.user} tried to edit the message with the ID `{message_id}` in #{interaction.channel} but failed because it was not a message sent by the bot",
             )
             return
@@ -340,16 +373,16 @@ class AdminCommands(commands.Cog):
             if new_message.content == "cancel":
                 await bot_message.edit(content="Message edit cancelled")
                 await new_message.delete()
-                await log(
-                    self.bot,
+
+                logger.warning(
                     f"{interaction.user} cancelled the edit of the message in #{interaction.channel}",
                 )
-                return
+
             else:
                 await message.edit(content=new_message.content)
                 await new_message.delete()
-                await log(
-                    self.bot,
+
+                logger.success(
                     f"{interaction.user} edited the message with the ID `{message_id}` in #{interaction.channel}",
                 )
         except asyncio.TimeoutError:
@@ -360,6 +393,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="set status of discord bot")
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def status(self, interaction: discord.Interaction, status: str):
         """Set status of discord bot
         Take in a user input for the status of the Discord Bot. If the status is 'none', log that the user
@@ -378,15 +412,18 @@ class AdminCommands(commands.Cog):
             status = status.strip()
             if status.lower() == "none":
                 await self.bot.change_presence(activity=None)
-                await log(self.bot, f"{interaction.user} disabled the custom status")
+
+                logger.success(f"{interaction.user} disabled the custom status")
                 await f.write("Raider Up!")  # Default status for when the bot restarts
+
             elif len(status) <= 128:
                 await self.bot.change_presence(activity=discord.Game(status))
-                await log(
-                    self.bot,
+
+                logger.success(
                     f'{interaction.user} changed the custom status to "Playing {status}"',
                 )
                 await f.write(status)  # write the new status to the file
+
             elif len(status) > 128:
                 await interaction.followup.send(
                     "Unable to set status, length of given status is > 128"
@@ -396,6 +433,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="outputs various stats of the server")
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def stats(self, interaction: discord.Interaction):
         """Outputs various stats of the server
         Send message with server stats to user
@@ -457,6 +495,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="restart the discord bot")
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def restart(self, interaction: discord.Interaction):
         """Restart the discord bot
         Send message to user confirming restart, then restarts the bot
@@ -474,6 +513,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command(description="shutdown the discord bot")
     @app_commands.default_permissions(administrator=True)
+    @logger.catch
     async def stop(self, interaction: discord.Interaction):
         """Shutdown the discord bot
         Send message to user confirming shutdown. Exit program.

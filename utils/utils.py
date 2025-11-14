@@ -3,19 +3,18 @@ import tarfile
 
 import re
 import datetime
-import aiofiles
 import discord
 from discord.ext import commands
-# from bing_image_downloader import downloader
-# import time
+from loguru import logger
 
 
-async def confirmation(bot, interaction:discord.Interaction, confirm_string='confirm'):
+@logger.catch
+async def confirmation(bot, interaction: discord.Interaction, confirm_string="confirm"):
     """Add a layer of security to sensitive commands by adding a confirmation step
     Send message to user informing what confirmation code is. Ensure the next message received is by the author
     of the origional command. If so, ensure said message is the proper confirmation code. If this is the case,
     execute action and return true. If not, inform user that the action failed and return false.
-    
+
     Args:
         bot (discord.ext.commands.bot.Bot): The bot object
         confirm_string (str): The string that must be sent by user to confirm action. Automatically set to 'confirm'.
@@ -29,21 +28,25 @@ async def confirmation(bot, interaction:discord.Interaction, confirm_string='con
     """
 
     # Ask for confirmation
-    await interaction.channel.send(f'Enter `{confirm_string}` to confirm action')
+    await interaction.channel.send(f"Enter `{confirm_string}` to confirm action")
 
     # Wait for confirmation
-    msg = await bot.wait_for('message', check=lambda message: message.author == interaction.user)
+    msg = await bot.wait_for(
+        "message", check=lambda message: message.author == interaction.user
+    )
     if msg.content == confirm_string:
-        await interaction.channel.send(f'Action confirmed, executing')
+        await interaction.channel.send(f"Action confirmed, executing")
         return True
     else:
-        await interaction.channel.send(f'Confirmation failed, terminating execution')
+        await interaction.channel.send(f"Confirmation failed, terminating execution")
         return False
 
+
+@logger.catch
 async def extract_corgis(bot, interaction):
     """Extracts corgis from a tar file
-    Simply extracts the corgis from a tar file if the directory does not already exist. 
-    
+    Simply extracts the corgis from a tar file if the directory does not already exist.
+
     Outputs:
         The extracted corgis in the 'assets/corgis/' directory
 
@@ -53,11 +56,13 @@ async def extract_corgis(bot, interaction):
     cwd = getcwd()
 
     # Extract the tar file
-    with tarfile.open(f'{cwd}/assets/corgis.tar.gz', 'r:gz') as tar:
-        tar.extractall(path=f'{cwd}/assets/')
+    with tarfile.open(f"{cwd}/assets/corgis.tar.gz", "r:gz") as tar:
+        tar.extractall(path=f"{cwd}/assets/")
 
-    await log(bot, f'{interaction.user} ran /extractcorgis in #{interaction.channel}')
+    logger.info(f"{interaction.user} ran /extractcorgis in #{interaction.channel}")
 
+
+@logger.catch
 async def dm(member, content):
     """Send a direct message to another user.
     Create a dm channel between the user and intended recipient. Send the desired message from the user to the
@@ -75,6 +80,7 @@ async def dm(member, content):
     await channel.send(content)
 
 
+@logger.catch
 async def get_channel_named(guild, channel_name):
     """Return a channel for use in other methods
     Loop through all the channels in the guild. If the channel matches the input channel name, return it.
@@ -91,6 +97,7 @@ async def get_channel_named(guild, channel_name):
             return channel
 
 
+@logger.catch
 async def get_emoji_named(guild, emoji_name):
     """Return an emoji for use in other methods.
     Search through all the emojis in the guild. If the name of one mathces the input emoji name, return it.
@@ -107,6 +114,7 @@ async def get_emoji_named(guild, emoji_name):
             return emoji
 
 
+@logger.catch
 async def get_member(guild, member_id):
     """Return a member for use in other methods
     Try to get member from the member id passed in to the method. If this doesn't work, search through the list of
@@ -139,47 +147,7 @@ async def get_member(guild, member_id):
     return None
 
 
-async def log(bot, string, timestamp=True):
-    """Save a record of events occuring within the server
-    Save the current date and time as a string and print it. Loop through guilds in the bot, then for each
-    guild search through all channels. If the channel name is 'bot-logs', send a log message there. Use
-    Aiofiles to open log in read mode, and save previous logs. Use Aiofiles in write mode to append the log
-    message to the document as well as the string.
-
-    Args:
-        bot (discord.ext.commands.bot.Bot): The bot object
-        string (str): The message being sent to the log.
-        timestamp (bool): Determine whether a timestamp will be given. Automatically set to true.
-    """
-
-    # Log to stdout
-    timestamp_string = ''
-    if timestamp:
-        timestamp_string = f'[{str(datetime.datetime.now())[:-7]}]'
-    print(timestamp_string + ' ' + string)
-
-    # Log to channel
-    for guild in bot.guilds:
-        for channel in guild.text_channels:
-            if channel.name == 'bot-logs':
-                try:
-                    await channel.send(string)
-                except discord.errors.HTTPException as e:
-                    pass
-
-    # Log to file
-    try:
-        async with aiofiles.open('log', mode='r') as f:
-            previous_logs = await f.readlines()
-    except FileNotFoundError:
-        previous_logs = []
-
-    async with aiofiles.open('log', mode='w') as f:
-        for line in previous_logs:
-            await f.write(line.strip() + '\n')
-        await f.write(timestamp_string + ' ' + string + '\n')
-
-
+@logger.catch
 def months_ago(months):
     """Gets the date and time a certain number of months ago
     Assumes 30 days in a month
@@ -188,13 +156,15 @@ def months_ago(months):
         that_day (datetime): the date and time some months ago
     """
 
-    num_days = months*30
+    num_days = months * 30
     now = datetime.datetime.now()
     delta = datetime.timedelta(days=num_days)
     that_day = now - delta
     return that_day
 
-async def update_view(interaction, view:discord.ui.View):
+
+@logger.catch
+async def update_view(interaction, view: discord.ui.View):
     """Takes in a view and updates the current message with the new view
     Uses the interaction to get the channel and message id. Fetches the message and edits it with the new view.
 
@@ -208,8 +178,10 @@ async def update_view(interaction, view:discord.ui.View):
     message = await channel.fetch_message(message_id)
     await message.edit(view=view)
 
+
+@logger.catch
 async def get_time_epoch():
-    """ Function that gets the current epoch timestamp.
+    """Function that gets the current epoch timestamp.
 
     Returns:
         current_time (float): current epoch time as float
@@ -218,8 +190,10 @@ async def get_time_epoch():
 
     return current_time.timestamp()
 
+
+@logger.catch
 async def get_string_from_epoch(time):
-    """ Function that takes a total epoch time and converts it to so many minutes or hours
+    """Function that takes a total epoch time and converts it to so many minutes or hours
 
     Args:
         time (float): total epoch timestamp
@@ -235,11 +209,14 @@ async def get_string_from_epoch(time):
     if hours >= 1:
         string_return = f"{hours} hour" + ("s, " if hours > 1 else ", ")
 
-    string_return += f"{minutes} minute" + ("s" if (minutes > 1 or minutes == 0) else "")
+    string_return += f"{minutes} minute" + (
+        "s" if (minutes > 1 or minutes == 0) else ""
+    )
 
     return string_return
 
-def get_last_pay_period_monday(current_date:str):
+
+def get_last_pay_period_monday(current_date: str):
     """
     Takes unix date in string format and returns the week day
     current_date = unixtime
@@ -247,8 +224,8 @@ def get_last_pay_period_monday(current_date:str):
 
     returns the first monday's date of the last pay period
     """
-    dt =  datetime.datetime.fromtimestamp(current_date)
-    current_week_number= dt.isocalendar().week
+    dt = datetime.datetime.fromtimestamp(current_date)
+    current_week_number = dt.isocalendar().week
     monday_date = None
     if current_week_number % 2 == 0:
         monday_date = get_monday(dt)
@@ -257,13 +234,14 @@ def get_last_pay_period_monday(current_date:str):
         monday_date = get_monday(one_week_before)
     return monday_date
 
+
 def get_monday(date_now):
-    """takes a datetime object date_now and gets the difference between the day 
+    """takes a datetime object date_now and gets the difference between the day
     and starting day(monday of the week) and returns the date for monday"""
 
     weekday = date_now.isoweekday()
     days_to_substract = weekday - 1
-    first_iso_monday = date_now - datetime.timedelta(days= days_to_substract)
+    first_iso_monday = date_now - datetime.timedelta(days=days_to_substract)
     return first_iso_monday.date()
 
 
@@ -275,17 +253,28 @@ def get_unix_time(desired_date: str):
     return unix_desired_date
 
 
+@logger.catch
 def result_parser(all_records, total_hours, complete_pomodoros):
     """takes in a Data MM-DD-YYYY format and returns the timesheet info in a pretty way. Returns completed pomodoros in pretty format.
-        NOTE FOR FUTURE DEV: ONLY USE DURING THE REPORT FUNCTION"""
+    NOTE FOR FUTURE DEV: ONLY USE DURING THE REPORT FUNCTION"""
     # Formatting all_records
     timesheet_response = []
     for record in all_records:
         # print(record[2],  record[3])
-        start_time_formatted = datetime.datetime.fromtimestamp(float(record[2])).strftime('%Y-%m-%d %H:%M:%S')
-        end_time_formatted = datetime.datetime.fromtimestamp(float(record[3])).strftime('%Y-%m-%d %H:%M:%S') if record[3] is not None else 0
-        total_hours_logged = record[4]/3600 if record[4] is not None else 0
-        timesheet_response.append(f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}\nHours Logged: {total_hours_logged:.3f}")
+        start_time_formatted = datetime.datetime.fromtimestamp(
+            float(record[2])
+        ).strftime("%Y-%m-%d %H:%M:%S")
+        end_time_formatted = (
+            datetime.datetime.fromtimestamp(float(record[3])).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+            if record[3] is not None
+            else 0
+        )
+        total_hours_logged = record[4] / 3600 if record[4] is not None else 0
+        timesheet_response.append(
+            f"Start Time: {start_time_formatted}\nEnd Time: {end_time_formatted}\nHours Logged: {total_hours_logged:.3f}"
+        )
 
     # Fomatting total_hours
     if total_hours[0][0] is None:
@@ -303,21 +292,31 @@ def result_parser(all_records, total_hours, complete_pomodoros):
 
     if not complete_pomodoros:
         pomodoro_response.append("No records found.\n")
-    else: 
+    else:
         for pomodoro in complete_pomodoros:
-            time_spent_formatted = datetime.datetime.fromtimestamp(float(pomodoro[3])).strftime('%H:%M:%S') if pomodoro[3] is not None else 0
-            pomodoro_response.append(f"Issue: {pomodoro[2]}\nTime Spent: {time_spent_formatted}\n")
+            time_spent_formatted = (
+                datetime.datetime.fromtimestamp(float(pomodoro[3])).strftime("%H:%M:%S")
+                if pomodoro[3] is not None
+                else 0
+            )
+            pomodoro_response.append(
+                f"Issue: {pomodoro[2]}\nTime Spent: {time_spent_formatted}\n"
+            )
 
     response_message = "Timesheets:\n"
     response_message += "\n\n".join(timesheet_response)
     response_message += f"\n\n\nTotal Hours: {total_hours_formatted}\n\n\n"
-    response_message += f'Complete Pomodoros:\n'
+    response_message += f"Complete Pomodoros:\n"
     response_message += f"\n".join(pomodoro_response)
-    
+
     return response_message
 
-async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: str, status: str):
-    """ Function that changes the status of a CSE Dev Team member in checkin
+
+@logger.catch
+async def change_checkin_status(
+    bot: commands.Bot, user_id: int, display_name: str, status: str
+):
+    """Function that changes the status of a CSE Dev Team member in checkin
 
     Args:
         bot (commands.Bot): a Discord bot object
@@ -329,7 +328,10 @@ async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: s
     # Find Guilds to watch
     guild = None
     for temp_guild in bot.guilds:
-        if any(name in temp_guild.name for name in ['WSU CSE-EE Department', 'CSE Testing Server']):
+        if any(
+            name in temp_guild.name
+            for name in ["WSU CSE-EE Department", "CSE Testing Server"]
+        ):
             guild = temp_guild
 
     # If guild was found
@@ -349,7 +351,7 @@ async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: s
             }
 
             # Get checkin channel
-            channel = discord.utils.get(guild.channels, name='checkin')
+            channel = discord.utils.get(guild.channels, name="checkin")
 
             # If channel is found
             if channel is not None:
@@ -361,15 +363,20 @@ async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: s
                     # If message has embeds
                     if len(temp_message.embeds) == 1:
                         # If embed is the embed we're looking for, set message
-                        if temp_message.embeds[0].title == 'CSE Development Team Status':
+                        if (
+                            temp_message.embeds[0].title
+                            == "CSE Development Team Status"
+                        ):
                             message = temp_message
                             break
-                
+
                 # If message was not found, create it
                 embed = discord.Embed(title="CSE Development Team Status")
                 if message is None:
                     # Update description of new embed
-                    embed.description = f"```{display_name} - {status_emojis[status]}```"
+                    embed.description = (
+                        f"```{display_name} - {status_emojis[status]}```"
+                    )
 
                     await channel.send(embed=embed)
                 # If message found, update it
@@ -383,7 +390,12 @@ async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: s
                         embed.description = embed.description.replace("```", "")
 
                         # Replace description
-                        embed.description = re.sub(fr"({display_name} - )\S+(\s*$)", rf"\1{status_emojis[status]}\2", embed.description, flags=re.MULTILINE)
+                        embed.description = re.sub(
+                            rf"({display_name} - )\S+(\s*$)",
+                            rf"\1{status_emojis[status]}\2",
+                            embed.description,
+                            flags=re.MULTILINE,
+                        )
 
                         # Readd markdown ticks
                         embed.description = "```" + embed.description + "```"
@@ -396,14 +408,18 @@ async def change_checkin_status(bot: commands.Bot, user_id: int, display_name: s
                         embed.description = embed.description.rstrip("`")
 
                         # Remove placeholder if necessary
-                        embed.description = embed.description.replace("No members currently logged in", "")
+                        embed.description = embed.description.replace(
+                            "No members currently logged in", ""
+                        )
 
                         # Add spacing if needed
-                        if embed.description != '```':
+                        if embed.description != "```":
                             embed.description += "\n"
 
                         # Add user and end code block
-                        embed.description += f"{display_name} - {status_emojis[status]}```"
+                        embed.description += (
+                            f"{display_name} - {status_emojis[status]}```"
+                        )
 
                         # Update message
                         await message.edit(embed=embed)

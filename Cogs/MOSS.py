@@ -1,20 +1,20 @@
-# imports Discord 
+# imports Discord
 import asyncio
 from discord import app_commands
 from discord.ext import commands
-from zipfile import ZipFile 
+from zipfile import ZipFile
 from utils.utils import *
 import os
 import subprocess
 import pandas as pd
 
 
-async def setup(bot:commands.Bot):
+async def setup(bot: commands.Bot):
     """
     Setup function to initialize the bot's cog and ensure the CSV file for moss_ids exists.
 
     If the moss_ids.csv file does not exist at startup, this function will create it and add the header row.
-    
+
     Args:
         bot (commands.Bot): The instance of the bot to add the cog to.
     """
@@ -22,7 +22,7 @@ async def setup(bot:commands.Bot):
 
     # If the moss_ids.csv does not exist on startup, create it
     if not os.path.exists(csv_filepath):
-        with open(csv_filepath, 'w', encoding='utf=8') as file:
+        with open(csv_filepath, "w", encoding="utf=8") as file:
             file.write("discord_id,moss_id\n")
     await bot.add_cog(MOSS(bot))
 
@@ -34,6 +34,7 @@ class MOSS(commands.Cog):
     This cog handles operations related to the MOSS system, including managing
     and interacting with MOSS IDs.
     """
+
     def __init__(self, bot):
         """
         Initializes the MOSS cog with the given bot.
@@ -42,8 +43,7 @@ class MOSS(commands.Cog):
             bot (commands.Bot): The instance of the bot to which this cog is added.
         """
         self.bot = bot
-        
-        
+
     def get_moss_id(discord_id):
         """Gets a user's MossID
         Uses a provided discord_id (from the calling command's interaction) to search the CSV for the associated MossID
@@ -64,7 +64,6 @@ class MOSS(commands.Cog):
         else:
             # From /moss, we can check if 'none' was returned and send a message to the user
             return None
-
 
     async def delete_all(dir_path):
         """Delete all files and directories
@@ -91,7 +90,6 @@ class MOSS(commands.Cog):
         except Exception as e:
             print(f"Could not delete {file}. Error: {e}")
 
-
     async def check_moss_folder(dir_path):
         """If a folder for the moss user does not exist, creates one at the specified path. If one already exists but
         has contents, deletes all contents.
@@ -101,15 +99,16 @@ class MOSS(commands.Cog):
         """
         if not os.path.exists(dir_path):
             os.mkdir(dir_path)
-        
+
         if len(os.listdir(dir_path)) > 0:
             await MOSS.delete_all(dir_path)
 
-
-    @app_commands.command(description="This will check if students are cheaters") #they ALL are
+    @app_commands.command(
+        description="This will check if students are cheaters"
+    )  # they ALL are
     @app_commands.default_permissions(administrator=True)
-    async def moss(self, interaction:discord.Interaction):
-        """ Run MOSS command
+    async def moss(self, interaction: discord.Interaction):
+        """Run MOSS command
         Will take in the .zip file from the user and run Ali Aljaffer's code on it, which will then run the perl script
 
         Args:
@@ -121,24 +120,34 @@ class MOSS(commands.Cog):
 
         moss_id = MOSS.get_moss_id(interaction.user.id)
         if moss_id is None:
-            await interaction.response.send_message("You do not have a MossID associated with your account. Please register your MossID with /moss_register first")
+            await interaction.response.send_message(
+                "You do not have a MossID associated with your account. Please register your MossID with /moss_register first"
+            )
             return
 
         mosspath = f"/tmp/{moss_id}"
         await MOSS.check_moss_folder(mosspath)
 
         # copied and pasted - needs fixed
-        await interaction.response.send_message("Please attach a .zip file of all student code!")
+        await interaction.response.send_message(
+            "Please attach a .zip file of all student code!"
+        )
 
         try:
             # saves file to the name of the .ZIP file that is given by the user
             # waits for 1 minute for the file to be uploaded
-            file = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user, timeout=60.0)
+            file = await interaction.client.wait_for(
+                "message",
+                check=lambda message: message.author == interaction.user,
+                timeout=60.0,
+            )
         except asyncio.TimeoutError:
             # if the user takes too long, the process will timeout and this message will be returned back
-            await interaction.followup.send("Took too long to upload file. Please try again.")
+            await interaction.followup.send(
+                "Took too long to upload file. Please try again."
+            )
             return
-        
+
         # gives the user the ability to cancel the program if they want to
         if file.content.lower() in ["cancel", "exit", "stop"]:
             await interaction.followup.send("/moss cancelled")
@@ -150,23 +159,28 @@ class MOSS(commands.Cog):
         # if it's not, the bot will yell at the user
         if len(file.attachments) > 0:
             if not file.attachments[0].filename.endswith(".zip"):
-                await interaction.followup.send("Please attach a .zip file. Please rerun.")
+                await interaction.followup.send(
+                    "Please attach a .zip file. Please rerun."
+                )
                 return
         else:
-            await interaction.followup.send("Please attach a populated .zip file. Please rerun.")
+            await interaction.followup.send(
+                "Please attach a populated .zip file. Please rerun."
+            )
             return
 
         # saves .zip file
         await file.attachments[0].save(zip_filepath)
-        
+
         # This is the bane of my existence. Change this to "python" instead of "python3"
         # if running on the development SIF. Will complain to Matt about this. God speed.
         moss_command = f"python3 ./utils/WSU_mossScript.py --id {moss_id}"
 
-        process = subprocess.Popen(
-            moss_command, stdout = subprocess.PIPE, shell=True)
+        process = subprocess.Popen(moss_command, stdout=subprocess.PIPE, shell=True)
 
-        await interaction.channel.send("Running MOSS (This can sometimes take 30+ seconds)...")
+        await interaction.channel.send(
+            "Running MOSS (This can sometimes take 30+ seconds)..."
+        )
 
         output = process.communicate()[0]
 
@@ -175,10 +189,11 @@ class MOSS(commands.Cog):
 
         await interaction.followup.send(link)
 
-
     @app_commands.command(description="Register a new MossID")
-    @app_commands.checks.has_any_role("Teaching Assistant", "Faculty", "cse-devteam", "cse-support")
-    async def moss_register(self, interaction:discord.Interaction, moss_id:str):
+    @app_commands.checks.has_any_role(
+        "Teaching Assistant", "Faculty", "cse-devteam", "cse-support"
+    )
+    async def moss_register(self, interaction: discord.Interaction, moss_id: str):
         """Adds new user's DiscordID and MossID to the CSV
         Allows a user to register their MossID and associate it to their DiscordID in the CSV. If the user already has a MossID
         associated with their DiscordID, they will be given the option to update their MossID. If they do not wish to update
@@ -197,33 +212,54 @@ class MOSS(commands.Cog):
         # Assign the user's discord id to a variable
         discord_id = interaction.user.id
 
-        # Verify that the given moss_id is valid 
+        # Verify that the given moss_id is valid
         # From what I have seen, moss_id's are 8 or 9 digits long. This check can be removed if we find out otherwise
         if not moss_id.isdigit() or not (len(moss_id) == 8 or len(moss_id) == 9):
-            await interaction.response.send_message("Invalid MossID. Please try again.",ephemeral=True)
+            await interaction.response.send_message(
+                "Invalid MossID. Please try again.", ephemeral=True
+            )
             return
 
-        # Checks if the discord_id is already int the CSV, and if it is, it will return the moss_id. If not, 
+        # Checks if the discord_id is already int the CSV, and if it is, it will return the moss_id. If not,
         # it will add the given moss_id to the CSV
         if discord_id in moss_df["discord_id"].values:
-            found_moss_id = moss_df.loc[moss_df["discord_id"] == discord_id]["moss_id"].values[0]
-            await interaction.response.send_message(f"Your account is already registered with the associated MossID: `{found_moss_id}`\nWould you like to update your MossID? (y/n)", ephemeral=True)
+            found_moss_id = moss_df.loc[moss_df["discord_id"] == discord_id][
+                "moss_id"
+            ].values[0]
+            await interaction.response.send_message(
+                f"Your account is already registered with the associated MossID: `{found_moss_id}`\nWould you like to update your MossID? (y/n)",
+                ephemeral=True,
+            )
 
-            update = await interaction.client.wait_for('message', check=lambda message: message.author == interaction.user)
+            update = await interaction.client.wait_for(
+                "message", check=lambda message: message.author == interaction.user
+            )
 
             # If they wish to update their MossID, update it in the CSV
             if update.content.lower() == "y":
                 moss_df.loc[moss_df["discord_id"] == discord_id, "moss_id"] = moss_id
                 moss_df.to_csv(csv_filepath, index=False)
-                await log(self.bot, f"{interaction.user} ran /moss_register in #{interaction.channel} and updated their MossID in the CSV")
-                await interaction.followup.send(f"The new MossID: `{moss_id}`, is now associated with your account in the CSV", ephemeral=True)
+                logger.info(
+                    f"{interaction.user} ran /moss_register in #{interaction.channel} and updated their MossID in the CSV"
+                )
+                await interaction.followup.send(
+                    f"The new MossID: `{moss_id}`, is now associated with your account in the CSV",
+                    ephemeral=True,
+                )
             else:
-                await interaction.followup.send("Your MossID has not been updated.", ephemeral=True)
+                await interaction.followup.send(
+                    "Your MossID has not been updated.", ephemeral=True
+                )
 
             return
         else:
             new_row_df = pd.DataFrame([{"discord_id": discord_id, "moss_id": moss_id}])
             moss_df = pd.concat([moss_df, new_row_df], ignore_index=True)
             moss_df.to_csv(csv_filepath, index=False)
-            await log(self.bot, f"{interaction.user} ran /moss_register in #{interaction.channel} and added their MossID to the CSV")
-            await interaction.response.send_message(f"The MossID: `{moss_id}`, has been added to the CSV and is associated with your account",ephemeral=True)
+            logger.info(
+                f"{interaction.user} ran /moss_register in #{interaction.channel} and added their MossID to the CSV"
+            )
+            await interaction.response.send_message(
+                f"The MossID: `{moss_id}`, has been added to the CSV and is associated with your account",
+                ephemeral=True,
+            )

@@ -1,6 +1,7 @@
 aiofiles>=22.1.0
-discord.py==2.5.2
+discord.py==2.6.4
 pandas>=1.4.2
 python-dotenv>=1.0.1
 PyYAML>=6.0.2
 validators>=0.35.0
+loguru>=0.7.3
