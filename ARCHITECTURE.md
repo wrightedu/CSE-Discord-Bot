@@ -110,6 +110,16 @@ Cog that allows Faculty, Staff, and Teaching Assistants to check a ZIP of studen
 - `moss`
 - `moss_register`
 
+### `Payroll.py`
+
+Cog that sends reminders to employees and supervisory to submit and approve timesheets
+every other Friday and Monday based off of the Wright State Universiy Payroll Schedule
+
+#### Slash Commands
+
+- `payroll test-system`
+- `payroll test-ping`
+
 ### `StudentCommands.py`
 
 Cog that contains commands to be used by anyone. Mostly fun toys, but some useful commands
