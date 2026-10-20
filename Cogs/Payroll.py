@@ -20,7 +20,7 @@ TIMEZONE = ZoneInfo("America/New_York")
 
 PAYROLL_DB = "payroll_reminders.db"
 
-
+# Utility function to check if a given date is a timesheet Friday
 def is_timesheet_friday(check_date):
     days_since = (check_date - FIRST_TIMESHEET_FRIDAY).days
 
@@ -30,7 +30,7 @@ def is_timesheet_friday(check_date):
         and days_since % 14 == 0
     )
 
-
+# Payroll Cog 
 class Payroll(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -44,6 +44,7 @@ class Payroll(commands.Cog):
 
         self.reminder_loop.start()
 
+    # Cleanup when the cog is unloaded
     def cog_unload(self):
         self.reminder_loop.cancel()
 
@@ -52,6 +53,7 @@ class Payroll(commands.Cog):
         description="Payroll related commands"
     )
 
+    # Check if a reminder has already been sent for a specific hour
     def already_sent(self, reminder_key):
         with sqlite3.connect(PAYROLL_DB) as conn:
             result = conn.execute(
@@ -61,6 +63,7 @@ class Payroll(commands.Cog):
 
         return result is not None
 
+    # Mark a reminder as sent for a specific hour
     def mark_sent(self, reminder_key):
         with sqlite3.connect(PAYROLL_DB) as conn:
             conn.execute(
@@ -68,7 +71,9 @@ class Payroll(commands.Cog):
                 (reminder_key,)
             )
 
+    # Create a reminder embed based on the hour of the day
     def make_reminder_embed(self, hour, testing=False):
+        # 9 am
         if hour == 9:
             title = "Timesheet Submission Reminder"
             message = (
@@ -76,6 +81,7 @@ class Payroll(commands.Cog):
                 "your timesheet for this week."
             )
 
+        # 12 pm (noon)
         elif hour == 12:
             title = "Timesheet Submission Reminder"
             message = (
@@ -83,6 +89,7 @@ class Payroll(commands.Cog):
                 "Just a friendly reminder to submit your timesheet."
             )
 
+        # 3 pm
         else:
             title = "Timesheet Submission Reminder"
             message = (
@@ -91,6 +98,7 @@ class Payroll(commands.Cog):
                 "be paid on time!"
             )
 
+        # Add a testing note to the title if this is a test message
         if testing:
             title += " (TESTING)"
 
@@ -110,6 +118,7 @@ class Payroll(commands.Cog):
 
         return embed
 
+    # Background task that runs every minute to check if a reminder should be sent
     @tasks.loop(minutes=1)
     async def reminder_loop(self):
         now = datetime.now(TIMEZONE)
@@ -164,14 +173,17 @@ class Payroll(commands.Cog):
         except discord.DiscordException as error:
             print(f"Payroll: failed to send reminder: {error}")
 
+    # Before the reminder loop starts, wait until the bot is ready
     @reminder_loop.before_loop
     async def before_reminder_loop(self):
         await self.bot.wait_until_ready()
 
+    # Slash command to test the payroll reminder system
     @payroll.command(
-        name="test",
+        name="test-system",
         description="Test the payroll reminder system"
     )
+
     @app_commands.checks.has_permissions(administrator=True)
     async def payroll_test(self, interaction: discord.Interaction):
         if (
@@ -190,8 +202,47 @@ class Payroll(commands.Cog):
             embed=embed,
             allowed_mentions=discord.AllowedMentions.none()
         )
+    
+    # Slash command to test the payroll reminder ping system
+    @payroll.command(
+        name="test-ping",
+        description="Test the payroll reminder ping system"
+    )
+    
+    @app_commands.checks.has_permissions(administrator=True)
+    async def payroll_test_ping(self, interaction: discord.Interaction):
+        if (
+            interaction.guild_id != TEST_GUILD_ID
+            or interaction.channel_id != PAYROLL_CHANNEL_ID
+        ):
+            await interaction.response.send_message(
+                "This command can only be used in the testing server and channel.",
+                ephemeral=True
+            )
+            return
+        
+        role = interaction.guild.get_role(EMPLOYEE_ROLE_ID)
+        
+        if role is None:
+            await interaction.response.send_message(
+                "Employee role not found.",
+                ephemeral=True
+            )
+            return
+        
+        embed = self.make_reminder_embed(15, testing=True)
+        
+        await interaction.response.send_message(
+            content=role.mention,
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(
+                everyone=False,
+                users=False,
+                roles=[role]
+            )
+        )
 
-
+# Setup function to add the Payroll cog to the bot
 async def setup(bot):
     await bot.add_cog(Payroll(bot))
 
