@@ -1,55 +1,207 @@
 import os
 
+import sqlite3
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
+
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 
+# Testing server configuration
+TEST_GUILD_ID = 808423775048564807
 PAYROLL_CHANNEL_ID = 1562188681824047266
+EMPLOYEE_ROLE_ID = 1172287866882244689
+
+# Timesheet schedule
+FIRST_TIMESHEET_FRIDAY = date(2026, 10, 23)
+REMINDER_HOURS = (9, 12, 15)
+TIMEZONE = ZoneInfo("America/New_York")
+
+PAYROLL_DB = "payroll_reminders.db"
+
+
+def is_timesheet_friday(check_date):
+    days_since = (check_date - FIRST_TIMESHEET_FRIDAY).days
+
+    return (
+        days_since >= 0
+        and check_date.weekday() == 4
+        and days_since % 14 == 0
+    )
+
 
 class Payroll(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+
+        with sqlite3.connect(PAYROLL_DB) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS sent_reminders (
+                    reminder_key TEXT PRIMARY KEY
+                )
+            """)
+
+        self.reminder_loop.start()
+
+    def cog_unload(self):
+        self.reminder_loop.cancel()
+
     payroll = app_commands.Group(
         name="payroll",
-        description="Payroll reminders and commands"
+        description="Payroll related commands"
     )
-    
-    @payroll.command(
-        name="test",
-        description="Send a test payroll reminder"
-    )
-    @app_commands.checks.has_permissions(administrator=True)
-    async def payroll_tetst(self, interation: discord.Interaction):
-        if interation.channel.id != PAYROLL_CHANNEL_ID:
-            await interation.response.send_message(
-                "This command can only be used in the payroll channel.",
-                ephemeral=True
+
+    def already_sent(self, reminder_key):
+        with sqlite3.connect(PAYROLL_DB) as conn:
+            result = conn.execute(
+                "SELECT 1 FROM sent_reminders WHERE reminder_key = ?",
+                (reminder_key,)
+            ).fetchone()
+
+        return result is not None
+
+    def mark_sent(self, reminder_key):
+        with sqlite3.connect(PAYROLL_DB) as conn:
+            conn.execute(
+                "INSERT OR IGNORE INTO sent_reminders VALUES (?)",
+                (reminder_key,)
             )
-            return
-        
+
+    def make_reminder_embed(self, hour, testing=False):
+        if hour == 9:
+            title = "Timesheet Submission Reminder"
+            message = (
+                "Good morning! Just a friendly reminder to submit "
+                "your timesheet for this week."
+            )
+
+        elif hour == 12:
+            title = "Timesheet Submission Reminder"
+            message = (
+                "Good afternoon! Hope you enjoyed your lunch! "
+                "Just a friendly reminder to submit your timesheet."
+            )
+
+        else:
+            title = "Timesheet Submission Reminder"
+            message = (
+                "Only 2 hours left to submit your timesheet! "
+                "Please submit it before the deadline so you can "
+                "be paid on time!"
+            )
+
+        if testing:
+            title += " (TESTING)"
+
         embed = discord.Embed(
-            title="Timesheet Reminder (TEST)",
+            title=title,
             description=(
-                "Please remember to submit your timesheets for this week. "
-                "If you have already submitted your timesheet, please disregard this message."
+                f"{message}\n\n"
+                "**Employee timesheets are due by 5:00 PM today!**"
             ),
             color=discord.Color.blue()
         )
-        
-        embed.set_footer(text="This is a test message. No action is required.")
-        
-        await interation.response.send_message(
+
+        if testing:
+            embed.set_footer(
+                text="Testing message - no action required"
+            )
+
+        return embed
+
+    @tasks.loop(minutes=1)
+    async def reminder_loop(self):
+        now = datetime.now(TIMEZONE)
+
+        if not is_timesheet_friday(now.date()):
+            return
+
+        if now.hour not in REMINDER_HOURS:
+            return
+
+        if now.minute != 0:
+            return
+
+        reminder_key = (
+            f"employee-{now.date().isoformat()}-{now.hour:02d}"
+        )
+
+        if self.already_sent(reminder_key):
+            return
+
+        guild = self.bot.get_guild(TEST_GUILD_ID)
+        if guild is None:
+            print("Payroll: testing server not found")
+            return
+
+        channel = guild.get_channel(PAYROLL_CHANNEL_ID)
+        if channel is None:
+            print("Payroll: testing channel not found")
+            return
+
+        role = guild.get_role(EMPLOYEE_ROLE_ID)
+        if role is None:
+            print("Payroll: employee role not found")
+            return
+
+        embed = self.make_reminder_embed(now.hour)
+
+        try:
+            await channel.send(
+                content=role.mention,
+                embed=embed,
+                allowed_mentions=discord.AllowedMentions(
+                    everyone=False,
+                    users=False,
+                    roles=[role]
+                )
+            )
+
+            self.mark_sent(reminder_key)
+            print(f"Payroll: sent reminder for {reminder_key}")
+
+        except discord.DiscordException as error:
+            print(f"Payroll: failed to send reminder: {error}")
+
+    @reminder_loop.before_loop
+    async def before_reminder_loop(self):
+        await self.bot.wait_until_ready()
+
+    @payroll.command(
+        name="test",
+        description="Test the payroll reminder system"
+    )
+    @app_commands.checks.has_permissions(administrator=True)
+    async def payroll_test(self, interaction: discord.Interaction):
+        if (
+            interaction.guild_id != TEST_GUILD_ID
+            or interaction.channel_id != PAYROLL_CHANNEL_ID
+        ):
+            await interaction.response.send_message(
+                "This command can only be used in the testing server and channel.",
+                ephemeral=True
+            )
+            return
+
+        embed = self.make_reminder_embed(9, testing=True)
+
+        await interaction.response.send_message(
             embed=embed,
             allowed_mentions=discord.AllowedMentions.none()
         )
-        
+
+
 async def setup(bot):
     await bot.add_cog(Payroll(bot))
-    
-    test_guild = discord.Object(id=808423775048564807)
-    
+
+    # Temporary testing-server slash command sync
+    test_guild = discord.Object(id=TEST_GUILD_ID)
+
     bot.tree.copy_global_to(guild=test_guild)
     synced = await bot.tree.sync(guild=test_guild)
-    
-    print(f"Synced {len(synced)} commands to testing server")
+
+    print(
+        f"Synced {len(synced)} commands "
+        f"to testing server {TEST_GUILD_ID}"
+    )
