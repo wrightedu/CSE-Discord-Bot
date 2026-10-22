@@ -452,23 +452,17 @@ class Payroll(commands.Cog):
         
 async def setup(bot):
     await bot.add_cog(Payroll(bot))
-    print("Payroll: Cog loaded successfully")
-
+    
     async def sync_payroll_commands():
         await bot.wait_until_ready()
-
+        
         test_guild = discord.Object(id=TEST_GUILD_ID)
-
+        
         try:
             bot.tree.copy_global_to(guild=test_guild)
-            synced = await bot.tree.sync(guild=test_guild)
-
-            print(
-                f"Payroll: Synced {len(synced)} commands "
-                f"to testing server {TEST_GUILD_ID}"
-            )
-
+            await bot.tree.sync(guild=test_guild)
+            
         except discord.DiscordException as error:
-            print(f"Payroll: Command sync failed: {error}")
-
-    bot.loop.create_task(sync_payroll_commands())
+            print(f"Failed to sync payroll commands: {error}")
+            
+        bot.loop.create_task(sync_payroll_commands())
