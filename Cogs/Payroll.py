@@ -22,6 +22,8 @@ SUPERVISOR_REMINDER_HOURS = (9, 12, 13)
 TIMEZONE = ZoneInfo("America/New_York")
 PAYROLL_DB = "payroll_reminders.db"
 
+SUPERVISOR_URL = "https://wingsexpress.wright.edu/EmployeeSelfService/"
+
 
 def is_timesheet_friday(check_date):
     """Return True for alternating timesheet Fridays."""
@@ -148,51 +150,33 @@ class Payroll(commands.Cog):
 
         return embed
 
-    def make_supervisor_reminder_embed(
-        self,
-        hour,
-        testing=False
-    ):
-
+    def make_supervisor_reminder_embed(self, hour, testing=False):
         if hour == 9:
-            message = (
-                "Good morning! Please review and approve "
-                "your employees' timesheets."
-            )
-
+            message = "Good morning! Please review and approve your employees' timesheets."
         elif hour == 12:
-            message = (
-                "Good afternoon! Please check for any "
-                "outstanding employee timesheets "
-                "that still need your approval."
-            )
-
+            message = "Good afternoon! Please check for any outstanding employee timesheets that still need your approval."
         else:
-            message = (
-                "Only 1 hour left to approve employee "
-                "timesheets! Please complete all approvals "
-                "before the deadline."
-            )
+            message = "Only 1 hour left to approve employee timesheets! Please complete all approvals before the deadline."
 
         title = "Supervisor Timesheet Approval Reminder"
-
         if testing:
             title += " (TESTING)"
 
         embed = discord.Embed(
             title=title,
-            description=(
-                f"{message}\n\n"
-                "**Supervisor approvals are due "
-                "by 2:00 PM today!**"
-            ),
+            description=f"{message}\n\n**Supervisor approvals are due by 2:00 PM today!**",
             color=discord.Color.orange()
         )
 
+    # Add the supervisor approval link
+        embed.add_field(
+            name="Supervisor Approval Portal",
+            value=f"[Open Employee Self-Service]({SUPERVISOR_URL})",
+            inline=False
+        )
+
         if testing:
-            embed.set_footer(
-                text="Testing message - no action required"
-            )
+            embed.set_footer(text="Testing message - no action required")
 
         return embed
 
